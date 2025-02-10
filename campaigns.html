@@ -1,0 +1,14 @@
+---
+layout: default
+title: Campaigns
+---
+<h1>Campaigns</h1>
+
+<ul>
+  {% for campaign in site.campaigns %}
+    <li>
+        <h2><a href ="{{ campaign.url }}">{{ campaign.name }}</a></h2>
+      <p>{{ campaign.content | markdownify }}</p>
+    </li>
+  {% endfor %}
+</ul>
