@@ -35,7 +35,7 @@ en: &DEFAULT_EN
 #        icon: fab fa-markdown
 
   portfolio:
-    title: "Platforms"
+    title: "Products"
     text: "Lorem ipsum dolor sit amet consectetur."
     section: portfolio
     closebutton: "Close Project"
