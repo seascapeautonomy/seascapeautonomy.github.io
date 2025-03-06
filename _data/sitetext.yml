@@ -33,7 +33,7 @@ en: &DEFAULT_EN
 
   portfolio:
     title: "Products"
-    text: "We offer a portfolio of products, including Autonomous Underwater vehicle (AUV) systems, imaging systems and data management tools"
+    text: "We offer a portfolio of products, including Autonomous Underwater vehicle (AUV) platfoms, imaging systems and data management tools"
     section: portfolio
     closebutton: "Close Project"
 
