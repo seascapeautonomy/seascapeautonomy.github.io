@@ -21,88 +21,35 @@ en: &DEFAULT_EN
     text: "Our Services"
     section: services
     list:
-      - title: "Survey as a Service"
-        desc: "Delivering information to key stakeholders"
+      - title: "Environmental Survey"
+        desc: "Delivering seafloor imagery to key stakeholders"
         icon: fas fa-laptop
-      - title: "Bespoke Vehicle Designs"
-        desc: "Flexible design allows for integration of additional sensors"
-        icon: fas fa-pencil-ruler #find more at https://fontawesome.com/icons
-      - title: "Vehicle Sales"
-        desc: "Access to highly maneouverable AUV systems"
-        icon: fas fa-shopping-cart #find more at https://fontawesome.com/icons
-#      - title: "[Markdown](https://en.wikipedia.org/wiki/Markdown)"
-#        desc: "Your description here, full **Markdown** support"
-#        icon: fab fa-markdown
+      - title: "Infrastructure Inspection"
+        desc: "Collecting data around critical marine infrastructure"
+        icon: fas fa-images
+      - title: "Ship Hull Inspection"
+        desc: "Providing ship hull inspection"
+        icon: fas fa-ship
 
   portfolio:
     title: "Products"
-    text: "Lorem ipsum dolor sit amet consectetur."
+    text: "We offer a portfolio of products, including Autonomous Underwater vehicle (AUV) systems, imaging systems and data management tools"
     section: portfolio
     closebutton: "Close Project"
-
-#  timeline:
-#    title: "Timeline"
-#    text: "Lorem ipsum timeline"
-#    section: timeline
-#    # left is the default
-#    #start_align: "left"
-#    events:
-#      - title: "Our Humble Beginnings"
-#        year: "2009-2011"
-#        desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!"
-#        image: assets/img/timeline/1.jpg
-#        alt:
-#      - title: "An Agency is Born"
-#        year: "March 2011"
-#        desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt ut voluptatum eius sapiente, totam reiciendis temporibus qui quibusdam, recusandae sit vero unde, sed, incidunt et ea quo dolore laudantium consectetur!"
-#        image: assets/img/timeline/2.jpg
-#        alt:
-#      - title: "Jekyll Theme is created"
-#        year: "2019"
-#        desc: "Ravi Riley converted Agency, a Bootstrap-based theme, into a Jekyll theme. The Jekyll theme can be installed as a Ruby gem, or remotely. For more information, visit the documentation."
-#        image: assets/img/timeline/3.jpg
-#        alt: image alt text
-#      - title: "Title"
-#        year: "2009-2011"
-#        desc: "Your description here, **Markdown** is fully supported."
-#        image: assets/img/timeline/4.jpg
-#        alt:
-#        # you can enforce the alignment
-#        align: right
-#    end: "Be Part <br> of Our <br> Story!"
 
   about:
     title: "About Us"
     text: "our story"
-    body: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde. **Markdown** supported."
+    body: "Seascape Autonomy is a spinoff of the University of Sydney.  Our aim is to provide high-quality seafloor imaging through concurrent deployment of novel benthic-imaging AUVs."
     section: about
-
-#  clients:
-#    section: clients
-#    max-height: 100px
-#    horizontal-scrolling: "" #"yes/no"
-#    list:
-#      - title: "envato"
-#        url: https://github.com/raviriley/agency-jekyll-theme
-#        logo: assets/img/clients/envato.jpg
-#      - title: "designmodo"
-#        url: https://github.com/raviriley/agency-jekyll-theme
-#        logo: assets/img/clients/designmodo.jpg
-#      - title: "themeforest"
-#        url: https://github.com/raviriley/agency-jekyll-theme
-#        logo: assets/img/clients/themeforest.jpg
-#      - title: "Creative Market"
-#        url: https://github.com/raviriley/agency-jekyll-theme
-#        logo: assets/img/clients/creative-market.jpg
 
   team:
     title: "OUR AMAZING TEAM"
     text: "Our team have over 75 years of collective experience in deploying marine robotic systems"
-    #subtext: Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde. **Markdown** supported.
     section: team
     people:
       - name: "Stefan B. Williams"
-        role: "Lead Designer"
+        role: "Director"
         image: assets/img/team/headshotSWilliams.jpg
         social:
           - url: https://linkedin.com/in/stefan-williams-88216b23/
@@ -134,7 +81,7 @@ en: &DEFAULT_EN
 
   contact:
     title: "Contact Us"
-    text: "Lorem ipsum or call 123456789"
+    #text: "Lorem ipsum or call 123456789"
     section: contact
     name: "Name*"
     name-validation: "Please enter your name."
