@@ -1,4 +1,4 @@
-# Seascape Autonomy Site based on Jekyll Agency Theme
+# Seascape Autonomy Site 
 
 ## About
 
