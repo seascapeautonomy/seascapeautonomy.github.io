@@ -17,9 +17,9 @@ url    : "" # the base hostname & protocol for your site, e.g. http://example.co
 baseurl: "" # the subpath of your site, e.g. /blog
 
 title      : Seascape Autonomy
-email      : contact@seascape.com #this is also the email contact forms will go to
-description: "Site description"
-author     : Your Name
+email      : contact@seascapeautonomy.com #this is also the email contact forms will go to
+description: "Seascape Autonomy Marine Surveying and Robotics"
+author     : Stefan Williams
 logo:     #optional, defaults to site title
   path: assets\img\logo_iris_simple.png
   height: 60 #height in px, defaults to 52px

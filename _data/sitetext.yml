@@ -12,7 +12,7 @@
 en: &DEFAULT_EN
   header:
     title: Seascape Autonomy
-    text: Marine Robotics and Survey
+    tagline: Marine Robotics and Survey
     image: assets/img/logo_iris_simple.png
     button: Tell Me More
     buttonlink: "#services"
@@ -45,7 +45,7 @@ en: &DEFAULT_EN
     section: about
 
   team:
-    title: "OUR AMAZING TEAM"
+    title: "Our Team"
     text: "Our team have over 75 years of collective experience in deploying marine robotic systems"
     section: team
     people:
