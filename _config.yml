@@ -17,7 +17,7 @@ url    : "" # the base hostname & protocol for your site, e.g. http://example.co
 baseurl: "" # the subpath of your site, e.g. /blog
 
 title      : Seascape Autonomy
-email      : contact@seascapeautonomy.com #this is also the email contact forms will go to
+email      : invalid@example.org #this is also the email contact forms will go to
 description: "Seascape Autonomy Marine Surveying and Robotics"
 author     : Stefan Williams
 logo:     #optional, defaults to site title
