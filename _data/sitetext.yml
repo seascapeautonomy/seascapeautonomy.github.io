@@ -31,6 +31,15 @@ en: &DEFAULT_EN
       - title: "Ship Hull Inspection"
         desc: "Providing ship hull inspection"
         icon: fas fa-ship
+      - title: "Offshore Wind"
+        desc: "Environmental impact assessment and maintenance support"
+        icon: fas fa-wind
+      - title: "Defence Applications"
+        desc: "Investigating a range of defence and security applications"
+        icon: fas fa-shield-alt
+      - title: "Fisheries Services"
+        desc: "Benthic surveys linked to stock assessment"
+        icon: fas fa-fish
 
   portfolio:
     title: "Products"
