@@ -47,6 +47,13 @@ en: &DEFAULT_EN
     section: portfolio
     closebutton: "Close Project"
 
+  casestudies:
+    title: "Case Studies"
+    text: "We have supported numerous field campaigns, collecting data in support of environmental survey, inrastructure inspection and security related trials"
+    section: casestudies
+    closebutton: "Close Project"
+
+
   about:
     title: "About Us"
     text: "our story"
