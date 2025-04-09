@@ -13,7 +13,7 @@ en: &DEFAULT_EN
   header:
     title: Seascape Autonomy
     tagline: Marine Robotics and Survey
-    image: assets/img/logo_iris_simple.png
+    image: assets/img/logo_iris_simple2.png
     button: Tell Me More
     buttonlink: "#services"
 
