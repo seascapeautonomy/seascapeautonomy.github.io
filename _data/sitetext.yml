@@ -47,10 +47,10 @@ en: &DEFAULT_EN
     section: portfolio
     closebutton: "Close Project"
 
-  casestudies:
-    title: "Case Studies"
+  fieldwork:
+    title: "Fieldwork"
     text: "We have supported numerous field campaigns, collecting data in support of environmental survey, inrastructure inspection and security related trials"
-    section: casestudies
+    section: fieldwork
     closebutton: "Close Project"
 
 

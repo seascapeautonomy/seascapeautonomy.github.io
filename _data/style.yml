@@ -8,7 +8,7 @@ header-image: "../img/headerSeekerTonga.png"
 contact-image: "../img/contact.png"
 #Font Awesome icon for portfolio grid when an item is hovered over
 #portfolio-icon: fas fa-expand-arrows-alt fa-3x #default: fas fa-plus fa-3x
-#casestudies-icon: fas fa-expand-arrows-alt fa-3x #default: fas fa-plus fa-3x
+#fieldwork-icon: fas fa-expand-arrows-alt fa-3x #default: fas fa-plus fa-3x
 
 # Add custom fonts
 fonts_urls:

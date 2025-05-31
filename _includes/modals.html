@@ -92,11 +92,11 @@
 {% endfor %}
 <!-- End Portfolio Modals -->
 
-<!-- Cases Studies Modals -->
-{% for project in site.casestudies %}
+<!-- Fieldwork Modals -->
+{% for project in site.fieldwork %}
 {% if site.locale and site.locale != "" and site.locale != nil %}
 <div
-  class="casestudies-modal modal fade"
+  class="fieldwork-modal modal fade"
   id="c{{ forloop.index }}"
   tabindex="-1"
   role="dialog"
@@ -128,7 +128,7 @@
                 type="button"
               >
                 <i class="fas fa-times"></i>
-                {{ site.data.sitetext[site.locale].casestudies.closebutton |
+                {{ site.data.sitetext[site.locale].fieldwork.closebutton |
                 default: "Close Project" }}
               </button>
             </div>
@@ -140,7 +140,7 @@
 </div>
 {% else %}
 <div
-  class="casestudies-modal modal fade"
+  class="fieldwork-modal modal fade"
   id="p{{ forloop.index }}"
   tabindex="-1"
   role="dialog"
@@ -172,7 +172,7 @@
                 type="button"
               >
                 <i class="fas fa-times"></i>
-                {{ site.data.sitetext.casestudies.closebutton |
+                {{ site.data.sitetext.fieldwork.closebutton |
                 default: "Close Project" }}
               </button>
             </div>

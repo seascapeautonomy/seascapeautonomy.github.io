@@ -15,8 +15,8 @@ en: &DEFAULT_EN
       section: services
     - title: "Products"
       section: portfolio
-    - title: "Case Studies"
-      section: casestudies
+    - title: "Fieldwork"
+      section: fieldwork
     - title: "About"
       section: about
     - title: "Team"
