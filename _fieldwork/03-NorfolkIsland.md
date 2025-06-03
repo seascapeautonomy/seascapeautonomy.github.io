@@ -21,6 +21,6 @@ On this expedition, scientists undertook shore and vessel-based activities to co
 
 ![Norfolk Island 20025 AUV Survey Sites](assets/img/fieldwork/NorfolkIsland202505/NorfolkIsland2025Sites.png "Norfolk Island 2025 AUV Survey Sites")
 
-An overview of the sites visited by the AUV shown in green around Norfolk and Phillip Islands. Each AUV dive covered 1-3km of transect, collecting detailed, high-resolution imagery of the seafloor. The bathymetric map of the seafloor around the islands was collected using LIDAR and acoustic data and was supplied by the Australian Hydrographic Office. AUV dives targeted particular seafloor features representing reefs around the islands at depths from 5-45m of water depth.
+*<small>An overview of the sites visited by the AUV shown in green around Norfolk and Phillip Islands. Each AUV dive covered 1-3km of transect, collecting detailed, high-resolution imagery of the seafloor. The bathymetric map of the seafloor around the islands was collected using LIDAR and acoustic data and was supplied by the Australian Hydrographic Office. AUV dives targeted particular seafloor features representing reefs around the islands at depths from 5-45m of water depth.</small>*
 
 {% include image-gallery-simple.html folder="/assets/img/fieldwork/NorfolkIsland202505/gallery" %}
