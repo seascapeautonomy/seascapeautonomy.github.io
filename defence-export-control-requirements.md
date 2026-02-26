@@ -2,6 +2,7 @@
 layout: page
 title: Defence Export Control Requirements
 ---
+# Defence Export Control Requirements
 1.	You acknowledge and agree that our supply of the Goods and /or Services is conditional on your compliance and satisfaction of these Defence Export Control Requirements.
 2.	We and you must at all times comply with the Export Control Laws. The Export Control Laws include the [Defence and Strategic Goods List (DSGL)](https://www.defence.gov.au/business-industry/export/controls/export-controls/defence-strategic-goods-list)  which identifies goods which may not be exported from Australia unless a licence or permission has been granted by the Minister or an authorised person and that licence or permission is produced to a Collector of Customs before exportation (Licence). Some of our Goods and/or Services are included on this list. 
 3.	Under the Export Control Laws, we are required to work with the Department of Defence Australia to detect, identify, report, and stop transactions likely to be in breach of the Export Control Laws and to ensure that a Licence is acquired under the Export Control Laws for all goods sold to parties located overseas. We exclude any Liability arising due to your failure to comply with or satisfy with the Export Control Laws or arising due to any steps we take to comply with the Export Control Laws.
@@ -15,7 +16,7 @@ a.	may be aided by your satisfaction of any Export Control Law Requirements;
 b.	may be aided by your cooperation with us and the Department of Defence Australia;
 c.	is likely to depend upon the volume of Goods and/or Services you wish to acquire; and
 d.	is likely to depend upon a risk assessment conducted by the Department of Defence Australia based on your corporate history, your country risk rating, geopolitical considerations and the types of Goods and/or services being sold.
-10.	Unless otherwise defined herein, capitalised terms have the meanings given to them in the applicable Work Order and/or https://www.seascapeautonomy.com/terms/.
+10.	Unless otherwise defined herein, capitalised terms have the meanings given to them in the applicable Work Order and/or (https://www.seascapeautonomy.com/terms).
 11.	Validity: For questions about these Defence Export Control Requirements please submit an enquiry through support@seascapeautonomy.com. In the event of any inconsistency or ambiguity between these Defence Export Control Requirements and the Terms, these Defence Export Control Requirements will prevail. 
 
 *These Defence Export Control Requirements were last updated on 27 February 2026*.
