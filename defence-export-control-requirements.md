@@ -17,6 +17,6 @@ b.	may be aided by your cooperation with us and the Department of Defence Austra
 c.	is likely to depend upon the volume of Goods and/or Services you wish to acquire; and
 d.	is likely to depend upon a risk assessment conducted by the Department of Defence Australia based on your corporate history, your country risk rating, geopolitical considerations and the types of Goods and/or services being sold.
 10.	Unless otherwise defined herein, capitalised terms have the meanings given to them in the applicable Work Order and/or (https://www.seascapeautonomy.com/terms).
-11.	Validity: For questions about these Defence Export Control Requirements please submit an enquiry through support@seascapeautonomy.com. In the event of any inconsistency or ambiguity between these Defence Export Control Requirements and the Terms, these Defence Export Control Requirements will prevail. 
+11.	Validity: For questions about these Defence Export Control Requirements please submit an enquiry through (mailto:support@seascapeautonomy.com). In the event of any inconsistency or ambiguity between these Defence Export Control Requirements and the Terms, these Defence Export Control Requirements will prevail. 
 
 *These Defence Export Control Requirements were last updated on 27 February 2026*.
