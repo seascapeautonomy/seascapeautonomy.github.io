@@ -113,6 +113,8 @@ en: &DEFAULT_EN
 
   footer:
     legal: "Privacy Policy"
+    terms: "Terms and Conditions"
+    defence-export-controls-requirements: "Defence Export Controls Requirements"
 #    social:
 #      - url: https://twitter.com
 #        icon: "fab fa-twitter"
