@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Defence Export Control Requirements
-permalink: /terms/defence-export-control-requirements
 ---
 1.	You acknowledge and agree that our supply of the Goods and /or Services is conditional on your compliance and satisfaction of these Defence Export Control Requirements.
 2.	We and you must at all times comply with the Export Control Laws. The Export Control Laws include the [Defence and Strategic Goods List (DSGL)](https://www.defence.gov.au/business-industry/export/controls/export-controls/defence-strategic-goods-list)  which identifies goods which may not be exported from Australia unless a licence or permission has been granted by the Minister or an authorised person and that licence or permission is produced to a Collector of Customs before exportation (Licence). Some of our Goods and/or Services are included on this list. 
