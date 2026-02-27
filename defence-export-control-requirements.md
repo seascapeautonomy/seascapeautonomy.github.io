@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Defence Export Control Requirements
-permlink: /terms/defence-export-control-requirements
+permalink: /terms/defence-export-control-requirements
 ---
 # Defence Export Control Requirements
 1.	You acknowledge and agree that our supply of the Goods and /or Services is conditional on your compliance and satisfaction of these Defence Export Control Requirements.
