@@ -112,7 +112,7 @@ en: &DEFAULT_EN
     submit: "Send Message"
 
   footer:
-    legal: "Privacy Policy"
+    privacy-policy: "Privacy Policy"
     #terms: "Terms and Conditions"
     defence-export-controls-requirements: "Defence Export Controls Requirements"
     social:
