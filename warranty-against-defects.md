@@ -4,65 +4,119 @@ title: Warranty Against Defects
 ---
 
 # Warranty Against Defects
-This Warranty Against Defects is issued pursuant to and forms part of the supply Agreement between **Seascape Autonomy Pty Ltd (ACN 676 897 813)**  (we, us or our) and you, the person or entity stated in the Work Order, together the Parties and each a Party. 
+This Warranty Against Defects is issued under and forms part of the supply agreement between **Seascape Autonomy Pty Ltd (ACN 676 897 813)** (we, us, our) and the customer identified in the applicable Work Order (you). Together, we are the Parties.
 
-This Warranty Against Defects applies to the Goods and Services identified in the applicable Work Order.
+This Warranty applies only to the Goods and Services specified in the relevant Work Order.
 
-For the avoidance of doubt:
--	if the Work Order provides that this Warranty Against Defects is available in respect of the Goods and Services in the Work Order, the rights in this Warranty are available to you in addition to any rights or remedies you have under the Australian Consumer Law or any other applicable law (Consumer Law Rights);
--	if the Work Order states that an Extended Warranty is available in respect of the Goods and Services in the Work Order, the Extended Warranty term for each type of goods/Services identified in the Work Order replaces the Warranty Period in this Schedule but otherwise, the terms of this Schedule apply in respect of the Extended Warranty.
+For clarity:
+-	If the Work Order states that this Warranty Against Defects applies to the Goods and Services, the benefits provided under this Warranty are in addition to any rights or remedies available to you under the Australian Consumer Law or any other applicable legislation (Consumer Law Rights).
+-	If the Work Order provides for an Extended Warranty in relation to certain Goods or Services, the Extended Warranty period specified in the Work Order replaces the standard Warranty Period set out in this document for those items. All other terms of this Warranty continue to apply to the Extended Warranty.
 
-Our goods and services come with guarantees that cannot be excluded under the Australian Consumer Law. For major failures with the service, you are entitled to cancel your service contract with us and to a refund for the unused portion, or to compensation for its reduced value. You are also entitled to choose a refund or replacement for major failures with goods. If a failure with the goods or a service does not amount to a major failure, you are entitled to have the failure rectified in a reasonable time. If this is not done, you are entitled to a refund for the goods and to cancel the contract for the service and obtain a refund of any unused portion. You are also entitled to be compensated for any other reasonably foreseeable loss or damage from a failure in the goods or service.
-## 1. Warranty
-1.1. We provide this Warranty to you in addition to any rights or remedies you have under the Australian Consumer Law or any other applicable law (Consumer Law Rights).
+Our Goods and Services come with guarantees that cannot be excluded under the Australian Consumer Law. In summary:
+-	For major failures with services, you may cancel the service contract and obtain a refund for the unused portion, or receive compensation for any reduction in value.
+-	For major failures with goods, you may choose a refund or replacement.
+-	For non-major failures, you are entitled to have the issue rectified within a reasonable time. If this does not occur, you may obtain a refund for goods, cancel the service contract, and receive a refund for any unused portion.
+-	You may also recover compensation for any reasonably foreseeable loss or damage resulting from the failure.
+ 
+## 1. Warranty Coverage
+1.1 Additional to Consumer Law
 
-1.2. Warranty Period and Offer
--	**Warranty Period**: 2 year from the date of delivery of the Goods from us or if applicable, the date of collection by you of the Goods from us	
--	**Defect Covered By Warranty**: Products defective by reason of improper workmanship or materials and/ or do not confirm to any specifications provided in a Work Order.	
--	**Warranty Offer**: At our discretion, we will repair the Goods or resupply the Goods or issue a full or partial refund to you with respect to any amount paid for the defective part (or all) of your Goods.
+This Warranty operates in addition to, and does not limit, your Consumer Law Rights.
 
-1.3. Subject to the terms of this Warranty, if during the Warranty Period the Goods or Services prove Defective, we will meet the Warranty Offer. Your Consumer Law Rights may extend beyond the Warranty Period.
-1.4. If any materials, parts or features required to facilitate any repair or replacement pursuant to clause 1.2 are unavailable or no longer in production, or model of Goods is no longer available or in production, we will use our best endeavours to use appropriate equivalent materials, parts, features or model. 
+1.2 Warranty Period and Remedy
 
-## 2. Making a valid warranty claim
-2.1. To claim the benefit of this Warranty, you must:
--	notify us by our designated support channel https://support.advancednavigation.com/ as soon as you become aware that the Goods or Services are Defective with evidence of proof of purchase of your Goods or Services from us and a description and photographs of the claimed Defect;
--	if we ask you to, you must return to return the Goods together with all packaging, parts, accessories and documentation to the contact details set out below; 
--	provide any other information reasonably required by us to assess your claim.
+**Warranty Period**:
+Two (2) years from the date the Goods are delivered to you or, where applicable, collected by you from us.
 
-2.2. Where you return the Goods as part of a Warranty claim under this clause 2.1, you will need to cover any associated costs of you returning the Goods to us.
+**Defects Covered**:
+This Warranty covers Goods that are defective due to faulty workmanship or materials, or that fail to comply with specifications set out in the applicable Work Order.
 
-2.3. Where we accept your claim under this Warranty, clause 1.2 (above) will apply.
+**Our Obligation (Warranty Offer)**:
+If a valid claim is made, we may, at our discretion:
+-	repair the defective Goods;
+-	replace or resupply the defective Goods; or
+-	provide a full or partial refund of the amount paid for the defective part (or the entire Goods, where appropriate).
 
-## 3. When this warranty applies and when it does not
-3.1. This Warranty does not cover any defect which is caused (or partly caused) or contributed to, by any:
--	act or omission, accident, or negligence by you or any third party not engaged by us (including any third party installer of your Goods or the Services);  
--	failure on your part to follow any instructions or guidelines (including any manual) provided by us in relation to your Goods or the Services or properly maintain your Goods in accordance with any of our instructions or guidelines (including any manual);
--	use of your Goods otherwise than for any application or use specified by us;
--	use of Goods that is expressly prohibited by us in any sales documentation that we provide or as specified in any Special Condition in a Work Order;
--	continued use of your Goods (where such use is not reasonable) after any defect in your Goods becomes apparent or would have become apparent to a reasonably prudent person;
--	incorporation or installation of fixtures, appliances, software not licensed to you by us or other items into your Goods or Services;
--	failure by you to notify us of any defect in your Goods or Services within a reasonable period of time after you become aware of or ought to have reasonably become aware of the relevant defect;
--	reasonable wear and tear of your Goods;
-- Force Majeure Event; or
--	repair, maintenance, altering, overhauling or otherwise compromise of the Goods or Services by you or any person other than us.
-3.2. **Additional Expenses**: Any works or services requested by you to be performed by us (including any work or services that are additional to repairs carried out by us pursuant to clause 1.2 and deemed by us to not be covered under this Warranty may incur additional charges, which we will advise you of prior to commencing those additional work or services.  We are under no obligation to perform any additional work or service that you may request.
+1.3 Application During Warranty Period
 
-3.3. **Term of Warranty**: Where we replace any parts under this warranty, this will not extend the Warranty Period in clause 1.2.
+If the Goods or Services become defective during the Warranty Period, and subject to the terms of this Warranty, we will provide the applicable remedy described above. Your Consumer Law Rights may continue beyond the Warranty Period.
 
-## 4. General
-4.1 **Warranty prevails**: In the event of any inconsistency or ambiguity between this Warranty and the Terms, this Warranty will prevail. In the event of any inconsistency or ambiguity between this Warranty and the Work Order, the Work Order terms will prevail.
+1.4 Availability of Parts or Models
 
-4.2. **Validity**: This Warranty is enforceable in Australia and is governed by the laws of New South Wales. If you purchase our Goods and Services outside of Australia, to the maximum extent permitted by Law, the statutory warranties in the Australian Consumer Law do not apply in respect of our Goods and Services but you may rely on the benefit (if any) of this Warranty.
+If replacement parts, materials, features, or models are unavailable or no longer manufactured, we will use reasonable endeavours to substitute appropriate equivalent components or models.
+ 
+## 2. How to Make a Warranty Claim
+2.1 Claim Requirements
 
-4.3. **No third party reliance**: The benefit of this Warranty is for you (the initial owner of our Goods & Services) only, and no other person or third party can rely on or make a claim under this Warranty.
+To make a claim under this Warranty, you must:
+-	notify us promptly through our designated support channel: [support@seascapeautonomy.com](mailto:support@seascapeautonomy.com)
+-	provide proof of purchase from us;
+-	supply a detailed description of the alleged defect, including photographs where applicable;
+-	if requested, return the Goods (including all packaging, accessories, parts, and documentation) to the address we provide; and
+-	provide any additional information reasonably requested to assess the claim.
 
-4.4. **No Assignment or transfer**: This Warranty or the benefit under this Warranty cannot be assigned or transferred to any other person or third party except in the case of the resale of our Goods and Services by our authorised reseller, where the benefit of the Warranty is intended for end users of our Goods and Services as our authorised reseller acts as a distributor on our behalf.
+2.2 Return Costs
 
-4.5. **Severance**: If any provision of this Warranty is held to be void, invalid or illegal or unenforceable in any jurisdiction, that provision is to be read down as narrowly as necessary to allow it to be valid or enforceable, failing which, that provision (or part of that provision) will be severed from this Warranty without affecting the validity or enforceability of the remainder of that provision or the other provisions in our Agreement.
+Unless otherwise required by law, you are responsible for the costs of returning the Goods to us for assessment.
 
-4.6. **Definitions**: Unless otherwise defined herein, capitalised terms have the meanings given to them in the applicable Work Order and/or [https://www.seascapeautonomy.com/terms](https://www.seascapeautonomy.com/terms).
+2.3 Accepted Claims
 
-For questions about this Warranty, or to get in touch with us, please submit an enquiry through our support channel [support@seascapeautonomy.com](support@seascapeautonomy.com).
+If we accept your claim, we will provide a remedy in accordance with clause 1.2.
+ 
+## 3. Exclusions and Limitations
+3.1 What Is Not Covered
 
-*This Warranty was last updated on 27 February 2026*
+This Warranty does not apply to defects caused or contributed to by:
+-	your acts, omissions, negligence, or those of a third party not engaged by us (including independent installers);
+-	failure to follow our instructions, manuals, or maintenance guidelines;
+-	use of the Goods other than as specified or intended by us;
+-	any use expressly prohibited in sales documentation or Special Conditions in the Work Order;
+-	continued use of the Goods after a defect becomes apparent (or should reasonably have become apparent);
+-	integration or installation of unauthorised fixtures, appliances, or software not licensed by us;
+-	failure to notify us of a defect within a reasonable time after becoming aware (or when you ought reasonably to have become aware) of it;
+-	normal wear and tear;
+-	Force Majeure Events; or
+-	repairs, alterations, overhauls, or modifications carried out by anyone other than us.
+
+3.2 Additional Work
+
+If you request additional work or services beyond what is required to remedy a defect covered by this Warranty, we may charge additional fees. We will notify you of those charges before commencing such work. We are not obliged to carry out additional requested services.
+
+3.3 Replacement Parts
+
+Any replacement of parts under this Warranty does not extend or renew the original Warranty Period.
+ 
+## 4. General Terms
+4.1 Order of Precedence
+
+If there is any inconsistency between this Warranty and the Terms, this Warranty prevails. If there is any inconsistency between this Warranty and a Work Order, the Work Order prevails.
+
+4.2 Governing Law and Jurisdiction
+
+This Warranty is governed by the laws of New South Wales, Australia, and is enforceable within Australia.
+
+If Goods or Services are purchased outside Australia, then to the maximum extent permitted by law, statutory warranties under the Australian Consumer Law will not apply, but you may rely on this Warranty where applicable.
+
+4.3 No Third-Party Benefit
+
+This Warranty is provided solely for your benefit as the original purchaser of the Goods and Services. No other person may rely upon or enforce this Warranty.
+
+4.4 No Assignment
+
+You may not assign or transfer this Warranty or its benefits to any other person. However, where our authorised reseller supplies the Goods or Services, the benefit of this Warranty is intended to extend to the end user, as the reseller acts as our distributor.
+
+4.5 Severability
+
+If any provision of this Warranty is found to be invalid, illegal, or unenforceable, it will be read down to the extent necessary to make it valid and enforceable. If that is not possible, the provision will be severed without affecting the remainder of this Warranty or the Agreement.
+
+4.6 Definitions
+
+Unless otherwise defined in this document, capitalised terms have the meanings given in the applicable Work Order and/or our Terms available at:
+[https://www.seascapeautonomy.com/terms](https://www.seascapeautonomy.com/terms)
+ 
+For enquiries regarding this Warranty, please contact us at:
+[support@seascapeautonomy.com](mailto:support@seascapeautonomy.com)
+
+ 
+*These Warranty Against Defects were last updated on 27 February 2026.*
+
