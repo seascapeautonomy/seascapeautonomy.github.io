@@ -97,144 +97,142 @@ A written statement of work for supply of Goods and/or Services.
 ## Terms
 These Terms form part of the Agreement between **Seascape Autonomy Pty Ltd (ACN 676 897 813)** and you.
  
-### 1. Acceptance
-You accept the Agreement by the earliest of:
--	signing and returning a Quote or Work Order;
--	issuing a purchase order referencing our Work Order;
--	confirming acceptance electronically (including by email or website confirmation);
--	instructing us to proceed; or
--	making any payment toward the Fees.
+## 1.	Acceptance
+1.1.	You accept the Agreement by the earliest of:
+- signing and returning a Quote or Work Order;
+- issuing a purchase order referencing our Work Order;
+- confirming acceptance electronically (including by email or website confirmation);
+- instructing us to proceed; or
+- making any payment toward the Fees.
 
-You must comply with the Agreement and applicable Laws, provide necessary cooperation and information, and reimburse reasonable additional costs caused by your failure to do so.
+1.2.	You must comply with the Agreement and applicable Laws, provide necessary cooperation and information, and reimburse reasonable additional costs caused by your failure to do so.
  
-### 2. Supply of Goods and Services
-We will provide the Goods and/or Services described in each Work Order in exchange for payment of the Fees.
+## 2.	Supply of Goods and Services
+2.1.	We will provide the Goods and/or Services described in each Work Order in exchange for payment of the Fees.
 
-Timeframes are estimates only.
+2.2.	Timeframes are estimates only.
 
-Supply is conditional on compliance with Defence Export Control Requirements.
+2.3.	Supply is conditional on compliance with Defence Export Control Requirements.
 
-Information provided by us does not constitute financial, risk, or due diligence advice.
+2.4.	Information provided by us does not constitute financial, risk, or due diligence advice.
 
-Where APIs are provided, you must use them in accordance with our documentation.
+2.5.	Where APIs are provided, you must use them in accordance with our documentation.
 
-Third-party products or services engaged by you are your responsibility.
+2.6.	Third-party products or services engaged by you are your responsibility.
 
-Variations must be agreed in writing. We may vary the Agreement on 30 days’ written notice, subject to termination rights.
+2.7.	Variations must be agreed in writing. We may vary the Agreement on 30 days’ written notice, subject to termination rights.
  
-### 3. Work Orders
-Supply requests may be submitted in writing.
+## 3.	Work Orders
+3.1.	Supply requests may be submitted in writing.
 
-Quotes may be accepted or rejected at your discretion.
+3.2.	Quotes may be accepted or rejected at your discretion.
 
-Accepted Quotes become binding and must be formalised in a Work Order unless waived by us.
+3.3.	Accepted Quotes become binding and must be formalised in a Work Order unless waived by us.
 
-Our Agreement prevails over any of your procurement terms unless expressly agreed otherwise in writing.
+3.4.	Our Agreement prevails over any of your procurement terms unless expressly agreed otherwise in writing.
  
-### 4. Fees and Payment
-Fees are payable in accordance with the Payment Terms.
+## 4.	Fees and Payment
+4.1.	Fees are payable in accordance with the Payment Terms.
 
-If payment is late, we may:
--	suspend supply;
--	charge interest at the RBA cash rate plus 2% per annum (compounded monthly);
--	recover unpaid Goods.
+4.2.	If payment is late, we may:
+- suspend supply;
+- charge interest at the RBA cash rate plus 2% per annum (compounded monthly);
+- recover unpaid Goods.
 
-GST and other taxes are payable as required by Law.
+4.3.	GST and other taxes are payable as required by Law.
 
-You are responsible for taxes in your jurisdiction and must gross-up payments where withholding applies.
+4.4.	You are responsible for taxes in your jurisdiction and must gross-up payments where withholding applies.
  
-### 5. Intellectual Property
-Ownership of pre-existing Intellectual Property remains with the original owner.
+## 5.	Intellectual Property
+5.1.	Ownership of pre-existing Intellectual Property remains with the original owner.
 
-New Materials created under the Agreement vest in us.
+5.2.	New Materials created under the Agreement vest in us.
 
-We grant you a limited licence to use Our Materials solely for the purpose of receiving the Goods and/or Services.
+5.3.	We grant you a limited licence to use Our Materials solely for the purpose of receiving the Goods and/or Services.
 
-You grant us a licence to use Your Materials to perform our obligations.
+5.4.	You grant us a licence to use Your Materials to perform our obligations.
 
-This clause survives termination.
+5.5.	This clause survives termination.
  
-### 6. Confidentiality and Privacy
-Each Party must keep confidential information confidential, subject to legal or professional disclosure obligations.
+## 6.	Confidentiality and Privacy
+6.1.	Each Party must keep confidential information confidential, subject to legal or professional disclosure obligations.
 
-You must comply with applicable Privacy Laws.
+6.2.	You must comply with applicable Privacy Laws.
 
-We handle Personal Information in accordance with our privacy policy.
+6.3.	We handle Personal Information in accordance with our privacy policy.
 
-You are responsible for backing up Your Data. We may generate anonymised aggregated data for business purposes.
+6.4.	You are responsible for backing up Your Data. We may generate anonymised aggregated data for business purposes.
 
-This clause survives termination.
+6.5.	This clause survives termination.
  
-### 7. Australian Consumer Law
-Nothing excludes rights under the Australian Consumer Law.
+## 7.	Australian Consumer Law
+7.1.	Nothing excludes rights under the Australian Consumer Law.
 
-Except where expressly stated, Goods and Services are provided without additional warranties.
+7.2.	Except where expressly stated, Goods and Services are provided without additional warranties.
 
-Any Warranty Against Defects is supplemental to Consumer Law Rights.
+7.3.	Any Warranty Against Defects is supplemental to Consumer Law Rights.
+
+## 8.	Liability
+8.1.	You indemnify us for Liability arising from:
+- breach of Export Control Laws;
+- regulatory investigations connected to you;
+- breaches of Privacy Laws relating to data you provide.
+
+8.2.	Subject to Consumer Law Rights:
+- Neither Party is liable for Consequential Loss.
+- Liability is proportionately reduced for contributory fault.
+- Our total aggregate liability is limited to the greater of:
+-- Fees paid for the relevant Goods/Services;
+-- $100,000; or
+-- insurance proceeds received.
+
+8.3.	This clause survives termination.
  
-### 8. Liability
-You indemnify us for Liability arising from:
--	breach of Export Control Laws;
--	regulatory investigations connected to you;
--	breaches of Privacy Laws relating to data you provide.
+## 9.	Term and Termination
+9.1.	The Agreement continues until terminated.
 
-Subject to Consumer Law Rights:
--	Neither Party is liable for Consequential Loss.
--	Liability is proportionately reduced for contributory fault.
--	Our total aggregate liability is limited to the greater of:
---	Fees paid for the relevant Goods/Services;
---	$100,000; or
---	insurance proceeds received.
+9.2.	Either Party may terminate on 30 days’ notice.
 
-This clause survives termination.
+9.3.	Immediate termination rights apply for export control breaches, material breach (after notice), or insolvency.
+
+9.4.	Upon termination:
+- Payments made for supplied Goods/Services are non-refundable (subject to Consumer Law).
+- Outstanding amounts become payable.
+- We may recover Goods where title is retained.
+- Certain clauses survive termination.
  
-### 9. Term and Termination
-The Agreement continues until terminated.
+## 10.	Non-Disparagement & Publicity
+10.1.	You must not make harmful public statements about us during the Term, subject to legal exceptions.
 
-Either Party may terminate on 30 days’ notice.
+10.2.	Neither Party may use the other’s branding without consent.
 
-Immediate termination rights apply for export control breaches, material breach (after notice), or insolvency.
-
-Upon termination:
--	Payments made for supplied Goods/Services are non-refundable (subject to Consumer Law).
--	Outstanding amounts become payable.
--	We may recover Goods where title is retained.
--	Certain clauses survive termination.
+10.3.	Injunctive relief may be sought for breaches.
  
-### 10. Non-Disparagement & Publicity
-You must not make harmful public statements about us during the Term, subject to legal exceptions.
+## 11.	General
+11.1.	Amendments must be in writing (subject to variation clause).
 
-Neither Party may use the other’s branding without consent.
+11.2.	We may assign rights to related bodies corporate and assign debts.
 
-Injunctive relief may be sought for breaches.
- 
-### 11. General
-Amendments must be in writing (subject to variation clause).
+11.3.	Disputes must first be negotiated in good faith, then mediated (Australia) or arbitrated (international), unless urgent court relief is required.
 
-We may assign rights to related bodies corporate and assign debts.
+11.4.	Electronic signatures are valid.
 
-Disputes must first be negotiated in good faith, then mediated (Australia) or arbitrated (international), unless urgent court relief is required.
+11.5.	Force Majeure suspends performance (except payment obligations).
 
-Electronic signatures are valid.
+11.6.	Governing law: New South Wales, Australia.  The UN Convention on Contracts for the Sale of Goods does not apply.
 
-Force Majeure suspends performance (except payment obligations).
+11.7.	Notices may be sent by post or email.
 
-**Governing law**: New South Wales, Australia.
+11.8.	No partnership or agency is created.
 
-The UN Convention on Contracts for the Sale of Goods does not apply.
+11.9.	We may subcontract but remain responsible.
 
-Notices may be sent by post or email.
-
-No partnership or agency is created.
-
-We may subcontract but remain responsible.
-
-Interpretation priority:
+11.10.	Interpretation priority:
 1.	Work Order
 2.	Linked documents
 3.	These Terms
  
-## Validity
-For enquiries, please contact: [support@seascapeautonomy.com](mailto:support@seascapeautonomy.com)
+## 12.	Validity
+12.1.	For questions about these Terms, or to get in touch with us, please contact: [support@seascapeautonomy.com](mailto:support@seascapeautonomy.com)
 
 *These Terms were last updated on 27 February 2026.*
