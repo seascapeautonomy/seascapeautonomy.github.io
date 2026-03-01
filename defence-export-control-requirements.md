@@ -55,6 +55,3 @@ For enquiries regarding these Defence Export Control Requirements, please contac
 In the event of any inconsistency between these Defence Export Control Requirements and the Terms, these Defence Export Control Requirements will prevail to the extent of the inconsistency.
  
 *These Defence Export Control Requirements were last updated on 27 February 2026.*
-
-
-*These Defence Export Control Requirements were last updated on 27 February 2026*.
