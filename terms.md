@@ -10,31 +10,46 @@ title: Standard Terms & Conditions
 1.1 **Agreement content.** The Agreement consists of:
 
 - the **Work Order** (including any attachments and documents incorporated by reference);
-- where Goods are supplied, our **Terms of Supply for Goods**: &lt;<https://www.seascapeautonomy.com/terms-of-supply-of-goods>&gt;;
-- for embedded firmware and any downloadable software provided at no additional charge, our **Software Licence Terms**: &lt;<https://www.seascapeautonomy.com/software-licence-terms>&gt;;
-- if a manufacturing warranty applies as stated in the Work Order, our **Warranty Against Defects**: &lt;<https://www.seascapeautonomy.com/warranty-against-defects>&gt;; and
-- our **Defence Export Control Requirements**: &lt;<https://www.seascapeautonomy.com/defence-export-control-requirements>&gt;.
+- where Goods are supplied, our **Terms of Supply for Goods**: https://www.seascapeautonomy.com/terms-of-supply-of-goods;
+- for embedded firmware and any downloadable software provided at no additional charge, our **Software Licence Terms**: https://www.seascapeautonomy.com/software-licence-terms;
+- if a manufacturing warranty applies as stated in the Work Order, our **Warranty Against Defects**: https://www.seascapeautonomy.com/warranty-against-defects; and
+- our **Defence Export Control Requirements**: https://www.seascapeautonomy.com/defence-export-control-requirements;.
 
 1.2 **Order of precedence.** If there is any inconsistency, the following order applies (highest first):  
-(a) Work Order; (b) linked documents above; (c) these Terms.
+a) Work Order; 
+
+b) linked documents above; 
+
+c) these Terms.
 
 1.3 **Important disclosures.**  
-(a) **Export controls:** Supply is conditional on your compliance with the **Defence Export Control Requirements**.  
-(b) **Privacy:** We handle Personal Information under our **Privacy and Credit Information Policy**: &lt;<https://www.seascapeautonomy.com/privacy-policy>&gt;.  
-(c) **Timeframes:** Any stated delivery or performance timeframes are **estimates**.
+a) **Export controls:** Supply is conditional on your compliance with the **Defence Export Control Requirements**.  
+
+b) **Privacy:** We handle Personal Information under our **Privacy and Credit Information Policy**: https://www.seascapeautonomy.com/privacy-policy.  
+
+c) **Timeframes:** Any stated delivery or performance timeframes are **estimates**.
 
 1.4 **ACL preserved.** Nothing in the Agreement limits your **Consumer Law Rights** under the **Australian Consumer Law** (ACL).
 
 ## 2. Acceptance and Your Obligations
 
 2.1 **Acceptance.** You accept the Agreement by the earliest of:  
-(a) signing and returning a Quote or Work Order; (b) issuing a purchase order referencing our Work Order;  
-(c) electronic acceptance (including email or web confirmation); (d) instructing us to proceed; or (e) making any payment toward the Fees.
+a) signing and returning a Quote or Work Order; 
+
+b) issuing a purchase order referencing our Work Order;  
+
+c) electronic acceptance (including email or web confirmation); 
+
+d) instructing us to proceed; or 
+
+e) making any payment toward the Fees.
 
 2.2 **Co‑operation.** You must:  
-(a) comply with all applicable Laws and the Agreement;  
-(b) provide timely access, information, decisions, and approvals; and  
-(c) reimburse our **reasonable additional costs** to the extent directly caused by your failure to do so.
+a) comply with all applicable Laws and the Agreement;  
+
+b) provide timely access, information, decisions, and approvals; and  
+
+c) reimburse our **reasonable additional costs** to the extent directly caused by your failure to do so.
 
 2.3 **Reliance.** You acknowledge we may rely on information and instructions you provide and are not responsible for outcomes caused by inaccurate or incomplete inputs, or your chosen third‑party products/services.
 
@@ -57,8 +72,11 @@ title: Standard Terms & Conditions
 ## 4. Work Orders and Quotes
 
 4.1 You may submit supply requests in writing. We may issue a **Quote**.  
+
 4.2 You may accept or reject a Quote.  
+
 4.3 Once accepted, a Quote is binding and must be formalised in a **Work Order** unless we waive that requirement in writing.  
+
 4.4 The Agreement prevails over any of your procurement terms unless we expressly agree otherwise in writing (and identify the specific departures).
 
 ## 5. Fees, Invoicing, and Payment
@@ -70,9 +88,9 @@ title: Standard Terms & Conditions
 5.3 **Invoicing & payment.** We will invoice in accordance with the Work Order. **Payments made for Goods or Services already supplied are non‑refundable** (subject to your Consumer Law Rights).
 
 5.4 **Late payment.** If payment is late, we may:  
-(a) **suspend** supply and withhold delivery, licences, updates, or support;  
-(b) charge **interest** at the RBA cash rate + **2% per annum** (compounded monthly); and  
-(c) recover our **reasonable costs** of collection (including legal costs on a solicitor‑client basis).
+a) **suspend** supply and withhold delivery, licences, updates, or support;  
+b) charge **interest** at the RBA cash rate + **2% per annum** (compounded monthly); and  
+c) recover our **reasonable costs** of collection (including legal costs on a solicitor‑client basis).
 
 5.5 **Retention of title (Goods).** Title to Goods passes only when **all amounts due** for those Goods are paid in full. Until then, you must: (i) keep the Goods separately identifiable; (ii) not encumber them; and (iii) keep them insured for replacement value. Risk passes on delivery.
 
@@ -90,7 +108,13 @@ title: Standard Terms & Conditions
 
 6.4 **Your materials.** You grant us a **non‑exclusive** licence to use **Your Materials** and **Your Data** as reasonably necessary to perform the Agreement and improve delivery (including telemetry and diagnostics), and to create **anonymised and aggregated data** for our internal business purposes. We will not identify you in such aggregated data without your written consent.
 
-6.5 **Restrictions.** Except to the extent permitted by Law, you must not: (a) reverse engineer, decompile, or attempt to derive source code; (b) remove proprietary notices; or (c) use Our Materials to build a competing product or service.
+6.5 **Restrictions.** Except to the extent permitted by Law, you must not: 
+
+a) reverse engineer, decompile, or attempt to derive source code; 
+
+b) remove proprietary notices; or 
+
+c) use Our Materials to build a competing product or service.
 
 6.6 **Survival.** This clause survives termination.
 
@@ -113,20 +137,26 @@ title: Standard Terms & Conditions
 ## 9. Liability and Indemnities
 
 9.1 **Your indemnities.** You indemnify us from and against Liability, losses, and costs we reasonably incur arising directly from:  
-(a) your breach of **Export Control Laws** or the **Defence Export Control Requirements**;  
-(b) any regulatory investigation or proceeding connected with your use or onward supply of the Goods/Services;  
-(c) your breach of Privacy Laws in relation to personal information you provide;  
-(d) claims alleging that **Your Materials** infringe third‑party rights; and  
-(e) your unlawful or negligent use of the Goods/Services.
+a) your breach of **Export Control Laws** or the **Defence Export Control Requirements**;  
+
+b) any regulatory investigation or proceeding connected with your use or onward supply of the Goods/Services;  
+
+c) your breach of Privacy Laws in relation to personal information you provide;  
+
+d) claims alleging that **Your Materials** infringe third‑party rights; and  
+
+e) your unlawful or negligent use of the Goods/Services.
 
 9.2 **Exclusions.** Subject to clause 8 (ACL), **neither Party is liable for Consequential Loss**. We are not liable for delays or failures caused by your acts/omissions, third‑party items, or Force Majeure Events.
 
 9.3 **Proportionate liability.** Liability is reduced to the extent the other Party (or its personnel) contributed to the relevant loss.
 
 9.4 **Cap.** Subject to clause 8 (ACL), our **total aggregate liability** for all claims arising out of or in connection with the Agreement is limited to the **greater of**:  
-(a) the **Fees paid** for the **relevant Goods/Services** giving rise to the claim;  
-(b) **AUD \$100,000**; or  
-(c) **insurance proceeds** actually recovered in respect of the claim.
+a) the **Fees paid** for the **relevant Goods/Services** giving rise to the claim;  
+
+b) **AUD \$100,000**; or  
+
+c) **insurance proceeds** actually recovered in respect of the claim.
 
 9.5 **Carve‑outs.** The cap does not apply to amounts we are required to pay under the ACL that cannot lawfully be limited, or to our liability for death or personal injury caused by our negligence to the extent such liability cannot be limited by Law.
 
@@ -139,17 +169,24 @@ title: Standard Terms & Conditions
 10.2 **Convenience termination.** Either Party may terminate the Agreement or any **Work Order** on **30 days' written notice**.
 
 10.3 **Immediate termination.** A Party may terminate immediately by notice if the other Party:  
-(a) materially breaches the Agreement (and does not remedy within 14 days of notice, if remediable);  
-(b) breaches Export Control Laws or the Defence Export Control Requirements; or  
-(c) is insolvent or subject to an insolvency event.
+a) materially breaches the Agreement (and does not remedy within 14 days of notice, if remediable);  
+
+b) breaches Export Control Laws or the Defence Export Control Requirements; or  
+
+c) is insolvent or subject to an insolvency event.
 
 10.4 **Consequences of termination.** Upon termination:  
-(a) amounts invoiced and properly due remain payable;  
-(b) payments already made for Goods/Services **supplied** are **non‑refundable** (subject to the ACL);  
-(c) for your **convenience termination**, you must pay any **Cancellation Fees** stated in the Work Order and our **reasonable, directly incurred, non‑recoverable third‑party costs** and committed expenses;  
-(d) where title is retained, we may **recover Goods** and enter your premises on reasonable notice to do so;  
-(e) you must cease use of Our Materials and New Materials not fully paid for; and  
-(f) clauses intended to survive (including 5, 6, 7, 8, 9, 11, and 13) continue.
+a) amounts invoiced and properly due remain payable;  
+
+b) payments already made for Goods/Services **supplied** are **non‑refundable** (subject to the ACL);  
+
+c) for your **convenience termination**, you must pay any **Cancellation Fees** stated in the Work Order and our **reasonable, directly incurred, non‑recoverable third‑party costs** and committed expenses;  
+
+d) where title is retained, we may **recover Goods** and enter your premises on reasonable notice to do so;  
+
+e) you must cease use of Our Materials and New Materials not fully paid for; and  
+
+f) clauses intended to survive (including 5, 6, 7, 8, 9, 11, and 13) continue.
 
 ## 11. Publicity and Non‑Disparagement
 
