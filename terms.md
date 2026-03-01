@@ -10,10 +10,10 @@ title: Standard Terms & Conditions
 1.1 **Agreement content.** The Agreement consists of:
 
 - the **Work Order** (including any attachments and documents incorporated by reference);
-- where Goods are supplied, our **Terms of Supply for Goods**: https://www.seascapeautonomy.com/terms-of-supply-of-goods;
-- for embedded firmware and any downloadable software provided at no additional charge, our **Software Licence Terms**: https://www.seascapeautonomy.com/software-licence-terms;
-- if a manufacturing warranty applies as stated in the Work Order, our **Warranty Against Defects**: https://www.seascapeautonomy.com/warranty-against-defects; and
-- our **Defence Export Control Requirements**: https://www.seascapeautonomy.com/defence-export-control-requirements;.
+- where Goods are supplied, our **Terms of Supply for Goods**: [https://www.seascapeautonomy.com/terms-of-supply-of-goods](https://www.seascapeautonomy.com/terms-of-supply-of-goods);
+- for embedded firmware and any downloadable software provided at no additional charge, our **Software Licence Terms**: [https://www.seascapeautonomy.com/software-licence-terms](https://www.seascapeautonomy.com/software-licence-terms);
+- if a manufacturing warranty applies as stated in the Work Order, our **Warranty Against Defects**: [https://www.seascapeautonomy.com/warranty-against-defects](https://www.seascapeautonomy.com/warranty-against-defects); and
+- our **Defence Export Control Requirements**: [https://www.seascapeautonomy.com/defence-export-control-requirements](https://www.seascapeautonomy.com/defence-export-control-requirements);.
 
 1.2 **Order of precedence.** If there is any inconsistency, the following order applies (highest first):  
 a) Work Order; 
@@ -25,7 +25,7 @@ c) these Terms.
 1.3 **Important disclosures.**  
 a) **Export controls:** Supply is conditional on your compliance with the **Defence Export Control Requirements**.  
 
-b) **Privacy:** We handle Personal Information under our **Privacy and Credit Information Policy**: https://www.seascapeautonomy.com/privacy-policy.  
+b) **Privacy:** We handle Personal Information under our **Privacy and Credit Information Policy**: [https://www.seascapeautonomy.com/privacy-policy](https://www.seascapeautonomy.com/privacy-policy).  
 
 c) **Timeframes:** Any stated delivery or performance timeframes are **estimates**.
 
@@ -261,6 +261,6 @@ f) clauses intended to survive (including 5, 6, 7, 8, 9, 11, and 13) continue.
 
 ## Contact
 
-For questions about these Terms, contact: **<support@seascapeautonomy.com>**
+For questions about these Terms, contact: [support@seascapeautonomy.com](mailto:support@seascapeautonomy.com)**
 
 _These Terms were last updated on 27 February 2026._
