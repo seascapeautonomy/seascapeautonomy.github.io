@@ -1,13 +1,31 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+nav {
+  background: #0A2A43;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
 #map {
   height: 80vh;
   margin-top: 20px;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+h1 {
+  padding: 20px;
+  color: #0A2A43;
 }
 
-h1 {
-  color: #0A2A43;
+main {
+  padding: 20px;
 }
