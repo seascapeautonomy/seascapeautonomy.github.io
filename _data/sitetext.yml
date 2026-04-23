@@ -59,14 +59,7 @@ en: &DEFAULT_EN
       lon: 151.2093
       summary: "High-resolution bathymetric survey of port infrastructure."
       link: "/deployments/sydney.html"
-      image: "/assets/images/sydney.jpg"
-
-    - name: "Offshore Wind Survey"
-      lat: -35.0000
-      lon: 150.5000
-      summary: "Cable route mapping and seabed classification."
-      link: "/deployments/windfarm.html"
-      image: "/assets/images/wind.jpg"
+      image: "/assets/img/sydney.jpg"
 
   about:
     title: "About Us"
