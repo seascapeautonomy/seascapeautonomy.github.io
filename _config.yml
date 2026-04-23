@@ -32,6 +32,8 @@ analytics:
 collections:
   portfolio:
   fieldwork:
+  deployments:
+    output: true
 
 markdown: kramdown
 
