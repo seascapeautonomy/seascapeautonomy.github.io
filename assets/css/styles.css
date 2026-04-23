@@ -1,0 +1,13 @@
+#map {
+  height: 80vh;
+  margin-top: 20px;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+h1 {
+  color: #0A2A43;
+}
