@@ -58,8 +58,7 @@ en: &DEFAULT_EN
       lat: -33.8688
       lon: 151.2093
       summary: "High-resolution bathymetric survey of port infrastructure."
-      link: "/deployments/sydney.html"
-      image: "/assets/img/sydney.jpg"
+      image: "/assets/img/fieldwork/SeekerDeploymentSIMS.png"
 
   about:
     title: "About Us"
