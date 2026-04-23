@@ -17,6 +17,8 @@ en: &DEFAULT_EN
       section: portfolio
     - title: "Fieldwork"
       section: fieldwork
+    - title: "Deployments"
+      section: deployments      
     - title: "About"
       section: about
     - title: "Team"
