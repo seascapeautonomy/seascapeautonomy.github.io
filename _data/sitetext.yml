@@ -54,11 +54,12 @@ en: &DEFAULT_EN
     closebutton: "Close Project"
 
   deployments:
-    - name: "Sydney Harbour Survey"
+    - id: sydney
+      name: "Sydney Harbour Survey"
       lat: -33.8688
       lon: 151.2093
       summary: "High-resolution bathymetric survey of port infrastructure."
-      image: "/assets/img/fieldwork/SeekerDeploymentSIMS.png"
+      image: "/assets/img/fieldwork/Sydney/SeekerDeploymentSIMS.png"
 
   about:
     title: "About Us"
