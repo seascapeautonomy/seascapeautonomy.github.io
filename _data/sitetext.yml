@@ -53,7 +53,7 @@ en: &DEFAULT_EN
     section: fieldwork
     closebutton: "Close Project"
 
-  deployments:
+  #deployments:
     #- id: sydney
     #  name: "Sydney Harbour Survey"
     #  lat: -33.8688
@@ -61,17 +61,17 @@ en: &DEFAULT_EN
     #  description: "High-resolution bathymetric survey of port infrastructure."
     #  image: "/assets/img/fieldwork/Sydney/SeekerDeploymentSIMS.png"
     #
-    - name: "Great Barrier Reef Survey"
-    lat: -18.2871
-    lon: 147.6992
-    description: "High-resolution coral reef mapping mission"
-    link: "/deployments/gbr-survey"
-
-  - name: "Bass Strait Pipeline Inspection"
-    lat: -40.0
-    lon: 146.0
-    description: "Subsea infrastructure inspection"
-    link: "/deployments/bass-strait"
+  #  - name: "Great Barrier Reef Survey"
+  #  lat: -18.2871
+  #  lon: 147.6992
+  #  description: "High-resolution coral reef mapping mission"
+  #  link: "/deployments/gbr-survey"
+#
+#  - name: "Bass Strait Pipeline Inspection"
+#    lat: -40.0
+#    lon: 146.0
+#    description: "Subsea infrastructure inspection"
+#    link: "/deployments/bass-strait"
 
   about:
     title: "About Us"
