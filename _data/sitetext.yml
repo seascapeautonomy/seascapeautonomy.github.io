@@ -54,9 +54,6 @@ en: &DEFAULT_EN
     closebutton: "Close Project"
 
   deployments:
-    title: "AUV Deployments"
-    text: "We have supported numerous field campaigns, collecting data in support of environmental survey, inrastructure inspection and security related trials"
-    section: deployments    
     - id: sydney
       name: "Sydney Harbour Survey"
       lat: -33.8688
