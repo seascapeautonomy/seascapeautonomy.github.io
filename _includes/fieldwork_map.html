@@ -5,7 +5,8 @@
 	    {% leaflet_geojson {{project.location.geojson}} %}
         {% elsif project.location.latitude and project.location.longitude %}
 	{% capture project_title %} {{project.caption.title}} {% endcapture %}
-	{% capture popup_html %} "<a class=fieldwork-link data-toggle=modal href='#c{{forloop.index}}'>{{project_title}}</a>" {% endcapture %}
+	{% capture project_subtitle %} {{project.caption.subtitle}} {% endcapture %}
+	{% capture popup_html %} "<a class=fieldwork-link data-toggle=modal href='#c{{forloop.index}}'>{{project_title}}</a><br />{{project_subtitle}}" {% endcapture %}
             {% leaflet_marker { 
 	    "latitude" : {{project.location.latitude}},
 	    "longitude" : {{project.location.longitude}},
@@ -17,9 +18,3 @@
 
 {% endleaflet_map %}
 {% include modals.html %}
-				<!--"popupContent" : "<a class='fieldwork-link' data-toggle='modal' href='#c3'>{{project.caption.title }}</a>" } %}-->
-<!--<a class="fieldwork-link" data-toggle="modal" href="#c{{ forloop.index }}">
-    {{ project.caption.title }}
-	    "popupContent" : "<a class=fieldwork-link data-toggle=modal href=#c{{ forloop.index }}>{{project.capation.title}}</a>"
-	    '<a class=fieldwork-link data-toggle=modal href=#c3>{{project.capation.title}}</a>' %}
-</a>-->
