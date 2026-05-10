@@ -1,4 +1,5 @@
 ---
+layout: fieldwork
 caption: #what displays in the fieldwork grid:
   title: Norfolk Island
   subtitle: Surveys around Norfolk and Phillip Islands 2025/05
@@ -9,6 +10,17 @@ title: Norfolk Island
 subtitle: Surveys around Norfolk and Phillip Islands 2025/05
 #image: assets/img/fieldwork/NorfolkIsland202505/PhillipIslandSeekerNoseView.png
 #alt: image alt text
+location:
+  latitude: -29.06027
+  longitude: 167.955
+#  geojson: '{
+#    "type": "Feature",
+#    "properties": {"popupContent": "<a class=fieldwork-link data-toggle=modal href=#c3>Norfolk Island</a>" },
+#    "geometry": {
+#       "type": "Point",
+#       "coordinates": [167.955, -29.06027]
+#    }
+#  }'
 
 ---
 <iframe width="560" height="315" src="https://www.youtube.com/embed/y0beryHLyI0?si=38b7QWN0_4cawwFo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
