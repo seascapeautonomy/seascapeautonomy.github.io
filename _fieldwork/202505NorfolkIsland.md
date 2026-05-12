@@ -3,7 +3,7 @@ layout: default
 caption: #what displays in the fieldwork grid:
   title: Norfolk Island
   subtitle: Surveys around Norfolk and Phillip Islands 2025/05
-  thumbnail: assets/img/fieldwork/NorfolkIsland202505/PhillipIslandSeekerNoseView.png
+  thumbnail: assets/img/fieldwork/202505NorfolkIsland/PhillipIslandSeekerNoseView.png
   
 #what displays when the item is clicked:
 title: Norfolk Island
@@ -31,8 +31,8 @@ This second phase of the Norfolk Island scientific expedition is led by the Aust
 
 On this expedition, scientists undertook shore and vessel-based activities to collect fish and marine invertebrates, such as corals, crabs and molluscs, as well as algae, to expand knowledge of the marine environment.  The focus of the AUV surveys was on selected reefs around Norfolk and Phillip Islands.
 
-![Norfolk Island 20025 AUV Survey Sites](assets/img/fieldwork/NorfolkIsland202505/NorfolkIsland2025Sites.png "Norfolk Island 2025 AUV Survey Sites")
+![Norfolk Island 20025 AUV Survey Sites](assets/img/fieldwork/202505NorfolkIsland/NorfolkIsland2025Sites.png "Norfolk Island 2025 AUV Survey Sites")
 
 *<small>An overview of the sites visited by the AUV shown in green around Norfolk and Phillip Islands. Each AUV dive covered 1-3km of transect, collecting detailed, high-resolution imagery of the seafloor. The bathymetric map of the seafloor around the islands was collected using LIDAR and acoustic data and was supplied by the Australian Hydrographic Office. AUV dives targeted particular seafloor features representing reefs around the islands at depths from 5-45m of water depth.</small>*
 
-{% include image-gallery-simple.html folder="/assets/img/fieldwork/NorfolkIsland202505/gallery" %}
+{% include image-gallery-simple.html folder="/assets/img/fieldwork/202505NorfolkIsland/gallery" %}

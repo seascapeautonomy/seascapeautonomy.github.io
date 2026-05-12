@@ -2,12 +2,12 @@
 caption: #what displays in the fieldwork grid:
   title: Gippsland Victoria 
   subtitle: Surveys near future offshore wind installations in Gippsland Victoria 2025/02
-  thumbnail: assets/img/fieldwork/GippslandVic202502/IMG_3365.jpeg
+  thumbnail: assets/img/fieldwork/202502GippslandVic/IMG_3365.jpeg
   
 #what displays when the item is clicked:
 title: Gippsland Victoria 
 subtitle: Surveys near future offshore wind installations in Gippsland Victoria 2025/02
-image: assets/img/fieldwork/GippslandVic202502/IMG_3365.jpeg
+image: assets/img/fieldwork/202502GippslandVic/IMG_3365.jpeg
 alt: image alt text
 location:
   latitude: -38.778196
@@ -24,4 +24,4 @@ location:
 ---
 In February 2025, the team spent a week in Gippsland Victoria working closely with colleagues from [Fathom Pacific](https://fathompacific.com/) conducting multi-AUV surveys in proximity to new offshore wind leases.
 
-{% include image-gallery-simple.html folder="/assets/img/fieldwork/GippslandVic202502/gallery" %}
+{% include image-gallery-simple.html folder="/assets/img/fieldwork/202502GippslandVic/gallery" %}
