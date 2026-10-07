@@ -1,0 +1,21 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© {year} Seascape Autonomy</p>
+    <a href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    padding-block: 2rem;
+  }
+  .inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  a { text-decoration: none; }
+</style>

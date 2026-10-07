@@ -3,3 +3,9 @@ _site
 .jekyll-metadata
 .jekyll-cache
 Gemfile.lock
+# Astro
+dist/
+.astro/
+node_modules/
+.env
+.env.production

@@ -1,0 +1,57 @@
+/* Design tokens — the single place to tune the theme. */
+:root {
+  --color-bg: #050d18;
+  --color-surface: #0b1a2c;
+  --color-surface-2: #12263d;
+  --color-text: #e6eef7;
+  --color-muted: #8ea3b8;
+  --color-accent: #2fd4c4;
+  --color-accent-2: #3b82f6;
+  --color-border: rgb(255 255 255 / 0.08);
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+
+  --radius: 14px;
+  --max-width: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; letter-spacing: -0.02em; }
+
+a { color: inherit; }
+
+img { max-width: 100%; height: auto; display: block; }
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Elements with [data-reveal] fade up as they scroll into view. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
