@@ -4,8 +4,8 @@ kind: Platform
 order: 1
 tagline: A highly manoeuvrable AUV for seafloor survey.
 summary: Two-person portable, modular and hover-capable — built to capture low-altitude, high-resolution, geo-referenced imagery over complex terrain.
-cover: ./cover.png
-coverAlt: Seeker AUV underwater
+cover: ./cover.jpg
+coverAlt: Render of the Seeker AUV with the stereo imaging payload
 models:
   - { file: seeker-imaging.glb, label: Imaging, description: Stereo imaging payload }
   - { file: seeker-sidescan.glb, label: Sidescan, description: Sidescan sonar payload }
