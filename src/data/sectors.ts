@@ -59,7 +59,7 @@ export const sectors: Sector[] = [
       },
     ],
     // TODO: confirm which of these you want to claim publicly.
-    applications: ['Ship hull inspection', 'Harbour and port infrastructure survey', 'Littoral seabed survey', 'Sensor and payload trials'],
+    applications: ['Ship hull inspection', 'Harbour and port infrastructure survey', 'Littoral seabed survey', 'Anomaly detection', 'Sensor and payload trials'],
     cta: 'Discuss a defence requirement',
     offeringsHeading: 'See clearly, decide confidently',
   },
