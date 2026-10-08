@@ -4,8 +4,10 @@ kind: Payload
 order: 2
 tagline: Compact underwater stereo cameras for precise 3D imaging.
 summary: A synchronised stereo camera pair with integrated lighting, built to integrate with AUVs, ROVs or diver-operated systems.
-cover: ./cover.png
-coverAlt: Stereo imaging payload with cabling on a bench
+cover: ./cover.jpg
+coverAlt: Render of the stereo imaging payload, showing its twin camera domes
+model: stereo-camera.glb
+modelCameraOrbit: 35deg 58deg auto
 sectors: [offshore, environmental]
 highlights:
   - { title: Stereo camera pair, text: "Two synchronised, high-resolution, low-light cameras for 3D reconstruction." }

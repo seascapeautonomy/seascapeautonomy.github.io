@@ -49,6 +49,8 @@ const products = defineCollection({
         .array(z.object({ group: z.string(), items: z.array(z.object({ label: z.string(), value: z.string() })) }))
         .default([]),
       videos: z.array(z.string()).default([]), // YouTube video ids
+      model: z.string().optional(), // a .glb in the product's folder, shown in a 3D viewer instead of the cover
+      modelCameraOrbit: z.string().optional(),
     }),
 });
 
