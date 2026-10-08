@@ -24,9 +24,10 @@ export const values = [
   },
 ];
 
-export const stats = [
-  { value: '75+', label: 'years of collective marine robotics experience' },
-  { value: '440k+', label: 'seafloor images captured in a single campaign' },
-  { value: '300 m', label: 'depth rating, two-person portable' },
-  { value: '5', label: 'major field campaigns since 2024' }, // TODO: confirm; counts only campaigns on the old site.
+// Key Seeker AUV specifications, shown along the bottom of the hero.
+export const vehicleStats = [
+  { value: '300 m', label: 'depth rating' },
+  { value: '45 kg', label: 'two-person portable' },
+  { value: '6+ hr', label: 'endurance' },
+  { value: '0.6 mm', label: 'pixel resolution' },
 ];

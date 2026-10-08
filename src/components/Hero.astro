@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import hero from '../assets/hero.png';
+import { vehicleStats } from '../data/company';
 
 // Each headline word comes into focus in turn; each inner array is one line,
 // and the second line takes the accent colour.
@@ -49,7 +50,16 @@ let wordIndex = 0;
     </div>
   </div>
 
-  <a class="scroll-cue" href="#sectors" aria-label="Scroll to content"><span></span></a>
+  <dl class="container vehicle-stats">
+    {
+      vehicleStats.map((stat, i) => (
+        <div style={`--i: ${i}`}>
+          <dt>{stat.label}</dt>
+          <dd>{stat.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
 </section>
 
 <style>
@@ -57,7 +67,7 @@ let wordIndex = 0;
     position: relative;
     min-height: 100svh;
     display: grid;
-    align-items: end;
+    align-content: end;
     overflow: hidden;
     color: #f2f7fb; /* sits on the photo, so stays light */
     isolation: isolate;
@@ -119,25 +129,37 @@ let wordIndex = 0;
   }
   .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 
-  .scroll-cue {
-    position: absolute;
-    left: 50%;
-    bottom: 1.5rem;
-    translate: -50% 0;
-    width: 26px;
-    height: 42px;
-    border: 2px solid rgb(255 255 255 / 0.5);
-    border-radius: 999px;
+  .vehicle-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin: 0 auto;
+    padding-bottom: 2.5rem;
   }
-  .scroll-cue span {
-    position: absolute;
-    left: 50%;
-    top: 8px;
-    width: 4px;
-    height: 8px;
-    margin-left: -2px;
-    border-radius: 2px;
-    background: #fff;
+  .vehicle-stats div {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(242 247 251 / 0.2);
+  }
+  .vehicle-stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    font-size: clamp(1.6rem, 2.6vw, 2.25rem);
+    line-height: 1.1;
+    color: var(--color-accent);
+  }
+  .vehicle-stats dt { font-size: 0.9rem; color: rgb(242 247 251 / 0.7); }
+
+  @media (min-width: 721px) {
+    /* Sits along the bottom of the photo, inside the space left by lifting the text block. */
+    .vehicle-stats { position: absolute; left: 0; right: 0; bottom: 0; }
+  }
+  @media (max-width: 720px) {
+    .hero-content { padding-bottom: 2.5rem; }
+    .vehicle-stats { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -156,7 +178,10 @@ let wordIndex = 0;
     .eyebrow { animation-delay: 0.5s; }
     .lead { animation-delay: 1.5s; }
     .actions { animation-delay: 1.7s; }
-    .scroll-cue span { animation: scroll-dot 2s ease-in-out 2.5s infinite; }
+    .vehicle-stats div {
+      animation: fade-up 1s var(--ease-out) both;
+      animation-delay: calc(1.9s + var(--i) * 0.1s);
+    }
 
     /* Gentle parallax as the hero scrolls away, where scroll-driven animations are supported. */
     @supports (animation-timeline: scroll()) {
@@ -179,11 +204,6 @@ let wordIndex = 0;
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: none; }
-  }
-  @keyframes scroll-dot {
-    0% { opacity: 0; transform: translateY(0); }
-    30% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(14px); }
   }
   @keyframes drift {
     to { transform: translateY(18vh) scale(1.05); }

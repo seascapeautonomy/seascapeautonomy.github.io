@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import { sectors } from '../data/sectors';
 import FieldworkCard from '../components/FieldworkCard.astro';
-import { stats, values } from '../data/company';
+import { values } from '../data/company';
 import { getFieldwork } from '../lib/fieldwork';
 
 const latestFieldwork = (await getFieldwork()).slice(0, 3);
@@ -12,17 +12,6 @@ const latestFieldwork = (await getFieldwork()).slice(0, 3);
 
 <BaseLayout>
   <Hero />
-
-  <section class="container stats" aria-label="At a glance">
-    {
-      stats.map((stat) => (
-        <div class="stat" data-reveal>
-          <strong>{stat.value}</strong>
-          <span>{stat.label}</span>
-        </div>
-      ))
-    }
-  </section>
 
   <section class="container values">
     <div class="section-head">
@@ -89,24 +78,6 @@ const latestFieldwork = (await getFieldwork()).slice(0, 3);
   section { padding-block: clamp(4rem, 9vw, 7rem); }
   .section-head { max-width: 40rem; margin-bottom: 2.5rem; }
   .section-head h2 { margin-bottom: 0; }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    padding-block: 3rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .stat strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(2.25rem, 4vw, 3rem);
-    font-weight: var(--display-weight);
-    letter-spacing: var(--display-tracking);
-    color: var(--color-accent);
-    line-height: 1;
-  }
-  .stat span { color: var(--color-muted); font-size: 0.95rem; }
 
   .value-list {
     list-style: none;
