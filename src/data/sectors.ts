@@ -29,7 +29,7 @@ export const sectors: Sector[] = [
   {
     slug: 'defence',
     name: 'Defence & Security',
-    // TODO: replace with defence-specific imagery (trials, harbour or hull work) if releasable.
+    // TODO: replace with defence-specific imagery (trials or harbour work) if releasable.
     image: defenceImage,
     imageAlt: 'Seeker AUV on the surface in shallow water',
     tagline: 'Seabed awareness where larger systems can’t go.',
@@ -68,7 +68,7 @@ export const sectors: Sector[] = [
     imageAlt: 'Two Seeker AUVs on the back deck of a survey vessel at sunrise',
     tagline: 'Inspect, assess and monitor offshore assets with confidence.',
     summary:
-      'High-resolution, geo-referenced seafloor imagery around critical marine infrastructure — from offshore wind environmental impact assessment to cable, pipeline and hull inspection.',
+      'High-resolution, geo-referenced seafloor imagery around critical marine infrastructure — from offshore wind environmental impact assessment to cable and pipeline inspection.',
     challenge:
       'Offshore developments need defensible environmental baselines and repeatable inspection data, collected efficiently from a single vessel and delivered in a form stakeholders can use.',
     offerings: [
@@ -99,7 +99,6 @@ export const sectors: Sector[] = [
     applications: [
       'Offshore wind environmental impact assessment',
       'Cable and pipeline inspection',
-      'Ship hull inspection',
       'Maintenance and change monitoring',
     ],
     cta: 'Plan an offshore survey',
