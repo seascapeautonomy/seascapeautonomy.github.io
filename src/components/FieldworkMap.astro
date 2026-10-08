@@ -1,4 +1,6 @@
 ---
+// Imported here (not in the client script) so it's a page stylesheet that survives client-side navigation.
+import 'leaflet/dist/leaflet.css';
 import { formatMonth, type Fieldwork } from '../lib/fieldwork';
 
 interface Props {
@@ -17,7 +19,7 @@ const markers = Astro.props.entries.map((entry) => ({
 
 <script>
   import L from 'leaflet';
-  import 'leaflet/dist/leaflet.css';
+  import { claim, onPageLoad } from '../lib/lifecycle';
 
   interface Marker {
     href: string;
@@ -37,7 +39,7 @@ const markers = Astro.props.entries.map((entry) => ({
 
   function setupMap() {
     const el = document.querySelector<HTMLElement>('.fieldwork-map');
-    if (!el) return;
+    if (!el || !claim(el)) return;
     const markers: Marker[] = JSON.parse(el.dataset.markers ?? '[]');
 
     map = L.map(el, { scrollWheelZoom: false, worldCopyJump: true });
@@ -67,7 +69,7 @@ const markers = Astro.props.entries.map((entry) => ({
     if (points.length) map.fitBounds(L.latLngBounds(points), { padding: [60, 60], maxZoom: 6 });
   }
 
-  document.addEventListener('astro:page-load', setupMap);
+  onPageLoad(setupMap);
   document.addEventListener('astro:before-swap', () => {
     map?.remove();
     map = undefined;

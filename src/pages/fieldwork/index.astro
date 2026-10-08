@@ -39,7 +39,11 @@ const filters = sectors.filter((sector) => entries.some((entry) => entry.data.se
 </BaseLayout>
 
 <script>
+  import { claim, onPageLoad } from '../../lib/lifecycle';
+
   function setupFilters() {
+    const group = document.querySelector<HTMLElement>('.filters');
+    if (!group || !claim(group)) return;
     const buttons = document.querySelectorAll<HTMLButtonElement>('.filters button');
     const cards = document.querySelectorAll<HTMLElement>('.campaigns [data-sectors]');
     buttons.forEach((button) => {
@@ -52,7 +56,7 @@ const filters = sectors.filter((sector) => entries.some((entry) => entry.data.se
       });
     });
   }
-  document.addEventListener('astro:page-load', setupFilters);
+  onPageLoad(setupFilters);
 </script>
 
 <style>

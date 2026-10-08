@@ -48,9 +48,11 @@ import { sectors } from '../data/sectors';
 </form>
 
 <script>
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
   function setupContactForm() {
     const form = document.querySelector<HTMLFormElement>('.contact-form');
-    if (!form) return;
+    if (!form || !claim(form)) return;
     const status = form.querySelector<HTMLElement>('.status')!;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
 
@@ -92,7 +94,7 @@ import { sectors } from '../data/sectors';
       }
     });
   }
-  document.addEventListener('astro:page-load', setupContactForm);
+  onPageLoad(setupContactForm);
 </script>
 
 <style>

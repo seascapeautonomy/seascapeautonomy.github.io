@@ -149,5 +149,8 @@ const overHero = Astro.url.pathname === '/';
       font-size: 2rem;
     }
     .menu-open { color: var(--color-text) !important; }
+    /* backdrop-filter would make the header the containing block for the fixed
+       full-screen menu, squashing it into the header bar. */
+    .site-header.menu-open { backdrop-filter: none; }
   }
 </style>

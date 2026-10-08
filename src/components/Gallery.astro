@@ -32,9 +32,11 @@ const fullSize = await Promise.all(images.map((src) => getImage({ src, width: Ma
 }
 
 <script>
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
   function setupGallery() {
     const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
-    if (!dialog) return;
+    if (!dialog || !claim(dialog)) return;
     const sources: string[] = JSON.parse(dialog.dataset.sources ?? '[]');
     const img = dialog.querySelector('img')!;
     const counter = dialog.querySelector('.counter')!;
@@ -64,7 +66,7 @@ const fullSize = await Promise.all(images.map((src) => getImage({ src, width: Ma
       if (event.key === 'ArrowRight') show(index + 1);
     });
   }
-  document.addEventListener('astro:page-load', setupGallery);
+  onPageLoad(setupGallery);
 </script>
 
 <style>
