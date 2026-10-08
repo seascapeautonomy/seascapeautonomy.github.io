@@ -36,7 +36,7 @@ specs:
       - { label: Obstacle avoidance, value: Impact Subsea ISA500 }
       - { label: Cameras, value: "2 × downward 8 MP, 1 × forward 2 MP" }
       - { label: Lighting, value: Forward and rear strobes }
-      - { label: Compute, value: NVIDIA Jetson Xavier NX }
+      - { label: Compute, value: NVIDIA Jetson Orin Nano }
       - { label: Communications, value: "FreeWave ZumLink 900, LoRa, Wi-Fi, Iridium, GigE" }
 videos: [jC2b_zxD9jU, _FObuXCuHuA]
 ---
