@@ -7,9 +7,10 @@ const models = import.meta.glob<string>('/src/content/products/seeker-auv/*.glb'
   eager: true,
 });
 
+// The first variant with a model file is shown by default.
 const variants = [
-  { id: 'sidescan', label: 'Sidescan', file: 'seeker-sidescan.glb', description: 'Sidescan sonar payload' },
   { id: 'imaging', label: 'Imaging', file: 'seeker-imaging.glb', description: 'Stereo imaging payload' },
+  { id: 'sidescan', label: 'Sidescan', file: 'seeker-sidescan.glb', description: 'Sidescan sonar payload' },
 ].map((variant) => ({ ...variant, src: models[`/src/content/products/seeker-auv/${variant.file}`] }));
 
 const initial = variants.find((variant) => variant.src);
