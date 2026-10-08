@@ -136,8 +136,7 @@ export const sectors: Sector[] = [
     ],
     applications: [
       'Benthic habitat mapping',
-      'Long-term reef monitoring',
-      'Mesophotic reef survey',
+      'Reef survey and long-term monitoring',
       'Fisheries and stock assessment surveys',
     ],
     cta: 'Talk about your survey',
