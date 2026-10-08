@@ -13,8 +13,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@google/model-viewer": "4.3.1",
     "astro": "7.3.5",
-    "leaflet": "1.9.4"
+    "leaflet": "1.9.4",
+    "three": "0.183.2"
   },
   "allowScripts": {
     "esbuild": true

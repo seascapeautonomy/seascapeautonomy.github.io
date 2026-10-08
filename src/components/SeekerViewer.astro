@@ -1,0 +1,237 @@
+---
+// Interactive 3D viewer for the Seeker AUV, with a button per payload variant.
+// A variant appears once its .glb file is added to src/content/products/seeker-auv/.
+const models = import.meta.glob<string>('/src/content/products/seeker-auv/*.glb', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+
+const variants = [
+  { id: 'sidescan', label: 'Sidescan', file: 'seeker-sidescan.glb', description: 'Sidescan sonar payload' },
+  { id: 'imaging', label: 'Imaging', file: 'seeker-imaging.glb', description: 'Stereo imaging payload' },
+].map((variant) => ({ ...variant, src: models[`/src/content/products/seeker-auv/${variant.file}`] }));
+
+const initial = variants.find((variant) => variant.src);
+---
+
+{
+  initial && (
+    <div class="seeker-viewer">
+      <model-viewer
+        src={initial.src}
+        alt={`Interactive 3D model of the Seeker AUV with ${initial.description.toLowerCase()}`}
+        camera-controls
+        disable-zoom
+        auto-rotate
+        auto-rotate-delay="2000"
+        rotation-per-second="18deg"
+        camera-orbit="-40deg 72deg auto"
+        field-of-view="19deg"
+        interaction-prompt="none"
+        touch-action="pan-y"
+        shadow-intensity="1.1"
+        shadow-softness="0.9"
+        exposure="1.05"
+        environment-image="neutral"
+        loading="eager"
+      >
+        <div class="progress" slot="progress-bar" aria-hidden="true"><span></span></div>
+      </model-viewer>
+
+      <div class="variants" role="group" aria-label="Payload variant">
+        {
+          variants.map((variant) => (
+            <button
+              type="button"
+              data-src={variant.src}
+              data-description={variant.description}
+              aria-pressed={String(variant === initial)}
+              disabled={!variant.src}
+              title={variant.src ? variant.description : `${variant.label} model coming soon`}
+            >
+              {variant.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
+        <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
+      </div>
+
+      <p class="hint">Drag to rotate</p>
+    </div>
+  )
+}
+
+<script>
+  import '../lib/model-viewer-config';
+  import '@google/model-viewer';
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
+  type ModelViewer = HTMLElement & {
+    src: string;
+    alt: string;
+    fieldOfView: string;
+    cameraOrbit: string;
+    getCameraOrbit(): { theta: number; phi: number; radius: number };
+  };
+
+  // Zoom by moving the camera in or out. (disable-zoom, which stops page scrolling from
+  // zooming the model, also disables model-viewer's own zoom().) Zooming out stops at the
+  // starting view, which model-viewer enforces.
+  const ZOOM_STEP = 1.25;
+  const MAX_ZOOM_IN = 3; // closest camera distance, as a fraction of the starting distance
+
+  function setupViewer() {
+    const root = document.querySelector<HTMLElement>('.seeker-viewer');
+    if (!root || !claim(root)) return;
+    const viewer = root.querySelector('model-viewer') as ModelViewer;
+    const bar = root.querySelector<HTMLElement>('.progress span')!;
+    const progress = root.querySelector<HTMLElement>('.progress')!;
+
+    // A tall, narrow viewer (phones) needs a wider view to fit the whole vehicle.
+    if (root.clientWidth < root.clientHeight) viewer.fieldOfView = '30deg';
+
+    viewer.addEventListener('progress', (event) => {
+      const value = (event as CustomEvent<{ totalProgress: number }>).detail.totalProgress;
+      progress.classList.toggle('done', value >= 1);
+      bar.style.transform = `scaleX(${value})`;
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('.variants button').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!button.dataset.src || button.getAttribute('aria-pressed') === 'true') return;
+        root.querySelectorAll('.variants button').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        viewer.src = button.dataset.src;
+        viewer.alt = `Interactive 3D model of the Seeker AUV with ${button.dataset.description!.toLowerCase()}`;
+      });
+    });
+
+    // Track the zoom target rather than reading the camera, which may still be animating
+    // from the previous click. Each newly loaded model starts at its own default distance.
+    let startRadius = 0;
+    let targetRadius = 0;
+    viewer.addEventListener('load', () => (startRadius = targetRadius = viewer.getCameraOrbit().radius));
+
+    root.querySelectorAll<HTMLButtonElement>('.zoom button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const { theta, phi } = viewer.getCameraOrbit();
+        const factor = button.dataset.zoom === 'in' ? 1 / ZOOM_STEP : ZOOM_STEP;
+        targetRadius = Math.min(startRadius, Math.max(startRadius / MAX_ZOOM_IN, targetRadius * factor));
+        viewer.cameraOrbit = `${theta}rad ${phi}rad ${targetRadius}m`;
+      });
+    });
+  }
+  onPageLoad(setupViewer);
+</script>
+
+<style>
+  .seeker-viewer {
+    position: relative;
+    height: clamp(340px, 62vh, 620px);
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    /* A pool of light under the vehicle, fading into the page's indigo. */
+    background:
+      radial-gradient(ellipse 55% 45% at 50% 55%, rgb(var(--color-accent-rgb) / 0.18), transparent 70%),
+      radial-gradient(ellipse 90% 80% at 50% 0%, rgb(38 60 160 / 0.5), transparent 70%),
+      var(--color-surface);
+  }
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    --poster-color: transparent;
+    background: transparent;
+  }
+
+  .progress {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    width: min(240px, 50%);
+    height: 2px;
+    translate: -50% 0;
+    background: rgb(255 255 255 / 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: opacity 0.4s;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    box-shadow: var(--glow-sm);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+  }
+  .progress.done { opacity: 0; }
+
+  .variants {
+    position: absolute;
+    left: 50%;
+    bottom: 1.25rem;
+    translate: -50% 0;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgb(var(--shade-rgb) / 0.7);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+  }
+  .variants button,
+  .zoom button {
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+    color: var(--color-muted);
+    background: transparent;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .variants button {
+    padding: 0.55rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+  .variants button:hover:not(:disabled) { color: var(--color-text); }
+  .variants button[aria-pressed='true'] {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 600;
+    box-shadow: var(--glow-sm);
+  }
+  .variants button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .zoom {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    display: grid;
+    gap: 4px;
+  }
+  .zoom button {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    background: rgb(var(--shade-rgb) / 0.7);
+    border: 1px solid var(--color-border);
+  }
+  .zoom button:hover { color: var(--color-accent); box-shadow: var(--glow-sm); }
+
+  .hint {
+    position: absolute;
+    left: 1.25rem;
+    top: 1rem;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+</style>

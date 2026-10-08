@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import SeekerViewer from '../../components/SeekerViewer.astro';
 import { getProducts } from '../../lib/products';
 import { vehicleStats } from '../../data/company';
 
@@ -18,6 +19,10 @@ const [featured, ...others] = await getProducts();
     <p class="lead">
       AUV platforms, imaging systems and data tools that take you from deployment to decision.
     </p>
+  </section>
+
+  <section class="container viewer">
+    <SeekerViewer />
   </section>
 
   <section class="container">
@@ -54,6 +59,7 @@ const [featured, ...others] = await getProducts();
 <style>
   section { padding-block: 2rem; }
   .intro { padding-top: 9rem; }
+  .viewer { padding-top: 0.5rem; }
   h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 0.2em 0 0.3em; }
   .lead { color: var(--color-muted); max-width: 52ch; font-size: 1.15rem; margin: 0; }
 
