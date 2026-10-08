@@ -1,0 +1,128 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  images: ImageMetadata[];
+  title: string;
+}
+
+const { images, title } = Astro.props;
+// Large versions for the lightbox, generated at build time.
+const fullSize = await Promise.all(images.map((src) => getImage({ src, width: Math.min(src.width, 2000), quality: 80 })));
+---
+
+{
+  images.length > 0 && (
+    <div class="gallery">
+      {images.map((src, i) => (
+        <button type="button" class="thumb" data-index={i} aria-label={`Open photo ${i + 1} of ${images.length}`}>
+          <Image src={src} alt={`${title} photo ${i + 1}`} widths={[300, 600]} width={600} sizes="(max-width: 600px) 50vw, 300px" />
+        </button>
+      ))}
+      <dialog class="lightbox" data-sources={JSON.stringify(fullSize.map((img) => img.src))} aria-label={`${title} photos`}>
+        <img alt="" />
+        <button type="button" class="nav prev" aria-label="Previous photo">‹</button>
+        <button type="button" class="nav next" aria-label="Next photo">›</button>
+        <button type="button" class="close" aria-label="Close">×</button>
+        <span class="counter" />
+      </dialog>
+    </div>
+  )
+}
+
+<script>
+  function setupGallery() {
+    const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
+    if (!dialog) return;
+    const sources: string[] = JSON.parse(dialog.dataset.sources ?? '[]');
+    const img = dialog.querySelector('img')!;
+    const counter = dialog.querySelector('.counter')!;
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + sources.length) % sources.length;
+      img.src = sources[index];
+      counter.textContent = `${index + 1} / ${sources.length}`;
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('.gallery .thumb').forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        show(Number(thumb.dataset.index));
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('.prev')!.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('.next')!.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('.close')!.addEventListener('click', () => dialog.close());
+    // Clicking the backdrop (the dialog itself, outside the photo and controls) closes it.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+  }
+  document.addEventListener('astro:page-load', setupGallery);
+</script>
+
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 45%), 1fr));
+    gap: 0.75rem;
+  }
+  .thumb {
+    padding: 0;
+    border: 0;
+    border-radius: calc(var(--radius) * 0.7);
+    overflow: hidden;
+    cursor: zoom-in;
+    background: var(--color-surface);
+  }
+  .thumb img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out), opacity 0.3s;
+  }
+  .thumb:hover img { transform: scale(1.06); }
+
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: clamp(16px, 4vw, 48px);
+    border: 0;
+    background: rgb(3 8 16 / 0.94);
+    color: #fff;
+  }
+  .lightbox[open] { display: grid; place-items: center; }
+  .lightbox::backdrop { background: transparent; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: calc(100dvh - 120px);
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .lightbox button {
+    position: absolute;
+    border: 0;
+    background: rgb(255 255 255 / 0.08);
+    color: #fff;
+    border-radius: 999px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .lightbox button:hover { background: rgb(255 255 255 / 0.18); }
+  .prev { left: 16px; top: 50%; translate: 0 -50%; }
+  .next { right: 16px; top: 50%; translate: 0 -50%; }
+  .close { right: 16px; top: 16px; }
+  .counter { position: absolute; bottom: 20px; left: 50%; translate: -50% 0; color: rgb(255 255 255 / 0.7); font-size: 0.9rem; }
+</style>

@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FieldworkCard from '../../components/FieldworkCard.astro';
+import FieldworkMap from '../../components/FieldworkMap.astro';
+import { getFieldwork } from '../../lib/fieldwork';
+import { sectors } from '../../data/sectors';
+
+const entries = await getFieldwork();
+// Only offer filters for sectors that have fieldwork.
+const filters = sectors.filter((sector) => entries.some((entry) => entry.data.sectors.includes(sector.slug as never)));
+---
+
+<BaseLayout
+  title="Fieldwork"
+  description="Field campaigns by Seascape Autonomy: environmental survey and offshore infrastructure work across Australia and the Pacific."
+>
+  <section class="container intro">
+    <p class="eyebrow">Fieldwork</p>
+    <h1>Proven at sea</h1>
+    <p class="lead">
+      From volcanic reefs in Tonga to offshore wind sites in Bass Strait, our AUVs are developed and proven in the
+      field alongside scientists, surveyors and industry partners.
+    </p>
+  </section>
+
+  <section class="container" data-reveal>
+    <FieldworkMap entries={entries} />
+  </section>
+
+  <section class="container campaigns">
+    <div class="filters" role="group" aria-label="Filter by sector">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      {filters.map((sector) => <button type="button" data-filter={sector.slug} aria-pressed="false">{sector.name}</button>)}
+    </div>
+    <div class="grid">
+      {entries.map((entry) => <FieldworkCard entry={entry} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  function setupFilters() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.filters button');
+    const cards = document.querySelectorAll<HTMLElement>('.campaigns [data-sectors]');
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter!;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        cards.forEach((card) => {
+          card.hidden = filter !== 'all' && !card.dataset.sectors!.split(' ').includes(filter);
+        });
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', setupFilters);
+</script>
+
+<style>
+  section { padding-block: 2rem; }
+  .intro { padding-top: 9rem; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 0.2em 0 0.3em; }
+  .lead { color: var(--color-muted); max-width: 55ch; font-size: 1.15rem; margin: 0; }
+
+  .campaigns { padding-bottom: 6rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .filters button {
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .filters button:hover { color: var(--color-text); }
+  .filters button[aria-pressed='true'] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  }
+  .grid :global([hidden]) { display: none; }
+</style>

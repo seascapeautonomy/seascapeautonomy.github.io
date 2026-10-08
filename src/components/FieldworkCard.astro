@@ -1,0 +1,62 @@
+---
+import { Image } from 'astro:assets';
+import { formatMonth, type Fieldwork } from '../lib/fieldwork';
+import { sectors } from '../data/sectors';
+
+interface Props {
+  entry: Fieldwork;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const sectorNames = data.sectors.map((slug) => sectors.find((s) => s.slug === slug)?.name ?? slug);
+---
+
+<a class="card" href={`/fieldwork/${entry.id}`} data-sectors={data.sectors.join(' ')} data-reveal>
+  <div class="media">
+    <Image src={data.cover} alt={data.coverAlt} widths={[400, 800]} width={800} sizes="(max-width: 900px) 100vw, 400px" />
+  </div>
+  <div class="body">
+    <span class="date">{formatMonth(data.date)} · {data.location}</span>
+    <h3>{data.title}</h3>
+    <p>{data.summary}</p>
+    <ul class="tags">
+      {sectorNames.map((name) => <li>{name}</li>)}
+    </ul>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    /* Includes opacity and filter so the scroll reveal still animates. */
+    transition: transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out), opacity 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--color-accent); }
+  .media { overflow: hidden; }
+  .media img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .card:hover img { transform: scale(1.05); }
+  .body { padding: 1.4rem 1.5rem 1.6rem; display: flex; flex-direction: column; flex: 1; }
+  .date { color: var(--color-accent); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; }
+  h3 { font-size: 1.3rem; margin: 0.4rem 0 0.5rem; }
+  p { color: var(--color-muted); margin: 0 0 1.25rem; flex: 1; font-size: 0.95rem; }
+  .tags { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tags li {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    color: var(--color-muted);
+  }
+</style>

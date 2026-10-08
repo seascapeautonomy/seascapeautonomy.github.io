@@ -1,4 +1,5 @@
-// Copy for each customer sector. First draft assembled from the previous site's
+// Copy for each customer sector; fieldwork is tagged with sectors in src/content/fieldwork.
+// First draft assembled from the previous site's
 // services, products and fieldwork text; lines marked TODO need real input.
 import type { ImageMetadata } from 'astro';
 import defenceImage from '../assets/sectors/defence.png';
@@ -7,12 +8,6 @@ import environmentalImage from '../assets/sectors/environmental.png';
 
 export interface Offering {
   title: string;
-  description: string;
-}
-
-export interface Proof {
-  title: string;
-  date: string;
   description: string;
 }
 
@@ -26,7 +21,6 @@ export interface Sector {
   challenge: string;
   offerings: Offering[];
   applications: string[];
-  proof: Proof[];
   cta: string;
 }
 
@@ -61,8 +55,6 @@ export const sectors: Sector[] = [
     ],
     // TODO: confirm which of these you want to claim publicly.
     applications: ['Ship hull inspection', 'Harbour and port infrastructure survey', 'Littoral seabed survey', 'Sensor and payload trials'],
-    // TODO: add trials or programs you can name publicly.
-    proof: [],
     cta: 'Discuss a defence requirement',
   },
   {
@@ -102,19 +94,6 @@ export const sectors: Sector[] = [
       'Ship hull inspection',
       'Maintenance and change monitoring',
     ],
-    proof: [
-      {
-        title: 'Aurora Green, Bass Strait',
-        date: 'March 2026',
-        description:
-          'Environmental impact assessment for a future offshore wind development with Fathom Pacific and ERM: 75 dives and over 440,000 high-resolution seafloor images in three weeks at sea.',
-      },
-      {
-        title: 'Gippsland, Victoria',
-        date: 'February 2025',
-        description: 'Multi-AUV surveys alongside Fathom Pacific in proximity to new offshore wind leases.',
-      },
-    ],
     cta: 'Plan an offshore survey',
   },
   {
@@ -148,25 +127,6 @@ export const sectors: Sector[] = [
       'Long-term reef monitoring',
       'Mesophotic reef survey',
       'Fisheries and stock assessment surveys',
-    ],
-    proof: [
-      {
-        title: 'Lizard Island, Great Barrier Reef',
-        date: 'October 2025',
-        description: 'AUV and imaging-ROV surveys supporting a long-term reef monitoring program around the island.',
-      },
-      {
-        title: 'Norfolk & Phillip Islands',
-        date: 'May 2025',
-        description:
-          'Reef surveys at 5–45 m for the Australian Museum-led expedition, each dive covering 1–3 km of transect.',
-      },
-      {
-        title: 'Tonga',
-        date: 'October 2024',
-        description:
-          'Two Seeker AUVs deployed alongside divers to document mesophotic reefs on rugged volcanic islands, supported by the Inkfish Foundation.',
-      },
     ],
     cta: 'Talk about your survey',
   },
