@@ -90,10 +90,17 @@ let wordIndex = 0;
       linear-gradient(to right, rgb(2 8 18 / 0.55), rgb(2 8 18 / 0) 60%);
   }
 
-  .hero-content { padding-block: 8rem clamp(5rem, 12vh, 8rem); }
+  .hero-content {
+    --headline-size: clamp(2.6rem, 7.5vw, 6.25rem);
+    padding-block: 8rem clamp(5rem, 12vh, 8rem);
+  }
+  @media (min-width: 721px) {
+    /* Lift the text block 1.5 headline-heights up the photo; on phones it would cover the AUV. */
+    .hero-content { padding-bottom: calc(clamp(5rem, 12vh, 8rem) + 1.5 * var(--headline-size)); }
+  }
 
   h1 {
-    font-size: clamp(2.6rem, 7.5vw, 6.25rem);
+    font-size: var(--headline-size);
     margin: 0.2em 0 0.35em;
   }
   .line {
