@@ -26,7 +26,6 @@ let wordIndex = 0;
   <div class="hero-shade"></div>
 
   <div class="container hero-content">
-    <p class="eyebrow">Autonomous seafloor imaging</p>
     <h1>
       {
         lines.map((line, lineIndex) => (
@@ -188,10 +187,9 @@ let wordIndex = 0;
       animation: word-focus 1.1s var(--ease-out) both;
       animation-delay: calc(0.7s + var(--i) * 0.14s);
     }
-    .eyebrow, .lead, .actions {
+    .lead, .actions {
       animation: fade-up 1s var(--ease-out) both;
     }
-    .eyebrow { animation-delay: 0.5s; }
     .lead { animation-delay: 1.5s; }
     .actions { animation-delay: 1.7s; }
     .vehicle-stats div {
