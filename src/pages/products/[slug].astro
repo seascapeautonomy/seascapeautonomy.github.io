@@ -24,7 +24,7 @@ const { product, related } = Astro.props;
 const { data } = product;
 const { Content } = await render(product);
 const productSectors = sectors.filter((sector) => data.sectors.includes(sector.slug as never));
-const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent(`${data.title} enquiry`)}`;
+const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
 ---
 
 <BaseLayout title={data.title} description={data.summary}>
@@ -35,7 +35,7 @@ const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent
       <h1>{data.title}</h1>
       <p class="lead">{data.tagline} {data.summary}</p>
       <div class="actions">
-        <a class="button" href={mailto}>Enquire about {data.title}</a>
+        <a class="button" href={contactLink}>Enquire about {data.title}</a>
         {data.specs.length > 0 && <a class="button ghost" href="#specs">Specifications</a>}
       </div>
     </div>

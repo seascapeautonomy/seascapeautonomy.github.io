@@ -11,7 +11,7 @@ export function getStaticPaths() {
 
 const { sector } = Astro.props as { sector: Sector };
 const fieldwork = (await getFieldwork()).filter((entry) => entry.data.sectors.includes(sector.slug as never));
-const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent(`${sector.name} enquiry`)}`;
+const contactLink = `/contact?sector=${sector.slug}`;
 ---
 
 <BaseLayout title={sector.name} description={sector.summary}>
@@ -20,7 +20,7 @@ const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent
       <p class="eyebrow">{sector.name}</p>
       <h1>{sector.tagline}</h1>
       <p class="lead">{sector.summary}</p>
-      <a class="button" href={mailto}>{sector.cta}</a>
+      <a class="button" href={contactLink}>{sector.cta}</a>
     </div>
     <div class="intro-media">
       <Image src={sector.image} alt={sector.imageAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 500px" loading="eager" />
@@ -69,7 +69,7 @@ const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent
 
   <section class="container cta" data-reveal>
     <h2>Ready to see more clearly?</h2>
-    <a class="button" href={mailto}>{sector.cta}</a>
+    <a class="button" href={contactLink}>{sector.cta}</a>
   </section>
 </BaseLayout>
 

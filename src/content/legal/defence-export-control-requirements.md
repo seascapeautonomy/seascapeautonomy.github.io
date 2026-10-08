@@ -1,5 +1,5 @@
 ---
-layout: page
+order: 5
 title: Defence Export Control Requirements
 ---
 # Defence Export Control Requirements

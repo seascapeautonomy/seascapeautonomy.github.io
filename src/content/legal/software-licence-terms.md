@@ -1,5 +1,5 @@
 ---
-layout: page
+order: 3
 title: Software Licence Terms
 ---
 # Software Licence Terms

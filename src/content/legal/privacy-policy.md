@@ -1,16 +1,14 @@
 ---
-layout: page
+order: 6
 title: Privacy Policy
-background: grey
 ---
 
 # Privacy Policy
 
-This Privacy Policy describes how your personal information is collected, used, and shared when you visit {{ site.title }} (the “Site”).
+This Privacy Policy describes how your personal information is collected, used, and shared when you visit Seascape Autonomy (the “Site”).
 
 **PERSONAL INFORMATION WE COLLECT**
 
-{% if site.analytics.google %}
 
 Automatically Collected (Google Analytics):
 
@@ -22,11 +20,6 @@ We do this using Google Analytics: <https://www.google.com/intl/en/policies/priv
 
 You can opt-out of Google Analytics here: <https://tools.google.com/dlpage/gaoptout>.
 
-{% else %}
-
-We do not collect any data about you or use any cookies.
-
-{% endif %}
 
 **CHANGES**
 
@@ -34,4 +27,4 @@ We may update this privacy policy from time to time for personal, operational, l
 
 **CONTACT US**
 
-For more information about our privacy practices or if you have questions, please contact us by email at <a href="mailto:{{ site.email }}">{{ site.email }}</a>.
+For more information about our privacy practices or if you have questions, please contact us by email at <a href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>.

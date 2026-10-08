@@ -1,0 +1,131 @@
+---
+import { contact } from '../data/company';
+import { sectors } from '../data/sectors';
+---
+
+<form class="contact-form" action={contact.formEndpoint} method="POST">
+  <div class="row">
+    <label>
+      <span>Name *</span>
+      <input name="name" type="text" autocomplete="name" required />
+    </label>
+    <label>
+      <span>Email *</span>
+      <input name="email" type="email" autocomplete="email" required />
+    </label>
+  </div>
+  <div class="row">
+    <label>
+      <span>Organisation</span>
+      <input name="organisation" type="text" autocomplete="organization" />
+    </label>
+    <label>
+      <span>Phone</span>
+      <input name="phone" type="tel" autocomplete="tel" />
+    </label>
+  </div>
+  <label>
+    <span>Area of interest</span>
+    <select name="sector">
+      <option value="">Select…</option>
+      {sectors.map((sector) => <option value={sector.slug}>{sector.name}</option>)}
+      <option value="other">Something else</option>
+    </select>
+  </label>
+  <label>
+    <span>Message *</span>
+    <textarea name="message" rows="6" required></textarea>
+  </label>
+
+  <input type="hidden" name="_subject" value="Website enquiry" />
+  <!-- Honeypot: hidden from people, filled in by spam bots. -->
+  <input type="text" name="_gotcha" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+  <div class="submit-row">
+    <button class="button" type="submit">Send message</button>
+    <p class="status" role="status" aria-live="polite"></p>
+  </div>
+</form>
+
+<script>
+  function setupContactForm() {
+    const form = document.querySelector<HTMLFormElement>('.contact-form');
+    if (!form) return;
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    // Prefill from links such as /contact?sector=offshore or /contact?product=Seeker%20AUV.
+    const params = new URLSearchParams(location.search);
+    const sector = params.get('sector');
+    const product = params.get('product');
+    if (sector) form.sector.value = sector;
+    if (product) {
+      form.message.value = `I'd like to find out more about the ${product}.`;
+      form._subject.value = `${product} enquiry`;
+    } else if (sector) {
+      const name = form.sector.selectedOptions[0]?.textContent;
+      if (name && form.sector.value) form._subject.value = `${name} enquiry`;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      button.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Sending…';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        form.reset();
+        status.classList.add('success');
+        status.textContent = 'Thanks — your message has been sent. We’ll be in touch soon.';
+      } catch {
+        status.classList.add('error');
+        status.innerHTML =
+          'Sorry, something went wrong. Please email us at <a href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', setupContactForm);
+</script>
+
+<style>
+  .contact-form { display: grid; gap: 1.1rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+  @media (max-width: 600px) {
+    .row { grid-template-columns: 1fr; }
+  }
+  label { display: grid; gap: 0.4rem; }
+  label span { font-size: 0.85rem; font-weight: 500; color: var(--color-muted); }
+  input, select, textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%), linear-gradient(135deg, var(--color-muted) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+  textarea { resize: vertical; min-height: 140px; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgb(92 208 240 / 0.2);
+  }
+  .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .submit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 0.5rem; }
+  button { border: 0; cursor: pointer; font: inherit; font-weight: 600; }
+  button:disabled { opacity: 0.6; cursor: progress; }
+  .status { margin: 0; color: var(--color-muted); }
+  .status.success { color: var(--color-accent); }
+  .status.error { color: #ff9b8a; }
+  .status :global(a) { color: inherit; }
+</style>

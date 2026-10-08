@@ -1,5 +1,5 @@
 ---
-layout: page
+order: 4
 title: Warranty Against Defects
 ---
 

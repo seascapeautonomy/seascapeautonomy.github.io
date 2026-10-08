@@ -31,3 +31,13 @@ export const vehicleStats = [
   { value: '6+ hr', label: 'endurance' },
   { value: '0.6 mm', label: 'pixel resolution' },
 ];
+
+export const contact = {
+  email: 'contact@seascapeautonomy.com',
+  linkedin: 'https://www.linkedin.com/company/seascape-autonomy',
+  legalName: 'Seascape Autonomy Pty Ltd',
+  acn: '676 897 813',
+  // Same Formspree endpoint as the old site. TODO: Formspree recommends a form ID
+  // (https://formspree.io/f/<id>) over the legacy email-based URL.
+  formEndpoint: 'https://formspree.io/contact@seascapeautonomy.com',
+};

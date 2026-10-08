@@ -52,4 +52,13 @@ const products = defineCollection({
     }),
 });
 
-export const collections = { fieldwork, products };
+// Legal documents, each served at /<file name> (the same URLs as the old site).
+const legal = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/legal' }),
+  schema: z.object({
+    title: z.string(),
+    order: z.number(),
+  }),
+});
+
+export const collections = { fieldwork, products, legal };

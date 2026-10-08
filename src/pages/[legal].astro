@@ -1,0 +1,16 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import LegalLayout from '../layouts/LegalLayout.astro';
+
+export async function getStaticPaths() {
+  const documents = await getCollection('legal');
+  return documents.map((document) => ({ params: { legal: document.id }, props: { document } }));
+}
+
+const { document } = Astro.props as { document: CollectionEntry<'legal'> };
+const { Content } = await render(document);
+---
+
+<LegalLayout title={document.data.title}>
+  <Content />
+</LegalLayout>

@@ -1,7 +1,7 @@
 ---
-layout: page
+order: 1
 title: Standard Terms & Conditions
---- 
+---
 
 # Standard Terms & Conditions
 

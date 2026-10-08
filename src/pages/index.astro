@@ -86,7 +86,10 @@ const products = (await getProducts()).slice(0, 4);
   <section id="contact" class="container contact" data-reveal>
     <p class="eyebrow">Get in touch</p>
     <h2>Let’s bring your seafloor into focus</h2>
-    <a class="button" href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>
+    <div class="contact-actions">
+      <a class="button" href="/contact">Get in touch</a>
+      <a class="button ghost" href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>
+    </div>
   </section>
 </BaseLayout>
 
@@ -156,4 +159,5 @@ const products = (await getProducts()).slice(0, 4);
 
   .contact { text-align: center; }
   .contact h2 { max-width: 20ch; margin-inline: auto; }
+  .contact-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
 </style>

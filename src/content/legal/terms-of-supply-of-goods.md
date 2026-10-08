@@ -1,5 +1,5 @@
 ---
-layout: page
+order: 2
 title: Terms of Supply of Goods
 ---
 

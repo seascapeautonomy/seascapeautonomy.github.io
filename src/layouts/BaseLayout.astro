@@ -13,6 +13,8 @@ const {
   title = 'Seascape Autonomy',
   description = 'Autonomous underwater vehicles and seafloor imaging for defence, offshore infrastructure and environmental survey.',
 } = Astro.props;
+// Google Analytics property carried over from the old site; only loaded in production builds.
+const analyticsId = 'G-12HCS3FQ0W';
 const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape Autonomy`;
 ---
 
@@ -32,6 +34,25 @@ const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape A
     />
     <title>{pageTitle}</title>
     <ClientRouter />
+    {
+      import.meta.env.PROD && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} />
+          <script is:inline define:vars={{ analyticsId }}>
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () {
+              dataLayer.push(arguments);
+            };
+            gtag('js', new Date());
+            // Page views are sent on each astro:page-load so client-side navigations are counted too.
+            gtag('config', analyticsId, { send_page_view: false });
+            document.addEventListener('astro:page-load', () => {
+              gtag('event', 'page_view', { page_location: location.href, page_title: document.title });
+            });
+          </script>
+        </>
+      )
+    }
   </head>
   <body>
     <Header />
