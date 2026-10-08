@@ -124,7 +124,7 @@ const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slu
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(to top, var(--color-bg) 0%, rgb(5 14 28 / 0.6) 45%, rgb(5 14 28 / 0.25) 100%);
+    background: linear-gradient(to top, var(--color-bg) 0%, rgb(var(--shade-rgb) / 0.6) 45%, rgb(var(--shade-rgb) / 0.25) 100%);
   }
   .cover-text { padding-block: 8rem 3rem; }
   .back { display: inline-block; margin-bottom: 1.5rem; color: rgb(242 247 251 / 0.75); text-decoration: none; font-size: 0.9rem; }

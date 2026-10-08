@@ -120,7 +120,7 @@ import { sectors } from '../data/sectors';
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgb(92 208 240 / 0.2);
+    box-shadow: 0 0 0 3px rgb(var(--color-accent-rgb) / 0.25), var(--glow-sm);
   }
   .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .submit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 0.5rem; }

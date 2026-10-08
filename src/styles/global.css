@@ -1,16 +1,23 @@
 /* Design tokens — the single place to tune the theme. */
 :root {
-  /* Deep navy, brand blue from the aperture logo, cyan highlight. */
-  --color-bg: #0a1a2e;
-  --color-surface: #11253d;
-  --color-surface-2: #183150;
-  --color-text: #e8f0f8;
-  --color-muted: #8ea3b8;
+  /* Deep royal indigo background with electric-cyan light, glowing like signal lights at depth. */
+  --color-bg: #121a45;
+  --color-surface: #1a2564;
+  --color-surface-2: #22307a;
+  --color-text: #eef2ff;
+  --color-muted: #a6b0dc;
   --color-brand: #4595b7;
-  --color-accent: #5cd0f0;
-  --color-on-accent: #04131f;
-  --color-border: rgb(255 255 255 / 0.08);
-  --header-bg: rgb(10 26 46 / 0.72);
+  --color-accent: #19b6f7;
+  --color-accent-rgb: 25 182 247; /* same as --color-accent, for translucent glows */
+  --color-on-accent: #061238;
+  --color-border: rgb(150 170 255 / 0.14);
+  --header-bg: rgb(18 26 69 / 0.75);
+  --shade-rgb: 10 15 46; /* deep indigo used to darken photos */
+
+  /* Lighting */
+  --glow-sm: 0 0 12px rgb(var(--color-accent-rgb) / 0.45);
+  --glow: 0 0 28px rgb(var(--color-accent-rgb) / 0.5);
+  --glow-lg: 0 0 48px rgb(var(--color-accent-rgb) / 0.45);
 
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", var(--font-body);
@@ -29,7 +36,12 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  /* Soft light from the upper left fading into deep indigo, fixed so it stays put while scrolling. */
+  background-image:
+    radial-gradient(ellipse 70% 55% at 12% 0%, rgb(38 60 160 / 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgb(8 12 36 / 0.7), transparent 70%);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.6;
@@ -58,6 +70,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .eyebrow {
   color: var(--color-accent);
+  text-shadow: var(--glow-sm);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.78rem;
@@ -76,16 +89,25 @@ img { max-width: 100%; height: auto; display: block; }
   text-decoration: none;
   transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
 }
+.button {
+  box-shadow: 0 0 0 1px rgb(var(--color-accent-rgb) / 0.6), 0 6px 24px -6px rgb(var(--color-accent-rgb) / 0.7);
+}
 .button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px -10px var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent), var(--glow-lg);
 }
 .button.ghost {
   background: transparent;
   color: inherit;
   border: 1px solid currentColor;
+  box-shadow: none;
 }
-.button.ghost:hover { box-shadow: none; background: rgb(255 255 255 / 0.08); }
+.button.ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  box-shadow: var(--glow-sm), inset var(--glow-sm);
+  background: rgb(var(--color-accent-rgb) / 0.08);
+}
 
 /* Elements with [data-reveal] come into focus as they scroll into view. */
 @media (prefers-reduced-motion: no-preference) {

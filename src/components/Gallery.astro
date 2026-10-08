@@ -99,7 +99,7 @@ const fullSize = await Promise.all(images.map((src) => getImage({ src, width: Ma
     margin: 0;
     padding: clamp(16px, 4vw, 48px);
     border: 0;
-    background: rgb(3 8 16 / 0.94);
+    background: rgb(var(--shade-rgb) / 0.95);
     color: #fff;
   }
   .lightbox[open] { display: grid; place-items: center; }
