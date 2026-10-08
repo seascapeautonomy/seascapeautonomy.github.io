@@ -1,22 +1,60 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { sectors } from '../data/sectors';
 import Hero from '../components/Hero.astro';
+import { sectors } from '../data/sectors';
+import { stats, values } from '../data/company';
 ---
 
 <BaseLayout>
   <Hero />
 
+  <section class="container stats" aria-label="At a glance">
+    {
+      stats.map((stat) => (
+        <div class="stat" data-reveal>
+          <strong>{stat.value}</strong>
+          <span>{stat.label}</span>
+        </div>
+      ))
+    }
+  </section>
+
+  <section class="container values">
+    <div class="section-head">
+      <p class="eyebrow" data-reveal>What drives us</p>
+      <h2 data-reveal>Built at sea, built to be trusted</h2>
+    </div>
+    <ol class="value-list">
+      {
+        values.map((value, i) => (
+          <li data-reveal>
+            <span class="index">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{value.title}</h3>
+            <p>{value.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
   <section id="sectors" class="container sectors">
-    <p class="eyebrow" data-reveal>Who we work with</p>
-    <h2 data-reveal>Built for the mission</h2>
-    <div class="grid">
+    <div class="section-head">
+      <p class="eyebrow" data-reveal>Who we work with</p>
+      <h2 data-reveal>One fleet, three missions</h2>
+    </div>
+    <div class="sector-grid">
       {
         sectors.map((sector) => (
-          <a class="card" href={`/sectors/${sector.slug}`} data-reveal>
-            <h3>{sector.name}</h3>
-            <p>{sector.summary}</p>
-            <span class="more">Learn more →</span>
+          <a class="sector-card" href={`/sectors/${sector.slug}`} data-reveal>
+            <div class="sector-media">
+              <Image src={sector.image} alt={sector.imageAlt} widths={[400, 800]} sizes="(max-width: 900px) 100vw, 400px" />
+            </div>
+            <div class="sector-body">
+              <h3>{sector.name}</h3>
+              <p>{sector.tagline}</p>
+              <span class="more">Explore {sector.name.toLowerCase()} →</span>
+            </div>
           </a>
         ))
       }
@@ -24,24 +62,81 @@ import Hero from '../components/Hero.astro';
   </section>
 
   <section id="contact" class="container contact" data-reveal>
-    <h2>Let's talk</h2>
-    <p><a href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a></p>
+    <p class="eyebrow">Get in touch</p>
+    <h2>Let’s bring your seafloor into focus</h2>
+    <a class="button" href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>
   </section>
 </BaseLayout>
 
 <style>
-  .sectors, .contact { padding-block: 5rem; }
-  .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-  .card {
+  section { padding-block: clamp(4rem, 9vw, 7rem); }
+  .section-head { max-width: 40rem; margin-bottom: 2.5rem; }
+  .section-head h2 { margin-bottom: 0; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    padding-block: 3rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .stat strong {
     display: block;
-    padding: 1.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 4vw, 3rem);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    color: var(--color-accent);
+    line-height: 1;
+  }
+  .stat span { color: var(--color-muted); font-size: 0.95rem; }
+
+  .value-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .value-list li { background: var(--color-bg); padding: 2rem 1.75rem; }
+  .index { color: var(--color-brand); font-family: var(--font-display); font-weight: 600; }
+  .value-list h3 { font-size: 1.3rem; margin: 0.75rem 0 0.5rem; }
+  .value-list p { color: var(--color-muted); margin: 0; }
+
+  .sector-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .sector-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    overflow: hidden;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     text-decoration: none;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
   }
-  .card:hover { transform: translateY(-4px); border-color: var(--color-accent); }
-  .card p { color: var(--color-muted); }
+  .sector-media { overflow: hidden; }
+  .sector-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .sector-card:hover { transform: translateY(-4px); border-color: var(--color-accent); }
+  .sector-card:hover img { transform: scale(1.05); }
+  .sector-body { padding: 1.5rem 1.5rem 1.75rem; display: flex; flex-direction: column; flex: 1; }
+  .sector-body h3 { font-size: 1.4rem; margin: 0 0 0.5rem; }
+  .sector-body p { color: var(--color-muted); margin: 0 0 1.25rem; flex: 1; }
   .more { color: var(--color-accent); font-weight: 500; }
+
+  .contact { text-align: center; }
+  .contact h2 { max-width: 20ch; margin-inline: auto; }
 </style>

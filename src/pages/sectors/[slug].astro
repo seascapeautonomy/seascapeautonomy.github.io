@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { sectors, type Sector } from '../../data/sectors';
 
@@ -7,32 +8,153 @@ export function getStaticPaths() {
 }
 
 const { sector } = Astro.props as { sector: Sector };
+const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent(`${sector.name} enquiry`)}`;
 ---
 
 <BaseLayout title={sector.name} description={sector.summary}>
   <section class="container intro">
-    <p class="eyebrow">{sector.name}</p>
-    <h1>{sector.tagline}</h1>
-    <p class="lead">{sector.summary}</p>
+    <div class="intro-text">
+      <p class="eyebrow">{sector.name}</p>
+      <h1>{sector.tagline}</h1>
+      <p class="lead">{sector.summary}</p>
+      <a class="button" href={mailto}>{sector.cta}</a>
+    </div>
+    <div class="intro-media">
+      <Image src={sector.image} alt={sector.imageAlt} widths={[500, 900]} sizes="(max-width: 900px) 100vw, 500px" loading="eager" />
+    </div>
+  </section>
+
+  <section class="container challenge" data-reveal>
+    <p class="eyebrow">The challenge</p>
+    <p class="statement">{sector.challenge}</p>
   </section>
 
   <section class="container">
-    <h2 data-reveal>Capabilities</h2>
-    <ul class="capabilities">
-      {sector.capabilities.map((capability) => <li data-reveal>{capability}</li>)}
+    <p class="eyebrow" data-reveal>How we help</p>
+    <h2 data-reveal>What we bring</h2>
+    <div class="offerings">
+      {
+        sector.offerings.map((offering) => (
+          <article data-reveal>
+            <h3>{offering.title}</h3>
+            <p>{offering.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container">
+    <p class="eyebrow" data-reveal>Applications</p>
+    <ul class="applications" data-reveal>
+      {sector.applications.map((application) => <li>{application}</li>)}
     </ul>
+  </section>
+
+  {
+    sector.proof.length > 0 && (
+      <section class="container">
+        <p class="eyebrow" data-reveal>In the field</p>
+        <h2 data-reveal>Recent work</h2>
+        <ol class="proof">
+          {sector.proof.map((item) => (
+            <li data-reveal>
+              <span class="date">{item.date}</span>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  <section class="container cta" data-reveal>
+    <h2>Ready to see more clearly?</h2>
+    <a class="button" href={mailto}>{sector.cta}</a>
   </section>
 </BaseLayout>
 
 <style>
-  .intro { padding-block: 9rem 3rem; }
-  h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); margin: 0.25em 0; max-width: 18ch; }
-  .lead { color: var(--color-muted); max-width: 55ch; font-size: 1.15rem; }
-  .capabilities { list-style: none; padding: 0; display: grid; gap: 1rem; padding-bottom: 5rem; }
-  .capabilities li {
-    padding: 1.25rem 1.5rem;
+  section { padding-block: clamp(3rem, 7vw, 5rem); }
+
+  .intro {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-top: 9rem;
+  }
+  h1 { font-size: clamp(2.2rem, 5vw, 4rem); margin: 0.25em 0 0.4em; }
+  .lead { color: var(--color-muted); max-width: 50ch; font-size: 1.15rem; margin-bottom: 2rem; }
+  .intro-media img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+  }
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; padding-top: 7rem; }
+    .intro-media { order: -1; }
+    .intro-media img { aspect-ratio: 16 / 10; }
+  }
+
+  .statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    line-height: 1.35;
+    letter-spacing: var(--display-tracking);
+    max-width: 38ch;
+    margin: 0;
+  }
+
+  .offerings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  .offerings article {
+    padding: 1.75rem;
     border-radius: var(--radius);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-accent);
   }
+  .offerings h3 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .offerings p { color: var(--color-muted); margin: 0; }
+
+  .applications {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .applications li {
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .proof { list-style: none; padding: 0; margin: 0; border-left: 1px solid var(--color-border); }
+  .proof li { position: relative; padding: 0 0 2.5rem 2rem; }
+  .proof li::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 0.45rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px rgb(92 208 240 / 0.15);
+  }
+  .date { color: var(--color-accent); font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; }
+  .proof h3 { font-size: 1.3rem; margin: 0.3rem 0 0.4rem; }
+  .proof p { color: var(--color-muted); margin: 0; max-width: 60ch; }
+
+  .cta { text-align: center; border-top: 1px solid var(--color-border); }
 </style>
