@@ -1,16 +1,16 @@
 /* Design tokens — the single place to tune the theme. */
 :root {
   /* Deep navy, brand blue from the aperture logo, cyan highlight. */
-  --color-bg: #040b16;
-  --color-surface: #0a1828;
-  --color-surface-2: #10243a;
+  --color-bg: #0a1a2e;
+  --color-surface: #11253d;
+  --color-surface-2: #183150;
   --color-text: #e8f0f8;
   --color-muted: #8ea3b8;
   --color-brand: #4595b7;
   --color-accent: #5cd0f0;
   --color-on-accent: #04131f;
   --color-border: rgb(255 255 255 / 0.08);
-  --header-bg: rgb(4 11 22 / 0.72);
+  --header-bg: rgb(10 26 46 / 0.72);
 
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", var(--font-body);
