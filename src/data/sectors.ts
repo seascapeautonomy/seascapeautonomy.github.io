@@ -68,7 +68,7 @@ export const sectors: Sector[] = [
     imageAlt: 'Two Seeker AUVs on the back deck of a survey vessel at sunrise',
     tagline: 'Inspect, assess and monitor offshore assets with confidence.',
     summary:
-      'High-resolution, geo-referenced seafloor imagery around critical marine infrastructure — from offshore wind environmental impact assessment to cable and pipeline inspection.',
+      'High-resolution, geo-referenced seafloor imagery around critical marine infrastructure — from offshore environmental impact assessment to cable and pipeline inspection.',
     challenge:
       'Offshore developments need defensible environmental baselines and repeatable inspection data, collected efficiently from a single vessel and delivered in a form stakeholders can use.',
     offerings: [
@@ -97,7 +97,7 @@ export const sectors: Sector[] = [
       },
     ],
     applications: [
-      'Offshore wind environmental impact assessment',
+      'Offshore environmental impact assessment',
       'Cable and pipeline inspection',
       'Maintenance and change monitoring',
     ],
