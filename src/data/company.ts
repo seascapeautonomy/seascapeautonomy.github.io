@@ -10,7 +10,7 @@ export const values = [
   {
     title: 'Open and adaptable',
     description:
-      'Open hardware and software architecture means new sensors and mission profiles without starting from scratch.',
+      'Open hardware and software architecture means new sensors and mission profiles building on a field-proven foundation.',
   },
   {
     title: 'Data you can act on',
