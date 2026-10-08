@@ -4,7 +4,7 @@
 import type { ImageMetadata } from 'astro';
 import defenceImage from '../assets/sectors/defence.png';
 import offshoreImage from '../assets/sectors/offshore.jpg';
-import environmentalImage from '../assets/sectors/environmental.png';
+import environmentalImage from '../assets/hero.png';
 
 export interface Offering {
   title: string;
@@ -17,6 +17,7 @@ export interface Sector {
   name: string;
   image: ImageMetadata;
   imageAlt: string;
+  imagePosition?: string; // CSS object-position for cropped views, e.g. '30% 50%'
   tagline: string;
   summary: string;
   challenge: string;
@@ -107,7 +108,8 @@ export const sectors: Sector[] = [
     slug: 'environmental',
     name: 'Environmental Survey',
     image: environmentalImage,
-    imageAlt: 'View from the nose of a Seeker AUV approaching a reef',
+    imageAlt: 'Seeker AUV surveying a reef in Tonga',
+    imagePosition: '28% 50%', // keep the AUV in frame in the square crop
     tagline: 'Seafloor imagery that scientists and managers can act on.',
     summary:
       'Benthic imaging at scale for habitat mapping, long-term monitoring and fisheries — from shallow reefs to mesophotic depths.',

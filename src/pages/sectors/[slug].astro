@@ -23,7 +23,15 @@ const contactLink = `/contact?sector=${sector.slug}`;
       <a class="button" href={contactLink}>{sector.cta}</a>
     </div>
     <div class="intro-media">
-      <Image src={sector.image} alt={sector.imageAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 500px" loading="eager" />
+      <Image
+        src={sector.image}
+        alt={sector.imageAlt}
+        widths={[500, 900]}
+        width={900}
+        sizes="(max-width: 900px) 100vw, 500px"
+        loading="eager"
+        style={sector.imagePosition && `object-position: ${sector.imagePosition}`}
+      />
     </div>
   </section>
 
