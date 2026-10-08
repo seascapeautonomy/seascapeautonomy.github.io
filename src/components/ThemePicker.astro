@@ -1,0 +1,59 @@
+---
+// Dev-only switcher for comparing candidate themes; BaseLayout never renders it in production builds.
+const themes = [
+  { id: 'abyss', label: 'Abyss' },
+  { id: 'sonar', label: 'Sonar' },
+  { id: 'survey', label: 'Survey' },
+];
+---
+
+<div class="theme-picker" role="group" aria-label="Preview theme">
+  <span>Theme</span>
+  {themes.map((theme) => <button type="button" data-theme-id={theme.id}>{theme.label}</button>)}
+</div>
+
+<script>
+  function setupPicker() {
+    const current = document.documentElement.dataset.theme ?? 'abyss';
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-id]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.themeId === current));
+      button.onclick = () => {
+        const id = button.dataset.themeId!;
+        try { localStorage.setItem('preview-theme', id); } catch {}
+        if (id === 'abyss') delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = id;
+        setupPicker();
+      };
+    });
+  }
+  document.addEventListener('astro:page-load', setupPicker);
+</script>
+
+<style>
+  .theme-picker {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgb(20 20 24 / 0.9);
+    color: #fff;
+    font: 500 13px/1 system-ui, sans-serif;
+    box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+  }
+  span { padding-inline: 8px 4px; opacity: 0.6; }
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  button[aria-pressed="true"] { background: #fff; color: #111; }
+</style>

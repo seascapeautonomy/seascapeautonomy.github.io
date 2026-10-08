@@ -1,20 +1,74 @@
-/* Design tokens — the single place to tune the theme. */
+/*
+ * Design tokens — the single place to tune the theme.
+ * :root is the default ("Abyss"); [data-theme] blocks are candidate themes
+ * switchable with the dev-only ThemePicker. Delete the losers once one is chosen.
+ */
 :root {
-  --color-bg: #050d18;
-  --color-surface: #0b1a2c;
-  --color-surface-2: #12263d;
-  --color-text: #e6eef7;
+  /* Abyss: deep navy, brand blue from the aperture logo, cyan highlight. */
+  --color-bg: #040b16;
+  --color-surface: #0a1828;
+  --color-surface-2: #10243a;
+  --color-text: #e8f0f8;
   --color-muted: #8ea3b8;
-  --color-accent: #2fd4c4;
-  --color-accent-2: #3b82f6;
+  --color-brand: #4595b7;
+  --color-accent: #5cd0f0;
+  --color-on-accent: #04131f;
   --color-border: rgb(255 255 255 / 0.08);
+  --header-bg: rgb(4 11 22 / 0.72);
+  --hero-accent: var(--color-accent); /* accent on top of the hero photo */
+  --hero-fade: var(--color-bg); /* colour the hero photo fades into */
 
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Space Grotesk", var(--font-sans);
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", var(--font-body);
+  --display-weight: 600;
+  --display-tracking: -0.03em;
 
   --radius: 14px;
   --max-width: 1200px;
   --gutter: clamp(16px, 4vw, 40px);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Sonar: near-black, technical type, accent taken from the yellow Seeker AUV. */
+[data-theme="sonar"] {
+  --color-bg: #07090c;
+  --color-surface: #10141a;
+  --color-surface-2: #181e26;
+  --color-text: #eef1f4;
+  --color-muted: #8b96a3;
+  --color-brand: #4595b7;
+  --color-accent: #f2c230;
+  --color-on-accent: #141006;
+  --color-border: rgb(255 255 255 / 0.09);
+  --header-bg: rgb(7 9 12 / 0.75);
+
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "Sora", var(--font-body);
+  --display-weight: 600;
+  --display-tracking: -0.04em;
+  --radius: 6px;
+}
+
+/* Survey: light editorial look, serif headlines, brand blue accent. */
+[data-theme="survey"] {
+  --color-bg: #f5f3ee;
+  --color-surface: #ffffff;
+  --color-surface-2: #ebe8e0;
+  --color-text: #0c1a2a;
+  --color-muted: #566676;
+  --color-brand: #4595b7;
+  --color-accent: #2a7fa3;
+  --color-on-accent: #ffffff;
+  --color-border: rgb(12 26 42 / 0.1);
+  --header-bg: rgb(245 243 238 / 0.8);
+  --hero-accent: #8fd3ee;
+  --hero-fade: #06121f;
+
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --display-weight: 500;
+  --display-tracking: -0.02em;
+  --radius: 18px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -25,12 +79,19 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; letter-spacing: -0.02em; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.05;
+}
+
+h2 { font-size: clamp(2rem, 4.5vw, 3.25rem); margin: 0.2em 0 1em; }
 
 a { color: inherit; }
 
@@ -43,15 +104,48 @@ img { max-width: 100%; height: auto; display: block; }
   padding-inline: var(--gutter);
 }
 
-/* Elements with [data-reveal] fade up as they scroll into view. */
+.eyebrow {
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px var(--color-accent);
+}
+.button.ghost {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+}
+.button.ghost:hover { box-shadow: none; background: rgb(255 255 255 / 0.08); }
+
+/* Elements with [data-reveal] come into focus as they scroll into view. */
 @media (prefers-reduced-motion: no-preference) {
   [data-reveal] {
     opacity: 0;
+    filter: blur(8px);
     transform: translateY(24px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out), filter 0.9s var(--ease-out);
   }
   [data-reveal].is-visible {
     opacity: 1;
+    filter: none;
     transform: none;
   }
 }

@@ -1,23 +1,15 @@
 ---
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { sectors } from '../data/sectors';
-import hero from '../assets/hero.png';
+import Hero from '../components/Hero.astro';
 ---
 
 <BaseLayout>
-  <section class="hero">
-    <Image src={hero} alt="" class="hero-bg" loading="eager" widths={[800, 1400, 2000]} sizes="100vw" />
-    <div class="container hero-content">
-      <p class="eyebrow">Marine robotics &amp; seafloor intelligence</p>
-      <h1>See the seafloor.<br />Autonomously.</h1>
-      <p class="lead">Placeholder headline and values statement — replace with the company pitch.</p>
-      <a class="button" href="#sectors">Explore our work</a>
-    </div>
-  </section>
+  <Hero />
 
   <section id="sectors" class="container sectors">
-    <h2 data-reveal>Who we work with</h2>
+    <p class="eyebrow" data-reveal>Who we work with</p>
+    <h2 data-reveal>Built for the mission</h2>
     <div class="grid">
       {
         sectors.map((sector) => (
@@ -38,40 +30,6 @@ import hero from '../assets/hero.png';
 </BaseLayout>
 
 <style>
-  .hero {
-    position: relative;
-    min-height: min(90vh, 900px);
-    display: grid;
-    align-items: end;
-    overflow: hidden;
-  }
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, var(--color-bg) 5%, rgb(5 13 24 / 0.2) 70%);
-  }
-  .hero-content { position: relative; z-index: 1; padding-block: 6rem 4rem; }
-  .eyebrow { color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; }
-  h1 { font-size: clamp(2.5rem, 7vw, 5.5rem); margin: 0.25em 0; }
-  .lead { color: var(--color-muted); max-width: 40ch; font-size: 1.15rem; }
-  .button {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.8rem 1.4rem;
-    border-radius: 999px;
-    background: var(--color-accent);
-    color: var(--color-bg);
-    font-weight: 600;
-    text-decoration: none;
-  }
   .sectors, .contact { padding-block: 5rem; }
   .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .card {
