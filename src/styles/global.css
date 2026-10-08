@@ -84,7 +84,7 @@ img { max-width: 100%; height: auto; display: block; }
   padding: 0.85rem 1.5rem;
   border-radius: 999px;
   /* Lit from the centre: lighter cyan in the middle, the accent at the edges. */
-  background: radial-gradient(ellipse 75% 120% at 50% 50%, #62c8f2 0%, #15a3e0 65%, #0b8bc8 100%);
+  background: radial-gradient(ellipse 75% 120% at 50% 50%, #3fb6ea 0%, #15a3e0 65%, #0b8bc8 100%);
   color: var(--color-on-accent);
   font-weight: 600;
   text-decoration: none;
