@@ -23,7 +23,6 @@ export interface Sector {
   offerings: Offering[];
   applications: string[];
   cta: string;
-  offeringsHeading?: string; // heading over the offerings; defaults to "What we bring"
 }
 
 export const sectors: Sector[] = [
@@ -61,7 +60,6 @@ export const sectors: Sector[] = [
     // TODO: confirm which of these you want to claim publicly.
     applications: ['Harbour and port infrastructure survey', 'Littoral seabed survey', 'Anomaly detection', 'Sensor and payload trials'],
     cta: 'Discuss a defence requirement',
-    offeringsHeading: 'See clearly, decide confidently',
   },
   {
     slug: 'offshore',
