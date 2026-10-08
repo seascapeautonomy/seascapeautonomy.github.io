@@ -1,12 +1,13 @@
-_site
-.sass-cache
-.jekyll-metadata
-.jekyll-cache
-Gemfile.lock
-# Astro
+# Build output and generated types
 dist/
 .astro/
+
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
 .env.production
+
+# OS files
 .DS_Store
