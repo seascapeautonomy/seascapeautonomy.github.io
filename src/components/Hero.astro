@@ -59,7 +59,7 @@ let wordIndex = 0;
     display: grid;
     align-items: end;
     overflow: hidden;
-    color: #f2f7fb; /* sits on the photo, so stays light in every theme */
+    color: #f2f7fb; /* sits on the photo, so stays light */
     isolation: isolate;
   }
 
@@ -86,7 +86,7 @@ let wordIndex = 0;
     inset: 0;
     z-index: -1;
     background:
-      linear-gradient(to top, var(--hero-fade) 0%, rgb(2 8 18 / 0.55) 35%, rgb(2 8 18 / 0) 70%),
+      linear-gradient(to top, var(--color-bg) 0%, rgb(2 8 18 / 0.55) 35%, rgb(2 8 18 / 0) 70%),
       linear-gradient(to right, rgb(2 8 18 / 0.55), rgb(2 8 18 / 0) 60%);
   }
 
@@ -102,7 +102,7 @@ let wordIndex = 0;
     column-gap: 0.25em;
   }
   .word { display: inline-block; }
-  .accent, .eyebrow { color: var(--hero-accent); }
+  .accent { color: var(--color-accent); }
 
   .lead {
     max-width: 44ch;

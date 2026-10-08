@@ -2,7 +2,6 @@
 import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import ThemePicker from '../components/ThemePicker.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -29,27 +28,10 @@ const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape A
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
     />
     <title>{pageTitle}</title>
     <ClientRouter />
-    {
-      import.meta.env.DEV && (
-        <script is:inline>
-          // Dev-only: re-apply the previewed theme before paint and after each page swap.
-          function applyPreviewTheme(doc) {
-            let theme = new URLSearchParams(location.search).get('theme');
-            try {
-              if (theme) localStorage.setItem('preview-theme', theme);
-              else theme = localStorage.getItem('preview-theme');
-            } catch {}
-            if (theme && theme !== 'abyss') doc.documentElement.dataset.theme = theme;
-          }
-          applyPreviewTheme(document);
-          document.addEventListener('astro:before-swap', (e) => applyPreviewTheme(e.newDocument));
-        </script>
-      )
-    }
   </head>
   <body>
     <Header />
@@ -57,7 +39,6 @@ const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape A
       <slot />
     </main>
     <Footer />
-    {import.meta.env.DEV && <ThemePicker />}
 
     <script>
       // Reveal [data-reveal] elements on scroll; re-run after each client-side navigation.

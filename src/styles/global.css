@@ -1,10 +1,6 @@
-/*
- * Design tokens — the single place to tune the theme.
- * :root is the default ("Abyss"); [data-theme] blocks are candidate themes
- * switchable with the dev-only ThemePicker. Delete the losers once one is chosen.
- */
+/* Design tokens — the single place to tune the theme. */
 :root {
-  /* Abyss: deep navy, brand blue from the aperture logo, cyan highlight. */
+  /* Deep navy, brand blue from the aperture logo, cyan highlight. */
   --color-bg: #040b16;
   --color-surface: #0a1828;
   --color-surface-2: #10243a;
@@ -15,8 +11,6 @@
   --color-on-accent: #04131f;
   --color-border: rgb(255 255 255 / 0.08);
   --header-bg: rgb(4 11 22 / 0.72);
-  --hero-accent: var(--color-accent); /* accent on top of the hero photo */
-  --hero-fade: var(--color-bg); /* colour the hero photo fades into */
 
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", var(--font-body);
@@ -27,48 +21,6 @@
   --max-width: 1200px;
   --gutter: clamp(16px, 4vw, 40px);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Sonar: near-black, technical type, accent taken from the yellow Seeker AUV. */
-[data-theme="sonar"] {
-  --color-bg: #07090c;
-  --color-surface: #10141a;
-  --color-surface-2: #181e26;
-  --color-text: #eef1f4;
-  --color-muted: #8b96a3;
-  --color-brand: #4595b7;
-  --color-accent: #f2c230;
-  --color-on-accent: #141006;
-  --color-border: rgb(255 255 255 / 0.09);
-  --header-bg: rgb(7 9 12 / 0.75);
-
-  --font-body: "IBM Plex Sans", system-ui, sans-serif;
-  --font-display: "Sora", var(--font-body);
-  --display-weight: 600;
-  --display-tracking: -0.04em;
-  --radius: 6px;
-}
-
-/* Survey: light editorial look, serif headlines, brand blue accent. */
-[data-theme="survey"] {
-  --color-bg: #f5f3ee;
-  --color-surface: #ffffff;
-  --color-surface-2: #ebe8e0;
-  --color-text: #0c1a2a;
-  --color-muted: #566676;
-  --color-brand: #4595b7;
-  --color-accent: #2a7fa3;
-  --color-on-accent: #ffffff;
-  --color-border: rgb(12 26 42 / 0.1);
-  --header-bg: rgb(245 243 238 / 0.8);
-  --hero-accent: #8fd3ee;
-  --hero-fade: #06121f;
-
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
-  --display-weight: 500;
-  --display-tracking: -0.02em;
-  --radius: 18px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
