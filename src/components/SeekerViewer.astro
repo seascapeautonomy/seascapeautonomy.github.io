@@ -13,11 +13,17 @@ const variants = [
 ].map((variant) => ({ ...variant, src: models[`/src/content/products/seeker-auv/${variant.file}`] }));
 
 const initial = variants.find((variant) => variant.src);
+
+interface Props {
+  /** Fill the parent (e.g. a card pane) instead of being a standalone bordered panel. */
+  embedded?: boolean;
+}
+const { embedded = false } = Astro.props;
 ---
 
 {
   initial && (
-    <div class="seeker-viewer">
+    <div class:list={['seeker-viewer', { embedded }]}>
       <model-viewer
         src={initial.src}
         alt={`Interactive 3D model of the Seeker AUV with ${initial.description.toLowerCase()}`}
@@ -32,8 +38,9 @@ const initial = variants.find((variant) => variant.src);
         touch-action="pan-y"
         shadow-intensity="1.1"
         shadow-softness="0.9"
-        exposure="1.05"
-        environment-image="neutral"
+        tone-mapping="neutral"
+        exposure="0.6"
+        environment-image="legacy"
         loading="eager"
       >
         <div class="progress" slot="progress-bar" aria-hidden="true"><span></span></div>
@@ -140,6 +147,11 @@ const initial = variants.find((variant) => variant.src);
       radial-gradient(ellipse 55% 45% at 50% 55%, rgb(var(--color-accent-rgb) / 0.18), transparent 70%),
       radial-gradient(ellipse 90% 80% at 50% 0%, rgb(38 60 160 / 0.5), transparent 70%),
       var(--color-surface);
+  }
+  .seeker-viewer.embedded {
+    height: 100%;
+    border: 0;
+    border-radius: 0;
   }
   model-viewer {
     width: 100%;
