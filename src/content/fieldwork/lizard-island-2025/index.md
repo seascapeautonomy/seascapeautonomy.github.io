@@ -4,8 +4,8 @@ location: Lizard Island, Queensland
 date: 2025-10-01
 summary: AUV and imaging-ROV surveys supporting a long-term reef monitoring program around the island.
 sectors: [environmental]
-cover: ./cover.jpg
-coverAlt: Seeker AUV at Lizard Island
+cover: ./gallery/IMG_0808.png
+coverAlt: Seeker AUV floating in clear shallow water off Lizard Island
 coordinates: { lat: -14.698974, lng: 145.448254 }
 ---
 

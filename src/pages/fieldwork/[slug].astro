@@ -26,18 +26,32 @@ const { entry, newer, older } = Astro.props;
 const { data } = entry;
 const { Content } = await render(entry);
 const gallery = getGallery(entry.id);
+// Covers too small to fill the banner are shown sharp in a frame over a blurred copy of themselves.
+const LOW_RES_COVER_WIDTH = 800;
+const lowResCover = data.cover.width < LOW_RES_COVER_WIDTH;
 const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slug as never));
 ---
 
 <BaseLayout title={data.title} description={data.summary}>
-  <section class="cover">
-    <Image src={data.cover} alt={data.coverAlt} widths={[800, 1400, 2000]} width={2000} sizes="100vw" loading="eager" class="cover-image" />
+  <section class:list={['cover', { 'low-res': lowResCover }]}>
+    <Image
+      src={data.cover}
+      alt={lowResCover ? '' : data.coverAlt}
+      widths={[800, 1400, 2000]}
+      width={2000}
+      sizes="100vw"
+      loading="eager"
+      class="cover-image"
+    />
     <div class="cover-shade"></div>
     <div class="container cover-text">
-      <a class="back" href="/fieldwork">← All fieldwork</a>
-      <p class="eyebrow">{formatMonth(data.date)} · {data.location}</p>
-      <h1>{data.title}</h1>
-      <p class="lead">{data.summary}</p>
+      <div>
+        <a class="back" href="/fieldwork">← All fieldwork</a>
+        <p class="eyebrow">{formatMonth(data.date)} · {data.location}</p>
+        <h1>{data.title}</h1>
+        <p class="lead">{data.summary}</p>
+      </div>
+      {lowResCover && <Image src={data.cover} alt={data.coverAlt} class="cover-inset" loading="eager" />}
     </div>
   </section>
 
@@ -127,6 +141,26 @@ const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slu
     background: linear-gradient(to top, var(--color-bg) 0%, rgb(var(--shade-rgb) / 0.6) 45%, rgb(var(--shade-rgb) / 0.25) 100%);
   }
   .cover-text { padding-block: 8rem 3rem; }
+
+  /* Low-resolution covers: blurred, darkened backdrop plus the sharp photo in a frame. */
+  .low-res .cover-image { filter: blur(28px) saturate(1.2) brightness(0.7); transform: scale(1.15); }
+  .low-res .cover-text {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .cover-inset {
+    width: min(340px, 30vw);
+    height: auto;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid rgb(255 255 255 / 0.18);
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.6), 0 0 40px -10px rgb(var(--color-accent-rgb) / 0.35);
+  }
+  @media (max-width: 760px) {
+    .low-res .cover-text { grid-template-columns: 1fr; }
+    .cover-inset { order: -1; width: min(260px, 70vw); margin-bottom: 0.5rem; }
+  }
   .back { display: inline-block; margin-bottom: 1.5rem; color: rgb(242 247 251 / 0.75); text-decoration: none; font-size: 0.9rem; }
   .back:hover { color: var(--color-accent); }
   h1 { font-size: clamp(2.4rem, 6vw, 4.75rem); margin: 0.15em 0 0.3em; max-width: 18ch; }
