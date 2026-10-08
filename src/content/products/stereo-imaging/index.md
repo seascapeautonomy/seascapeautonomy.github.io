@@ -6,7 +6,8 @@ tagline: Compact underwater stereo cameras for precise 3D imaging.
 summary: A synchronised stereo camera pair with integrated lighting, built to integrate with AUVs, ROVs or diver-operated systems.
 cover: ./cover.jpg
 coverAlt: Render of the stereo imaging payload, showing its twin camera domes
-model: stereo-camera.glb
+models:
+  - { file: stereo-camera.glb }
 modelCameraOrbit: 35deg 58deg auto
 sectors: [offshore, environmental]
 highlights:

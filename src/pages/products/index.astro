@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import SeekerViewer from '../../components/SeekerViewer.astro';
-import { getProducts } from '../../lib/products';
+import ModelViewer from '../../components/ModelViewer.astro';
+import { getModelVariants, getProducts } from '../../lib/products';
 import { vehicleStats } from '../../data/company';
 
 const [featured, ...others] = await getProducts();
@@ -24,7 +24,13 @@ const [featured, ...others] = await getProducts();
     <!-- Not a single link like the other cards: the 3D viewer needs to receive drags. -->
     <div class="featured" data-reveal>
       <div class="featured-media">
-        <SeekerViewer embedded />
+        <ModelViewer
+          name={`the ${featured.data.title}`}
+          variants={getModelVariants(featured)}
+          embedded
+          cameraOrbit={featured.data.modelCameraOrbit}
+          fieldOfView={featured.data.modelFieldOfView}
+        />
       </div>
       <div class="featured-body">
         <span class="kind">Flagship {featured.data.kind.toLowerCase()}</span>

@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import YouTube from '../../components/YouTube.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
-import { getProducts, type Product } from '../../lib/products';
+import { getModelVariants, getProducts, type Product } from '../../lib/products';
 import { sectors } from '../../data/sectors';
 
 export async function getStaticPaths() {
@@ -25,9 +25,9 @@ const { product, related } = Astro.props;
 const { data } = product;
 const { Content } = await render(product);
 const productSectors = sectors.filter((sector) => data.sectors.includes(sector.slug as never));
-// Products with a 3D model show it in a viewer instead of the cover photo.
-const models = import.meta.glob<string>('/src/content/products/*/*.glb', { query: '?url', import: 'default', eager: true });
-const modelSrc = data.model && models[`/src/content/products/${product.id}/${data.model}`];
+// Products with 3D models show them in a viewer instead of the cover photo.
+const modelVariants = getModelVariants(product);
+const hasModel = modelVariants.some((variant) => variant.src);
 const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
 ---
 
@@ -43,14 +43,15 @@ const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
         {data.specs.length > 0 && <a class="button ghost" href="#specs">Specifications</a>}
       </div>
     </div>
-    <div class:list={['intro-media', { 'has-model': modelSrc }]}>
+    <div class:list={['intro-media', { 'has-model': hasModel }]}>
       {
-        modelSrc ? (
+        hasModel ? (
           <ModelViewer
-            name={`the ${data.title.toLowerCase()}`}
-            variants={[{ label: data.title, description: data.title, src: modelSrc }]}
+            name={`the ${data.title}`}
+            variants={modelVariants}
             embedded
             cameraOrbit={data.modelCameraOrbit}
+            fieldOfView={data.modelFieldOfView}
           />
         ) : (
           <Image src={data.cover} alt={data.coverAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 520px" loading="eager" />
