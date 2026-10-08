@@ -4,8 +4,8 @@ location: Norfolk Island
 date: 2025-05-01
 summary: Reef surveys at 5–45 m for the Australian Museum-led expedition, each dive covering 1–3 km of transect.
 sectors: [environmental]
-cover: ./cover.png
-coverAlt: View from the nose of a Seeker AUV approaching a reef off Phillip Island
+cover: ./gallery/IMG_9902.png
+coverAlt: Seeker AUV in the water below the cliffs of Phillip Island
 coordinates: { lat: -29.06027, lng: 167.955 }
 video: y0beryHLyI0
 partners:
