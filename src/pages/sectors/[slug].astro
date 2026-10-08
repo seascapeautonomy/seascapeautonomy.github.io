@@ -41,6 +41,7 @@ const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent
           <article data-reveal>
             <h3>{offering.title}</h3>
             <p>{offering.description}</p>
+            {offering.product && <a class="more" href={`/products/${offering.product}`}>Learn more →</a>}
           </article>
         ))
       }
@@ -119,7 +120,9 @@ const mailto = `mailto:contact@seascapeautonomy.com?subject=${encodeURIComponent
     border-top: 2px solid var(--color-accent);
   }
   .offerings h3 { font-size: 1.25rem; margin: 0 0 0.5rem; }
-  .offerings p { color: var(--color-muted); margin: 0; }
+  .offerings article { display: flex; flex-direction: column; }
+  .offerings p { color: var(--color-muted); margin: 0; flex: 1; }
+  .offerings .more { margin-top: 1rem; color: var(--color-accent); font-weight: 500; text-decoration: none; }
 
   .applications {
     list-style: none;

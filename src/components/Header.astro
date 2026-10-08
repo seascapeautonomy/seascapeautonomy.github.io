@@ -6,6 +6,7 @@ const links = [
   { href: '/sectors/defence', label: 'Defence' },
   { href: '/sectors/offshore', label: 'Offshore' },
   { href: '/sectors/environmental', label: 'Environmental' },
+  { href: '/products', label: 'Products' },
   { href: '/fieldwork', label: 'Fieldwork' },
   { href: '/#contact', label: 'Contact' },
 ];
@@ -100,7 +101,8 @@ const overHero = Astro.url.pathname === '/';
     clip-path: inset(50%);
   }
 
-  @media (max-width: 720px) {
+  /* Below this width the six nav links no longer fit on one line. */
+  @media (max-width: 960px) {
     .menu-toggle {
       display: grid;
       place-items: center;

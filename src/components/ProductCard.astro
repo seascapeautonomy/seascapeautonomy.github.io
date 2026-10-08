@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import type { Product } from '../lib/products';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const { data } = product;
+---
+
+<a class="card" href={`/products/${product.id}`} data-reveal>
+  <div class="media">
+    <Image src={data.cover} alt={data.coverAlt} widths={[400, 700]} width={700} sizes="(max-width: 900px) 100vw, 400px" />
+  </div>
+  <div class="body">
+    <span class="kind">{data.kind}</span>
+    <h3>{data.title}</h3>
+    <p>{data.tagline}</p>
+    <span class="more">View details →</span>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    /* Includes opacity and filter so the scroll reveal still animates. */
+    transition: transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out), opacity 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--color-accent); }
+  .media { overflow: hidden; }
+  .media img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .card:hover img { transform: scale(1.05); }
+  .body { padding: 1.4rem 1.5rem 1.6rem; display: flex; flex-direction: column; flex: 1; }
+  .kind { color: var(--color-accent); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+  h3 { font-size: 1.3rem; margin: 0.4rem 0 0.5rem; }
+  p { color: var(--color-muted); margin: 0 0 1.25rem; flex: 1; }
+  .more { color: var(--color-accent); font-weight: 500; font-size: 0.95rem; }
+</style>

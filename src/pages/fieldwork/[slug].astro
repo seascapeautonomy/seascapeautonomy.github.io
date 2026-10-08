@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Gallery from '../../components/Gallery.astro';
+import YouTube from '../../components/YouTube.astro';
 import { formatMonth, getFieldwork, getGallery, type Fieldwork } from '../../lib/fieldwork';
 import { sectors } from '../../data/sectors';
 
@@ -46,14 +47,7 @@ const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slu
       {
         data.video && (
           <div class="video">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${data.video}`}
-              title={`${data.title} video`}
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            />
+            <YouTube id={data.video} title={`${data.title} video`} />
           </div>
         )
       }
@@ -153,8 +147,7 @@ const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slu
   .prose :global(a) { color: var(--color-accent); text-underline-offset: 3px; }
   .prose :global(img) { border-radius: var(--radius); margin-block: 1.5rem 0.5rem; }
   .prose :global(em) { color: var(--color-muted); font-size: 0.92rem; }
-  .video { position: relative; aspect-ratio: 16 / 9; margin-top: 2rem; border-radius: var(--radius); overflow: hidden; }
-  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video { margin-top: 2rem; }
 
   .facts { display: flex; flex-direction: column; gap: 2rem; }
   .facts h2 {
