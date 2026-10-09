@@ -10,7 +10,7 @@ import { values } from '../data/company';
 import { getFieldwork } from '../lib/fieldwork';
 
 const latestFieldwork = (await getFieldwork()).slice(0, 3);
-const products = (await getProducts()).slice(0, 4);
+const products = await getProducts();
 ---
 
 <BaseLayout>
@@ -153,7 +153,13 @@ const products = (await getProducts()).slice(0, 4);
   .product-grid {
     display: grid;
     gap: 1.25rem;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 960px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .product-grid { grid-template-columns: 1fr; }
   }
   .latest-grid {
     display: grid;
