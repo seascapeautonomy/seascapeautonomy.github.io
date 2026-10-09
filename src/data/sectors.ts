@@ -117,6 +117,11 @@ export const sectors: Sector[] = [
       'The need for large-scale benthic survey is rapidly outpacing the capacity of conventional methods. Diver surveys are limited in depth, time and coverage. Traditional ship-based approaches fail to deliver consistent, high-resolution imagery over complex terrain, and are tied to a single instrument, which limits their scalability.',
     offerings: [
       {
+        title: 'Scalable multi-AUV survey',
+        description:
+          'Surface buoys or an ASV relay communications to monitor and coordinate several Seekers at once, decoupling the ship from AUV operations so coverage scales with the fleet, not with ship time.',
+      },
+      {
         title: 'Benthic imaging AUVs',
         product: 'seeker-auv',
         description:
