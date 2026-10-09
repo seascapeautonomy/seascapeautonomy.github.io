@@ -114,7 +114,7 @@ export const sectors: Sector[] = [
     summary:
       'Benthic imaging at scale for habitat mapping, long-term monitoring and fisheries — from shallow reefs to mesophotic depths.',
     challenge:
-      'The need for large-scale benthic survey is growing fast, but conventional methods can’t keep up. When the ship is tethered to the sensor, one vessel images one transect at a time, and coverage only grows with costly ship days.',
+      'The need for large-scale benthic survey is rapidly outpacing the capacity of conventional methods. Divers are limited by depth and bottom time to small areas. Traditional ship-based approaches can’t deliver consistent, high-resolution imagery over complex terrain, and are tied to a single instrument, so they can’t scale.',
     offerings: [
       {
         title: 'Benthic imaging AUVs',
