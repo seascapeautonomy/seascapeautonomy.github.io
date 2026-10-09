@@ -1,7 +1,7 @@
 ---
 title: Stereo Imaging Systems
 kind: Payload
-order: 2
+order: 3
 tagline: Compact underwater stereo cameras for precise 3D imaging.
 summary: A synchronised stereo camera pair with integrated lighting, built to integrate with AUVs, ROVs or diver-operated systems.
 cover: ./cover.jpg

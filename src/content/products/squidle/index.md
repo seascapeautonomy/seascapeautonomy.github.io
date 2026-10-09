@@ -1,7 +1,7 @@
 ---
 title: Image Data with SQUIDLE+
 kind: Data & software
-order: 4
+order: 5
 tagline: Survey imagery delivered ready to explore, annotate and share.
 summary: Our imagery integrates with SQUIDLE+ for map-based exploration, human and machine-learning annotation, QA/QC and reporting.
 cover: ./cover.jpg

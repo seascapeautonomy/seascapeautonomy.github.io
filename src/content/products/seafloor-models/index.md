@@ -1,7 +1,7 @@
 ---
 title: Seafloor 3D Models
 kind: Data & software
-order: 3
+order: 4
 tagline: High-resolution, landscape-scale models of the seafloor.
 summary: Workflows that turn survey imagery into detailed 3D models for measurement, monitoring and communication.
 cover: ./cover.png
