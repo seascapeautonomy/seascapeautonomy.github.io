@@ -11,3 +11,7 @@ node_modules/
 
 # OS files
 .DS_Store
+
+# Raw survey reconstructions (too large for git); processed output is committed instead
+src/assets/models/*.dae
+src/assets/models/*.xml

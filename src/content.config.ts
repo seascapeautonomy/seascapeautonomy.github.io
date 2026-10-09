@@ -56,6 +56,7 @@ const products = defineCollection({
         .array(z.object({ file: z.string(), label: z.string().optional(), description: z.string().optional() }))
         .default([]),
       modelCameraOrbit: z.string().optional(),
+      survey: z.string().optional(), // a folder in src/assets/surveys, shown as an interactive survey replay
       modelFieldOfView: z.string().optional(),
     }),
 });

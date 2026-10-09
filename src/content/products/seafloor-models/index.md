@@ -7,6 +7,7 @@ summary: Workflows that turn survey imagery into detailed 3D models for measurem
 cover: ./cover.png
 coverAlt: 3D model of a seafloor survey area in Tonga with measurement lines
 sectors: [offshore, environmental]
+survey: tonga-2024
 highlights:
   - { title: Landscape scale, text: "Models spanning thousands of square metres, built from AUV survey imagery." }
   - { title: Measurable, text: "Geo-referenced models for measuring structures, habitats and change." }
