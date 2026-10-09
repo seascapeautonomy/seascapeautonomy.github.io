@@ -49,7 +49,13 @@ const markers = Astro.props.entries.map((entry) => ({
     }).addTo(map);
 
     const icon = L.divIcon({ className: 'map-pin', iconSize: [18, 18] });
-    const points = markers.map((m) => L.latLng(m.lat, m.lng));
+    // Keep pins on either side of the date line together (e.g. Tonga at -175° next to Australia
+    // at +150°): shift longitudes by 360° when that brings them closer to the others.
+    const span = (lngs: number[]) => Math.max(...lngs) - Math.min(...lngs);
+    const raw = markers.map((m) => m.lng);
+    const shifted = raw.map((lng) => (lng < 0 ? lng + 360 : lng));
+    const lngs = span(shifted) < span(raw) ? shifted : raw;
+    const points = markers.map((m, i) => L.latLng(m.lat, lngs[i]));
     markers.forEach((m, i) => {
       const marker = L.marker(points[i], { icon, title: m.title })
         .addTo(map!)

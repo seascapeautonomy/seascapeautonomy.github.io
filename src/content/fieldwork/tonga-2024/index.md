@@ -6,8 +6,8 @@ summary: Two Seeker AUVs deployed alongside divers to document mesophotic reefs 
 sectors: [environmental]
 cover: ./cover.jpg
 coverAlt: Seeker AUV gliding over a reef in Tonga
-# TODO: these coordinates (carried over from the old site) are near Tuvalu, not Tonga — replace with the survey site.
-coordinates: { lat: -5.682843, lng: 176.101329 }
+# From the October 2024 survey's camera references (Ha'apai, Tonga).
+coordinates: { lat: -19.7209, lng: -175.0978 }
 partners:
   - { name: Inkfish Foundation, url: "https://www.instagram.com/inkfishexpeditions/" }
   - { name: NTNU Applied Underwater Robotics Lab, url: "https://www.ntnu.edu/web/aur-lab/aur-lab" }
