@@ -126,7 +126,7 @@ export const sectors: Sector[] = [
         title: 'Scalable multi-AUV survey',
         product: 'fleet-coordination',
         description:
-          'Surface buoys or an ASV relay communications to monitor and coordinate several Seekers at once, decoupling the ship from AUV operations so coverage scales with the fleet, not with ship time.',
+          'A surface buoy or ASV relays communications to coordinate and monitor several Seekers at once, decoupling the ship from AUV operations so coverage scales with the fleet, not with ship time.',
       },
       {
         title: 'Seafloor 3D models',
