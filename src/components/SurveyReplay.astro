@@ -36,6 +36,8 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     <span class="loading-bar"><span></span></span>
   </div>
 
+  <span class="badge">Low-resolution preview</span>
+
   <div class="hud">
     <span class="hud-dive"></span>
     <span class="hud-stats"></span>
@@ -48,8 +50,8 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     <input class="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Position in dive" />
     <span class="clock">0:00 / 0:00</span>
     <div class="group" role="group" aria-label="Playback speed">
-      <button type="button" data-speed="10">10×</button>
-      <button type="button" data-speed="30" aria-pressed="true">30×</button>
+      <button type="button" data-speed="10" aria-pressed="true">10×</button>
+      <button type="button" data-speed="30">30×</button>
       <button type="button" data-speed="100">100×</button>
     </div>
     <div class="group" role="group" aria-label="View">
@@ -255,7 +257,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     // --- Playback state -----------------------------------------------------------------------
     let diveIndex = meta.dives.reduce((best, d, i, all) => (d.count > all[best].count ? i : best), 0);
     let t = 0;
-    let speed = 30;
+    let speed = 10;
     let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let view: 'follow' | 'overview' = 'follow';
     const lastPos = new THREE.Vector3();
@@ -492,6 +494,19 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
   }
   .hud-dive { color: var(--color-accent); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.75rem; }
 
+  .badge {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgb(var(--shade-rgb) / 0.72);
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
   .controls {
     position: absolute;
     left: 1rem;
@@ -552,5 +567,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     color: var(--color-text) !important;
     max-width: 100%;
   }
-  .dive option { background: var(--color-surface); }
+  /* :global because the options are added by script, so scoped styles don't reach them.
+     The open list is drawn by the browser, usually on white, so use dark text. */
+  .dive :global(option) { background: #ffffff; color: #0c1a44; }
 </style>

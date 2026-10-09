@@ -65,10 +65,15 @@ const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
     data.survey && (
       <section class="container replay">
         <p class="eyebrow" data-reveal>Survey replay</p>
-        <h2 data-reveal>Fly the survey</h2>
+        <h2 data-reveal>Real terrain, real missions</h2>
         <p class="replay-lead" data-reveal>
-          A reconstruction of reefs surveyed in Tonga, built from tens of thousands of Seeker images. Replay each dive
-          to follow the vehicle along its track; the highlighted patch is what its camera sees.
+          Replay real Seeker dives over a volcanic reef in Tonga. The terrain was reconstructed by stitching together
+          multiple overlapping surveys, flown by two Seekers working in coordination, and shows the steep,
+          boulder-strewn topography the vehicles follow at low altitude. The highlighted patch is what the camera sees.
+        </p>
+        <p class="replay-note" data-reveal>
+          This is a heavily simplified, low-resolution preview built to load quickly on the web. It shows the shape of
+          the terrain, not the quality of our reconstructions, which capture far finer detail.
         </p>
         <SurveyReplay survey={data.survey} />
       </section>
@@ -249,7 +254,15 @@ const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
   .videos { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); }
 
   .replay h2 { margin-bottom: 0.4em; }
-  .replay-lead { color: var(--color-muted); max-width: 62ch; margin: 0 0 1.5rem; }
+  .replay-lead { color: var(--color-muted); max-width: 62ch; margin: 0 0 0.75rem; }
+  .replay-note {
+    max-width: 62ch;
+    margin: 0 0 1.5rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--color-accent);
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
 
   .sectors { border-top: 1px solid var(--color-border); }
   .sectors ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
