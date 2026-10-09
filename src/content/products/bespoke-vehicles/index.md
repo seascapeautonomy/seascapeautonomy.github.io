@@ -1,7 +1,7 @@
 ---
 title: Bespoke Vehicle Design
 kind: Engineering services
-order: 6
+order: 4
 tagline: Our modular AUV design, adapted to your mission.
 summary: Open hardware and software let us integrate new sensors, extend the frame and tailor the vehicle to your requirements.
 cover: ../../../assets/seeker/IMG_7326.jpg
