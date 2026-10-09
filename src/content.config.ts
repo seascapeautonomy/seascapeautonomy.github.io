@@ -43,6 +43,7 @@ const products = defineCollection({
       summary: z.string(),
       cover: image(),
       coverAlt: z.string(),
+      coverPosition: z.string().optional(), // CSS object-position for cropped views, e.g. '15% 50%'
       sectors: z.array(sectorSlug),
       highlights: z.array(z.object({ title: z.string(), text: z.string() })).default([]),
       specs: z

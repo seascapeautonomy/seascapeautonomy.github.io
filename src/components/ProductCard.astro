@@ -12,7 +12,7 @@ const { data } = product;
 
 <a class="card" href={`/products/${product.id}`} data-reveal>
   <div class="media">
-    <Image src={data.cover} alt={data.coverAlt} widths={[400, 700]} width={700} sizes="(max-width: 900px) 100vw, 400px" />
+    <Image src={data.cover} alt={data.coverAlt} widths={[400, 700]} width={700} sizes="(max-width: 900px) 100vw, 400px" style={data.coverPosition && `object-position: ${data.coverPosition}`} />
   </div>
   <div class="body">
     <span class="kind">{data.kind}</span>

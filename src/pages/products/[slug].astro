@@ -54,7 +54,7 @@ const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
             fieldOfView={data.modelFieldOfView}
           />
         ) : (
-          <Image src={data.cover} alt={data.coverAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 520px" loading="eager" />
+          <Image src={data.cover} alt={data.coverAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 520px" loading="eager" style={data.coverPosition && `object-position: ${data.coverPosition}`} />
         )
       }
     </div>

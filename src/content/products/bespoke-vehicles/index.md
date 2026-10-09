@@ -4,8 +4,9 @@ kind: Engineering services
 order: 6
 tagline: Our modular AUV design, adapted to your mission.
 summary: Open hardware and software let us integrate new sensors, extend the frame and tailor the vehicle to your requirements.
-cover: ./cover.png
-coverAlt: Seeker AUV over a rocky seafloor
+cover: ../../../assets/seeker/IMG_7326.jpg
+coverAlt: Seeker AUV cruising over a sandy seafloor with sea fans
+coverPosition: 15% 50% # keep the whole vehicle in the square crop
 sectors: [defence, offshore, environmental]
 highlights:
   - { title: New payloads, text: "Optical, hyperspectral, sonar or water-column sensors in the nose and forward bays." }
