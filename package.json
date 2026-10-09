@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "share": "bash scripts/share.sh"
   },
   "dependencies": {
     "@google/model-viewer": "4.3.1",

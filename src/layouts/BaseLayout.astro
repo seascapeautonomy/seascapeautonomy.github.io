@@ -36,9 +36,13 @@ const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape A
     <ClientRouter />
     {
       import.meta.env.PROD && (
-        <>
-          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} />
-          <script is:inline define:vars={{ analyticsId }}>
+        <script is:inline define:vars={{ analyticsId }}>
+          // Only on the live domain, so local previews and shared preview links aren't counted.
+          if (/(^|\.)seascapeautonomy\.com$/.test(location.hostname)) {
+            const tag = document.createElement('script');
+            tag.async = true;
+            tag.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
+            document.head.appendChild(tag);
             window.dataLayer = window.dataLayer || [];
             window.gtag = function () {
               dataLayer.push(arguments);
@@ -49,8 +53,8 @@ const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape A
             document.addEventListener('astro:page-load', () => {
               gtag('event', 'page_view', { page_location: location.href, page_title: document.title });
             });
-          </script>
-        </>
+          }
+        </script>
       )
     }
   </head>

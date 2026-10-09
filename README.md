@@ -15,6 +15,15 @@ npm run preview    # serve dist/ to check the production build
 
 The dev server keeps running in the background; stop it with `npx astro dev stop`.
 
+### Sharing a preview with the team
+
+`npm run share` builds the site and serves it through a temporary public link
+(`https://…trycloudflare.com`, via a Cloudflare quick tunnel). It needs
+[`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
+installed. The link lasts while the command runs, changes each time, and anyone with it can view
+the site. Press Ctrl+C to stop sharing. Add `-- --no-build` to reuse the last build, or set
+`PORT=4401` if port 4400 is busy.
+
 Pushing to `master` builds and deploys the site (`.github/workflows/deploy.yml`). Other branches never deploy, so work on a branch and preview locally until it's ready.
 
 ## Where things live
