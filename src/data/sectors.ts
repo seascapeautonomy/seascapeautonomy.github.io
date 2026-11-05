@@ -12,6 +12,15 @@ export interface Offering {
   product?: string; // id of a page under src/content/products
 }
 
+export interface CaseStudy {
+  eyebrow: string;
+  title: string;
+  paragraphs: string[];
+  stats: { value: string; label: string }[];
+  survey: string; // a folder in src/assets/surveys built by scripts/build-target-search.py
+  note?: string;
+}
+
 export interface Sector {
   slug: string;
   name: string;
@@ -23,6 +32,7 @@ export interface Sector {
   challenge: string;
   offerings: Offering[];
   applications: string[];
+  caseStudy?: CaseStudy;
   cta: string;
 }
 
@@ -59,7 +69,27 @@ export const sectors: Sector[] = [
       },
     ],
     // TODO: confirm which of these you want to claim publicly.
-    applications: ['Harbour and port infrastructure survey', 'Littoral seabed survey', 'Anomaly detection', 'Sensor and payload trials'],
+    applications: [
+      'Harbour and port infrastructure survey',
+      'Littoral seabed survey',
+      'Anomaly detection',
+      'Wreck and debris search',
+      'Sensor and payload trials',
+    ],
+    caseStudy: {
+      eyebrow: 'Case study · Search to identification',
+      title: 'From sonar contact to confirmed aircraft wreck',
+      paragraphs: [
+        'Working with the Defense POW/MIA Accounting Agency (DPAA) in Hawaii, we paired two Seeker AUVs to find and verify an aircraft wreck site. A sidescan-equipped Seeker swept the search area and picked out a single contact on an otherwise featureless sandy seabed.',
+        'A second Seeker carrying our imaging payload then flew low over the contact, building a photomosaic at millimetre-scale resolution and a 3D model of the site. Detail invisible to sonar, such as the airframe structure and a propeller lying clear of the wreckage, confirmed the contact as an aircraft wreck.',
+      ],
+      stats: [
+        { value: '12 ha', label: 'searched with sidescan sonar' },
+        { value: '3,000 m²', label: 'imaged over the contact' },
+        { value: '0.8 mm', label: 'native imaging resolution' },
+      ],
+      survey: 'wreck-search',
+    },
     cta: 'Discuss a defence requirement',
   },
   {
