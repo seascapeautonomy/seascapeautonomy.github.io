@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { values } from '../data/company';
+import { team } from '../data/team';
+---
+
+<BaseLayout
+  title="About"
+  description="Seascape Autonomy is a University of Sydney spinoff providing high-quality seafloor imaging with novel benthic-imaging AUVs."
+>
+  <section class="container intro">
+    <p class="eyebrow">About us</p>
+    <h1>Born in research, proven at sea</h1>
+    <p class="lead">
+      Seascape Autonomy is a spinoff of the University of Sydney. Our aim is to provide high-quality seafloor imaging
+      through concurrent deployment of novel benthic-imaging AUVs.
+    </p>
+  </section>
+
+  <section class="container">
+    <ol class="value-list">
+      {
+        values.map((value, i) => (
+          <li data-reveal>
+            <span class="index">{String(i + 1).padStart(2, '0')}</span>
+            <h2>{value.title}</h2>
+            <p>{value.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="container team">
+    <p class="eyebrow" data-reveal>Our team</p>
+    <h2 data-reveal>Over 75 years of collective experience deploying marine robotic systems</h2>
+    <ul class="people">
+      {
+        team.map((person) => (
+          <li data-reveal>
+            <Image src={person.photo} alt={`Portrait of ${person.name}`} width={240} height={240} />
+            <h3>{person.name}</h3>
+            <p>{person.role}</p>
+            <a href={person.linkedin} target="_blank" rel="noopener" aria-label={`${person.name} on LinkedIn`}>
+              LinkedIn →
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="container cta" data-reveal>
+    <h2>Work with us</h2>
+    <a class="button" href="/contact">Get in touch</a>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .intro { padding-top: 9rem; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 0.2em 0 0.35em; max-width: 16ch; }
+  .lead { color: var(--color-muted); max-width: 58ch; font-size: 1.2rem; margin: 0; }
+
+  .value-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .value-list li { background: var(--color-bg); padding: 2rem 1.75rem; }
+  .index { color: var(--color-brand); font-family: var(--font-display); font-weight: 600; }
+  .value-list h2 { font-size: 1.3rem; margin: 0.75rem 0 0.5rem; }
+  .value-list p { color: var(--color-muted); margin: 0; }
+
+  .team h2 { max-width: 24ch; }
+  .people {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(190px, 45%), 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+  .people li { text-align: center; }
+  .people img {
+    width: min(140px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    border: 2px solid var(--color-border);
+    transition: border-color 0.3s, transform 0.5s var(--ease-out);
+  }
+  .people li:hover img { border-color: var(--color-accent); transform: scale(1.04); }
+  .people h3 { font-size: 1.15rem; margin: 0 0 0.25rem; }
+  .people p { color: var(--color-muted); margin: 0 0 0.5rem; font-size: 0.92rem; }
+  .people a { color: var(--color-accent); text-decoration: none; font-size: 0.88rem; font-weight: 500; }
+
+  .cta { text-align: center; border-top: 1px solid var(--color-border); padding-bottom: 5rem; }
+</style>

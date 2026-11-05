@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { contact } from '../data/company';
+
+const documents = (await getCollection('legal')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Legal" description="Terms, policies and export control requirements for Seascape Autonomy.">
+  <section class="container legal">
+    <p class="eyebrow">Legal</p>
+    <h1>Terms and policies</h1>
+    <p class="lead">{contact.legalName} (ACN {contact.acn})</p>
+    <ul>
+      {
+        documents.map((document) => (
+          <li>
+            <a href={`/${document.id}`}>
+              {document.data.title}
+              <span aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal { padding-block: 9rem 6rem; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); margin: 0.2em 0 0.3em; }
+  .lead { color: var(--color-muted); margin: 0 0 2.5rem; }
+  ul { list-style: none; padding: 0; margin: 0; max-width: 44rem; border-top: 1px solid var(--color-border); }
+  a {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.1rem 0.25rem;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.2s, padding 0.3s var(--ease-out);
+  }
+  a:hover { color: var(--color-accent); padding-left: 0.75rem; }
+</style>

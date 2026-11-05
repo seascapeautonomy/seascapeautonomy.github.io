@@ -1,0 +1,87 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Seascape Autonomy',
+  description = 'Autonomous underwater vehicles and seafloor imaging for defence, offshore infrastructure and environmental survey.',
+} = Astro.props;
+// Google Analytics property carried over from the old site; only loaded in production builds.
+const analyticsId = 'G-12HCS3FQ0W';
+const pageTitle = title === 'Seascape Autonomy' ? title : `${title} | Seascape Autonomy`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+    />
+    <title>{pageTitle}</title>
+    <ClientRouter />
+    {
+      import.meta.env.PROD && (
+        <script is:inline define:vars={{ analyticsId }}>
+          // Only on the live domain, so local previews and shared preview links aren't counted.
+          if (/(^|\.)seascapeautonomy\.com$/.test(location.hostname)) {
+            const tag = document.createElement('script');
+            tag.async = true;
+            tag.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
+            document.head.appendChild(tag);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () {
+              dataLayer.push(arguments);
+            };
+            gtag('js', new Date());
+            // Page views are sent on each astro:page-load so client-side navigations are counted too.
+            gtag('config', analyticsId, { send_page_view: false });
+            document.addEventListener('astro:page-load', () => {
+              gtag('event', 'page_view', { page_location: location.href, page_title: document.title });
+            });
+          }
+        </script>
+      )
+    }
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Reveal [data-reveal] elements on scroll; re-run after each client-side navigation.
+      function setupReveal() {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.15 },
+        );
+        document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
+      }
+      document.addEventListener('astro:page-load', setupReveal);
+    </script>
+  </body>
+</html>

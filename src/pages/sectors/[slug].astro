@@ -1,0 +1,226 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FieldworkCard from '../../components/FieldworkCard.astro';
+import TargetSearch from '../../components/TargetSearch.astro';
+import { sectors, type Sector } from '../../data/sectors';
+import { getFieldwork } from '../../lib/fieldwork';
+
+export function getStaticPaths() {
+  return sectors.map((sector) => ({ params: { slug: sector.slug }, props: { sector } }));
+}
+
+const { sector } = Astro.props as { sector: Sector };
+const fieldwork = (await getFieldwork()).filter((entry) => entry.data.sectors.includes(sector.slug as never));
+const contactLink = `/contact?sector=${sector.slug}`;
+// The image is cropped to a square (16:10 on narrow screens), so a wide source needs more pixels than
+// its displayed width; scale the sizes hint by how much of its width the crop throws away.
+const aspect = sector.image.width / sector.image.height;
+const imageSizes = `(max-width: 900px) ${Math.round(100 * Math.max(1, aspect / 1.6))}vw, ${Math.round(500 * Math.max(1, aspect))}px`;
+const imageWidths = [...new Set([500, 900, 1400, 2000, sector.image.width].filter((w) => w <= sector.image.width))];
+---
+
+<BaseLayout title={sector.name} description={sector.summary}>
+  <section class="container intro">
+    <div class="intro-text">
+      <p class="eyebrow">{sector.name}</p>
+      <h1>{sector.tagline}</h1>
+      <p class="lead">{sector.summary}</p>
+      <a class="button" href={contactLink}>{sector.cta}</a>
+    </div>
+    <div class="intro-media">
+      <Image
+        src={sector.image}
+        alt={sector.imageAlt}
+        widths={imageWidths}
+        sizes={imageSizes}
+        loading="eager"
+        style={sector.imagePosition && `object-position: ${sector.imagePosition}`}
+      />
+    </div>
+  </section>
+
+  <section class="container challenge" data-reveal>
+    <p class="eyebrow">The challenge</p>
+    <p class="statement">{sector.challenge}</p>
+  </section>
+
+  <section class="container">
+    <p class="eyebrow" data-reveal>How we help</p>
+    <h2 data-reveal>See clearly, decide confidently</h2>
+    <div class="offerings">
+      {
+        sector.offerings.map((offering) => (
+          <article data-reveal>
+            <h3>{offering.title}</h3>
+            <p>{offering.description}</p>
+            {offering.product && <a class="more" href={`/products/${offering.product}`}>Learn more →</a>}
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    sector.caseStudy && (
+      <section class="container case-study">
+        <div class="case-intro" data-reveal>
+          <div>
+            <p class="eyebrow">{sector.caseStudy.eyebrow}</p>
+            <h2>{sector.caseStudy.title}</h2>
+          </div>
+          <div class="case-text">
+            {sector.caseStudy.paragraphs.map((p) => <p>{p}</p>)}
+          </div>
+        </div>
+        <TargetSearch survey={sector.caseStudy.survey} />
+        <div class="case-footer">
+          <dl class="case-stats">
+            {sector.caseStudy.stats.map((stat) => (
+              <div>
+                <dt>{stat.label}</dt>
+                <dd>{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+          {sector.caseStudy.note && <p class="case-note">{sector.caseStudy.note}</p>}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container">
+    <p class="eyebrow" data-reveal>Applications</p>
+    <ul class="applications" data-reveal>
+      {sector.applications.map((application) => <li>{application}</li>)}
+    </ul>
+  </section>
+
+  {
+    fieldwork.length > 0 && (
+      <section class="container">
+        <p class="eyebrow" data-reveal>In the field</p>
+        <h2 data-reveal>Recent work</h2>
+        <div class="fieldwork">
+          {fieldwork.map((entry) => <FieldworkCard entry={entry} />)}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container cta" data-reveal>
+    <h2>Ready to see more clearly?</h2>
+    <a class="button" href={contactLink}>{sector.cta}</a>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding-block: clamp(3rem, 7vw, 5rem); }
+
+  .intro {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-top: 9rem;
+  }
+  h1 { font-size: clamp(2.2rem, 5vw, 4rem); margin: 0.25em 0 0.4em; }
+  .lead { color: var(--color-muted); max-width: 50ch; font-size: 1.15rem; margin-bottom: 2rem; }
+  .intro-media img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+  }
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; padding-top: 7rem; }
+    .intro-media { order: -1; }
+    .intro-media img { aspect-ratio: 16 / 10; }
+  }
+
+  .statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    line-height: 1.35;
+    letter-spacing: var(--display-tracking);
+    max-width: 38ch;
+    margin: 0;
+  }
+
+  .offerings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  .offerings article {
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-accent);
+  }
+  .offerings h3 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .offerings article { display: flex; flex-direction: column; }
+  .offerings p { color: var(--color-muted); margin: 0; flex: 1; }
+  .offerings .more { margin-top: 1rem; color: var(--color-accent); font-weight: 500; text-decoration: none; }
+
+  .applications {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .applications li {
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .fieldwork {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  }
+
+  .case-intro {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: end;
+    margin-bottom: 2rem;
+  }
+  .case-intro h2 { margin-bottom: 0; }
+  .case-text p { color: var(--color-muted); margin: 0 0 0.9rem; }
+  .case-text p:last-child { margin-bottom: 0; }
+  @media (max-width: 900px) {
+    .case-intro { grid-template-columns: 1fr; }
+  }
+  .case-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-top: 1.5rem;
+  }
+  .case-stats { display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; margin: 0; }
+  .case-stats div { display: flex; flex-direction: column-reverse; }
+  .case-stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    color: var(--color-accent);
+    text-shadow: var(--glow-sm);
+    line-height: 1.1;
+  }
+  .case-stats dt { color: var(--color-muted); font-size: 0.85rem; }
+  .case-note { margin: 0; color: var(--color-muted); font-size: 0.8rem; max-width: 36ch; }
+
+  .cta { text-align: center; border-top: 1px solid var(--color-border); }
+</style>

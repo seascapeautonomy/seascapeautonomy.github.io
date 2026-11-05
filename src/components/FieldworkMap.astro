@@ -1,0 +1,140 @@
+---
+// Imported here (not in the client script) so it's a page stylesheet that survives client-side navigation.
+import 'leaflet/dist/leaflet.css';
+import { formatMonth, type Fieldwork } from '../lib/fieldwork';
+
+interface Props {
+  entries: Fieldwork[];
+}
+
+const markers = Astro.props.entries.map((entry) => ({
+  href: `/fieldwork/${entry.id}`,
+  title: entry.data.title,
+  date: formatMonth(entry.data.date),
+  ...entry.data.coordinates,
+}));
+---
+
+<div class="fieldwork-map" data-markers={JSON.stringify(markers)} aria-label="Map of fieldwork locations"></div>
+
+<script>
+  import L from 'leaflet';
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
+  interface Marker {
+    href: string;
+    title: string;
+    date: string;
+    lat: number;
+    lng: number;
+  }
+
+  let map: L.Map | undefined;
+
+  function escapeHtml(text: string) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function setupMap() {
+    const el = document.querySelector<HTMLElement>('.fieldwork-map');
+    if (!el || !claim(el)) return;
+    const markers: Marker[] = JSON.parse(el.dataset.markers ?? '[]');
+
+    map = L.map(el, { scrollWheelZoom: false, worldCopyJump: true });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 12,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    const icon = L.divIcon({ className: 'map-pin', iconSize: [18, 18] });
+    // Keep pins on either side of the date line together (e.g. Tonga at -175° next to Australia
+    // at +150°): shift longitudes by 360° when that brings them closer to the others.
+    const span = (lngs: number[]) => Math.max(...lngs) - Math.min(...lngs);
+    const raw = markers.map((m) => m.lng);
+    const shifted = raw.map((lng) => (lng < 0 ? lng + 360 : lng));
+    const lngs = span(shifted) < span(raw) ? shifted : raw;
+    const points = markers.map((m, i) => L.latLng(m.lat, lngs[i]));
+    markers.forEach((m, i) => {
+      const marker = L.marker(points[i], { icon, title: m.title })
+        .addTo(map!)
+        .bindPopup(
+          `<span class="map-popup-date">${escapeHtml(m.date)}</span><a href="${m.href}">${escapeHtml(m.title)} →</a>`,
+        );
+      // If other pins overlap this one at the current zoom, zoom in to separate them instead of opening a popup.
+      marker.on('click', () => {
+        const here = map!.latLngToContainerPoint(points[i]);
+        const nearby = points.filter((p) => map!.latLngToContainerPoint(p).distanceTo(here) < 24);
+        if (nearby.length > 1) {
+          marker.closePopup();
+          map!.flyToBounds(L.latLngBounds(nearby), { padding: [120, 120], maxZoom: 9 });
+        }
+      });
+    });
+    if (points.length) map.fitBounds(L.latLngBounds(points), { padding: [60, 60], maxZoom: 6 });
+  }
+
+  onPageLoad(setupMap);
+  document.addEventListener('astro:before-swap', () => {
+    map?.remove();
+    map = undefined;
+  });
+</script>
+
+<style>
+  .fieldwork-map {
+    height: clamp(320px, 50vh, 520px);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  /* Recolour the standard OpenStreetMap tiles to sit in the dark navy theme. */
+  .fieldwork-map :global(.leaflet-tile-pane) {
+    filter: grayscale(1) invert(1) sepia(1) hue-rotate(195deg) saturate(2.4) brightness(0.68) contrast(1.1);
+  }
+  .fieldwork-map :global(.leaflet-container) { background: var(--color-surface); font: inherit; }
+
+  .fieldwork-map :global(.map-pin) {
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 3px solid var(--color-bg);
+    filter: drop-shadow(0 0 6px rgb(var(--color-accent-rgb) / 0.9));
+    box-shadow: 0 0 0 0 rgb(var(--color-accent-rgb) / 0.7);
+    animation: pin-pulse 2.4s ease-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fieldwork-map :global(.map-pin) { animation: none; }
+  }
+  @keyframes pin-pulse {
+    to { box-shadow: 0 0 0 16px rgb(var(--color-accent-rgb) / 0); }
+  }
+
+  .fieldwork-map :global(.leaflet-popup-content-wrapper),
+  .fieldwork-map :global(.leaflet-popup-tip) {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.4);
+  }
+  .fieldwork-map :global(.leaflet-popup-content) { margin: 0.8rem 1rem; }
+  .fieldwork-map :global(.leaflet-popup-content a) {
+    display: block;
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .fieldwork-map :global(.map-popup-date) { color: var(--color-accent); font-size: 0.78rem; }
+  .fieldwork-map :global(.leaflet-control-attribution) {
+    background: rgb(var(--shade-rgb) / 0.75);
+    color: var(--color-muted);
+  }
+  .fieldwork-map :global(.leaflet-control-attribution a) { color: var(--color-muted); }
+  .fieldwork-map :global(.leaflet-bar a) {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+</style>

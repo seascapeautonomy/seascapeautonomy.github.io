@@ -1,0 +1,624 @@
+---
+// Interactive replay of a survey: the reconstructed seafloor with the Seeker flying its recorded
+// path, a light cone for the downward camera and the imaged patch highlighted on the seafloor.
+// Survey data comes from scripts/build-survey.mjs: poses and metadata in src/assets/surveys/<survey>/,
+// and the seafloor as 3D Tiles in public/surveys/<survey>/tiles/, streamed in as the view moves.
+
+interface Props {
+  survey: string;
+  /** Camera field of view in degrees (square sensor). */
+  fov?: number;
+}
+
+const { survey, fov = 60 } = Astro.props;
+
+const poses = import.meta.glob<string>('/src/assets/surveys/*/poses.bin', { query: '?url', import: 'default', eager: true });
+const metas = import.meta.glob<Record<string, unknown>>('/src/assets/surveys/*/survey.json', { import: 'default', eager: true });
+const vehicles = import.meta.glob<string>('/src/content/products/seeker-auv/seeker-imaging.glb', { query: '?url', import: 'default', eager: true });
+
+const dir = `/src/assets/surveys/${survey}`;
+const meta = metas[`${dir}/survey.json`];
+if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`);
+---
+
+<div
+  class="survey-replay"
+  data-tiles={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/surveys/${survey}/tiles/tileset.json`}
+  data-poses={poses[`${dir}/poses.bin`]}
+  data-vehicle={Object.values(vehicles)[0]}
+  data-meta={JSON.stringify(meta)}
+  data-fov={fov}
+>
+  <canvas aria-label="3D replay of the survey: the Seeker AUV flying over the reconstructed seafloor"></canvas>
+
+  <div class="loading" aria-live="polite">
+    <span class="loading-label">Loading survey…</span>
+    <span class="loading-bar"><span></span></span>
+  </div>
+
+  <span class="badge">Streams detail as you zoom</span>
+
+  <div class="hud">
+    <span class="hud-dive"></span>
+    <span class="hud-stats"></span>
+  </div>
+
+  <div class="controls" hidden>
+    <button type="button" class="play" aria-label="Pause">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-pause" d="M7 5h3v14H7zM14 5h3v14h-3z"></path><path class="icon-play" d="M8 5l11 7-11 7z"></path></svg>
+    </button>
+    <input class="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Position in dive" />
+    <span class="clock">0:00 / 0:00</span>
+    <div class="group" role="group" aria-label="Playback speed">
+      <button type="button" data-speed="10" aria-pressed="true">10×</button>
+      <button type="button" data-speed="30">30×</button>
+      <button type="button" data-speed="100">100×</button>
+    </div>
+    <div class="group" role="group" aria-label="View">
+      <button type="button" data-view="follow" aria-pressed="true">Follow</button>
+      <button type="button" data-view="overview">Overview</button>
+    </div>
+    <select class="dive" aria-label="Dive"></select>
+  </div>
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+  import { TilesRenderer } from '3d-tiles-renderer';
+  import { GLTFExtensionsPlugin } from '3d-tiles-renderer/plugins';
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
+  interface Dive {
+    start: string;
+    duration: number;
+    first: number;
+    count: number;
+  }
+  interface SurveyMeta {
+    poseStride: number;
+    bounds: { min: number[]; max: number[] };
+    dives: Dive[];
+  }
+
+  const ACCENT = new THREE.Color('#19b6f7');
+  const WATER = new THREE.Color('#0c1a44');
+  const JUMP_M = 3; // a gap between poses larger than this is a jump, not travel
+  const TILE_ERROR_PX = 16; // screen-space error the seafloor tiles refine to (lower is sharper, but
+  // loads ~4x the tiles per halving; 8 made follow playback choppy)
+  const LOAD_WAIT_MS = 4000; // longest wait for the first view's tiles after the first arrives;
+  // detail keeps streaming in while the replay plays
+  const CONE_M = 2.2; // drawn length of the camera's light cone (~ imaging altitude)
+  // The Seeker model's nose points along -Z and its top along +Y; the replay frame has +Z forward.
+  const VEHICLE_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+
+  let teardown: (() => void) | undefined;
+
+  function setupReplays() {
+    document.querySelectorAll<HTMLElement>('.survey-replay').forEach((root) => {
+      if (!claim(root)) return;
+      // Load only when the viewer is about to scroll into view.
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            start(root).catch((err) => {
+              console.error(err);
+              root.querySelector('.loading-label')!.textContent = 'Sorry, the survey replay could not be loaded.';
+            });
+          }
+        },
+        { rootMargin: '300px' },
+      );
+      io.observe(root);
+      teardown = () => io.disconnect();
+    });
+  }
+
+  async function start(root: HTMLElement) {
+    const meta: SurveyMeta = JSON.parse(root.dataset.meta!);
+    const fov = Number(root.dataset.fov);
+    const canvas = root.querySelector('canvas')!;
+    const loading = root.querySelector<HTMLElement>('.loading')!;
+    const bar = root.querySelector<HTMLElement>('.loading-bar span')!;
+
+    // --- Renderer, scene, camera --------------------------------------------------------------
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+
+    const scene = new THREE.Scene();
+    scene.background = WATER;
+    scene.fog = new THREE.FogExp2(WATER, 0.02);
+    scene.add(new THREE.HemisphereLight('#a9c8ff', '#10183a', 2.2));
+    const sun = new THREE.DirectionalLight('#ffffff', 1.4);
+    sun.position.set(0.3, 1, 0.2);
+    scene.add(sun);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 3000);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.maxDistance = 1200;
+
+    // --- Load the vehicle and poses; stream the seafloor tiles --------------------------------
+    const draco = new DRACOLoader().setDecoderPath('/draco/');
+    const gltf = new GLTFLoader().setDRACOLoader(draco);
+    const [vehicleGltf, poseBuffer] = await Promise.all([
+      gltf.loadAsync(root.dataset.vehicle!),
+      fetch(root.dataset.poses!).then((r) => r.arrayBuffer()),
+    ]);
+    draco.dispose();
+    const P = new Float32Array(poseBuffer);
+    const S = meta.poseStride;
+
+    const tiles = new TilesRenderer(root.dataset.tiles!);
+    // Tiles are Draco-compressed by scripts/build-survey.mjs; the plugin disposes this loader with the tiles.
+    tiles.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: new DRACOLoader().setDecoderPath('/draco/') }));
+    tiles.errorTarget = TILE_ERROR_PX;
+    // Upload at most two new tiles per frame (default five) so tiles arriving together don't stall
+    // playback while the camera moves into new areas.
+    tiles.parseQueue.maxJobs = 2;
+    tiles.setCamera(camera);
+    // Tiles are in the survey's Z-up world frame; the scene is Y-up.
+    tiles.group.rotation.x = -Math.PI / 2;
+    scene.add(tiles.group);
+    tiles.addEventListener('load-error', ({ tile, error, url }) => {
+      console.error(`Could not load ${url}`, error);
+      if (!tile) root.querySelector('.loading-label')!.textContent = 'Sorry, the survey replay could not be loaded.';
+    });
+
+    // Seafloor: each tile's texture, brightened inside the camera's footprint.
+    const footprintVP = new THREE.Matrix4();
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+    function footprintShader(shader: THREE.WebGLProgramParametersWithUniforms) {
+      shader.uniforms.uFootVP = { value: footprintVP };
+      shader.uniforms.uAccent = { value: ACCENT };
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vSurveyWorld;')
+        .replace(
+          '#include <project_vertex>',
+          '#include <project_vertex>\nvSurveyWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;',
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vSurveyWorld;\nuniform mat4 uFootVP;\nuniform vec3 uAccent;')
+        .replace(
+          '#include <dithering_fragment>',
+          `{
+            vec4 clip = uFootVP * vec4(vSurveyWorld, 1.0);
+            vec3 ndc = clip.xyz / clip.w;
+            if (clip.w > 0.0 && abs(ndc.x) < 1.0 && abs(ndc.y) < 1.0 && abs(ndc.z) < 1.0) {
+              float edge = max(abs(ndc.x), abs(ndc.y));
+              float rim = smoothstep(0.9, 1.0, edge);
+              gl_FragColor.rgb = gl_FragColor.rgb * 1.9 + uAccent * (0.06 + 0.9 * rim);
+            }
+          }
+          #include <dithering_fragment>`,
+        );
+    }
+    // The tiles renderer disposes each tile's materials and textures when it unloads the tile.
+    tiles.addEventListener('load-model', ({ scene: model }) => {
+      model.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const original = mesh.material as THREE.MeshStandardMaterial;
+        const map = original.map;
+        if (map) {
+          // Metashape's tiles ask for no mipmaps, which shimmers when zoomed out; the anisotropy
+          // keeps the texture sharp at the grazing angles of the follow view.
+          map.minFilter = THREE.LinearMipmapLinearFilter;
+          map.generateMipmaps = true;
+          map.anisotropy = maxAnisotropy;
+          map.needsUpdate = true;
+        }
+        const seafloor = new THREE.MeshStandardMaterial({ map, roughness: 1, metalness: 0 });
+        seafloor.onBeforeCompile = footprintShader;
+        mesh.material = seafloor;
+        original.dispose();
+      });
+    });
+
+    // Vehicle, with its camera (a light cone) and a glow marker that stays visible from afar.
+    const vehicle = new THREE.Group();
+    const model = vehicleGltf.scene;
+    model.quaternion.copy(VEHICLE_FIX);
+    vehicle.add(model);
+    const half = CONE_M * Math.tan(THREE.MathUtils.degToRad(fov / 2));
+    const coneGeo = new THREE.BufferGeometry();
+    const apex = [0, 0, 0];
+    const corners = [
+      [-half, -CONE_M, -half],
+      [half, -CONE_M, -half],
+      [half, -CONE_M, half],
+      [-half, -CONE_M, half],
+    ];
+    const conePos: number[] = [];
+    const coneFade: number[] = [];
+    for (let i = 0; i < 4; i++) {
+      conePos.push(...apex, ...corners[i], ...corners[(i + 1) % 4]);
+      coneFade.push(1, 0, 0);
+    }
+    coneGeo.setAttribute('position', new THREE.Float32BufferAttribute(conePos, 3));
+    coneGeo.setAttribute('fade', new THREE.Float32BufferAttribute(coneFade, 1));
+    const cone = new THREE.Mesh(
+      coneGeo,
+      new THREE.ShaderMaterial({
+        uniforms: { uColor: { value: ACCENT } },
+        vertexShader:
+          'attribute float fade; varying float vFade; void main() { vFade = fade; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader:
+          'uniform vec3 uColor; varying float vFade; void main() { gl_FragColor = vec4(uColor, 0.05 + 0.3 * vFade); }',
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+      }),
+    );
+    vehicle.add(cone);
+    const marker = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: glowTexture(), color: ACCENT, transparent: true, depthTest: false, sizeAttenuation: false }),
+    );
+    marker.scale.setScalar(0.035);
+    marker.renderOrder = 10;
+    vehicle.add(marker);
+    scene.add(vehicle);
+
+    // The footprint camera: looks down the vehicle's -Y axis, with image "up" toward the tail.
+    const footCam = new THREE.PerspectiveCamera(fov, 1, 0.05, 25);
+    footCam.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+    vehicle.add(footCam);
+
+    // Paths: every dive faint, the current dive's travelled path bright.
+    const allPaths = new THREE.BufferGeometry();
+    const segs: number[] = [];
+    meta.dives.forEach((d) => {
+      for (let i = d.first + 1; i < d.first + d.count; i++) {
+        if (dist(i - 1, i) < JUMP_M) segs.push(P[(i - 1) * S + 1], P[(i - 1) * S + 2], P[(i - 1) * S + 3], P[i * S + 1], P[i * S + 2], P[i * S + 3]);
+      }
+    });
+    allPaths.setAttribute('position', new THREE.Float32BufferAttribute(segs, 3));
+    const otherPaths = new THREE.LineSegments(allPaths, new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.12 }));
+    scene.add(otherPaths);
+    const trailGeo = new THREE.BufferGeometry();
+    const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.9 }));
+    scene.add(trail);
+
+    function dist(a: number, b: number) {
+      return Math.hypot(P[a * S + 1] - P[b * S + 1], P[a * S + 2] - P[b * S + 2], P[a * S + 3] - P[b * S + 3]);
+    }
+
+    // --- Playback state -----------------------------------------------------------------------
+    let diveIndex = meta.dives.reduce((best, d, i, all) => (d.count > all[best].count ? i : best), 0);
+    let t = 0;
+    let speed = 10;
+    let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let view: 'follow' | 'overview' = 'follow';
+    const lastPos = new THREE.Vector3();
+    const qa = new THREE.Quaternion();
+    const qb = new THREE.Quaternion();
+
+    function loadDive(i: number) {
+      diveIndex = i;
+      t = 0;
+      const d = meta.dives[i];
+      trailGeo.setAttribute('position', new THREE.Float32BufferAttribute(P.subarray(d.first * S, (d.first + d.count) * S).filter((_, k) => k % S >= 1 && k % S <= 3), 3));
+      trailGeo.setDrawRange(0, 0);
+      select.value = String(i);
+      setPose();
+      if (view === 'follow') frameFollow();
+    }
+
+    /** Place the vehicle at time t in the current dive. */
+    function setPose() {
+      const d = meta.dives[diveIndex];
+      let lo = d.first;
+      let hi = d.first + d.count - 1;
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (P[mid * S] <= t) lo = mid;
+        else hi = mid;
+      }
+      const span = P[hi * S] - P[lo * S];
+      const f = span > 0 && dist(lo, hi) < JUMP_M ? THREE.MathUtils.clamp((t - P[lo * S]) / span, 0, 1) : 0;
+      vehicle.position.set(
+        THREE.MathUtils.lerp(P[lo * S + 1], P[hi * S + 1], f),
+        THREE.MathUtils.lerp(P[lo * S + 2], P[hi * S + 2], f),
+        THREE.MathUtils.lerp(P[lo * S + 3], P[hi * S + 3], f),
+      );
+      qa.fromArray(P, lo * S + 4);
+      qb.fromArray(P, hi * S + 4);
+      vehicle.quaternion.slerpQuaternions(qa, qb, f);
+      trailGeo.setDrawRange(0, lo - d.first + 1);
+      vehicle.updateMatrixWorld(true);
+      footprintVP.multiplyMatrices(footCam.projectionMatrix, footCam.matrixWorldInverse);
+    }
+
+    function frameFollow() {
+      const back = new THREE.Vector3(0, 3.5, -7).applyQuaternion(vehicle.quaternion);
+      back.y = Math.abs(back.y) + 3;
+      controls.target.copy(vehicle.position);
+      camera.position.copy(vehicle.position).add(back);
+      lastPos.copy(vehicle.position);
+      scene.fog = new THREE.FogExp2(WATER, 0.02);
+      // Up close, other dives' paths and the locator glow are just clutter.
+      otherPaths.visible = false;
+      marker.visible = false;
+    }
+
+    function frameOverview() {
+      const { min, max } = meta.bounds;
+      const center = new THREE.Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2);
+      const size = Math.max(max[0] - min[0], max[2] - min[2]);
+      controls.target.copy(center);
+      camera.position.copy(center).add(new THREE.Vector3(0, size * 0.75, size * 0.55));
+      scene.fog = new THREE.FogExp2(WATER, 0.0015);
+      otherPaths.visible = true;
+      marker.visible = true;
+    }
+
+    // --- Controls -----------------------------------------------------------------------------
+    const ui = root.querySelector<HTMLElement>('.controls')!;
+    const playBtn = ui.querySelector<HTMLButtonElement>('.play')!;
+    const scrub = ui.querySelector<HTMLInputElement>('.scrub')!;
+    const clock = ui.querySelector<HTMLElement>('.clock')!;
+    const select = ui.querySelector<HTMLSelectElement>('.dive')!;
+    const hudDive = root.querySelector<HTMLElement>('.hud-dive')!;
+    const hudStats = root.querySelector<HTMLElement>('.hud-stats')!;
+    const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+    meta.dives.forEach((d, i) => {
+      const when = new Date(d.start);
+      const label = when.toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
+      select.add(new Option(`Dive ${i + 1} · ${label} · ${Math.round(d.duration / 60)} min`, String(i)));
+    });
+    select.addEventListener('change', () => loadDive(Number(select.value)));
+
+    const setPlaying = (p: boolean) => {
+      playing = p;
+      playBtn.classList.toggle('paused', !p);
+      playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+    };
+    playBtn.addEventListener('click', () => setPlaying(!playing));
+    scrub.addEventListener('input', () => {
+      t = (Number(scrub.value) / 1000) * meta.dives[diveIndex].duration;
+      setPose();
+    });
+    ui.querySelectorAll<HTMLButtonElement>('[data-speed]').forEach((b) =>
+      b.addEventListener('click', () => {
+        speed = Number(b.dataset.speed);
+        ui.querySelectorAll('[data-speed]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }),
+    );
+    ui.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((b) =>
+      b.addEventListener('click', () => {
+        view = b.dataset.view as typeof view;
+        ui.querySelectorAll('[data-view]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        if (view === 'follow') frameFollow();
+        else frameOverview();
+      }),
+    );
+
+    // --- Render loop --------------------------------------------------------------------------
+    function resize() {
+      const { clientWidth: w, clientHeight: h } = root;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      tiles.setResolutionFromRenderer(camera, renderer);
+    }
+    const ro = new ResizeObserver(resize);
+    ro.observe(root);
+    resize();
+
+    let visible = true;
+    const vis = new IntersectionObserver((e) => (visible = e[0].isIntersecting));
+    vis.observe(root);
+
+    setPlaying(playing);
+    loadDive(diveIndex);
+    // Keep the loading screen up, and playback held so the view stays put, until its tiles are in
+    // (or a while after the first one, so a slow connection still gets going on coarser tiles).
+    let loaded = false;
+    const finishLoading = () => {
+      loaded = true;
+      loading.hidden = true;
+      ui.hidden = false;
+    };
+    tiles.addEventListener('tiles-load-end', finishLoading);
+    let loadTimer: ReturnType<typeof setTimeout> | undefined;
+    tiles.addEventListener('load-model', () => (loadTimer ??= setTimeout(finishLoading, LOAD_WAIT_MS)));
+
+    const timer = new THREE.Timer();
+    renderer.setAnimationLoop((now) => {
+      timer.update(now);
+      if (!visible) return;
+      const dt = Math.min(timer.getDelta(), 0.1);
+      const d = meta.dives[diveIndex];
+      if (playing && loaded) {
+        t += dt * speed;
+        if (t >= d.duration) loadDive((diveIndex + 1) % meta.dives.length);
+        else setPose();
+      }
+      if (view === 'follow') {
+        // Carry the camera along with the vehicle, keeping the user's orbit offset.
+        const delta = vehicle.position.clone().sub(lastPos);
+        camera.position.add(delta);
+        controls.target.add(delta);
+        lastPos.copy(vehicle.position);
+      }
+      controls.update();
+      camera.updateMatrixWorld();
+      tiles.update();
+      if (!loaded) bar.style.transform = `scaleX(${tiles.loadProgress})`;
+      scrub.value = String(Math.round((t / d.duration) * 1000));
+      clock.textContent = `${mmss(t)} / ${mmss(d.duration)}`;
+      hudDive.textContent = `Dive ${diveIndex + 1} of ${meta.dives.length}`;
+      hudStats.textContent = `Depth ${(-vehicle.position.y).toFixed(1)} m (relative)`;
+      renderer.render(scene, camera);
+    });
+
+    teardown = () => {
+      renderer.setAnimationLoop(null);
+      clearTimeout(loadTimer);
+      ro.disconnect();
+      vis.disconnect();
+      controls.dispose();
+      tiles.dispose();
+      renderer.dispose();
+    };
+  }
+
+  /** A soft radial glow for the vehicle marker. */
+  function glowTexture() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d')!;
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.25, 'rgba(255,255,255,0.8)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+
+  onPageLoad(setupReplays);
+  document.addEventListener('astro:before-swap', () => teardown?.());
+</script>
+
+<style>
+  .survey-replay {
+    position: relative;
+    height: clamp(420px, 72vh, 760px);
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    background: #0c1a44;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+  .loading[hidden] { display: none; }
+  .loading-bar {
+    width: 220px;
+    height: 2px;
+    background: rgb(255 255 255 / 0.12);
+    overflow: hidden;
+  }
+  .loading-bar span {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    box-shadow: var(--glow-sm);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+  }
+
+  .hud {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    display: grid;
+    gap: 0.15rem;
+    pointer-events: none;
+    font-size: 0.82rem;
+    color: rgb(242 247 251 / 0.85);
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+  }
+  .hud-dive { color: var(--color-accent); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.75rem; }
+
+  .badge {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgb(var(--shade-rgb) / 0.72);
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
+  .controls {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 14px;
+    background: rgb(var(--shade-rgb) / 0.72);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+  }
+  .controls[hidden] { display: none; }
+  .controls button,
+  .controls select {
+    font: inherit;
+    color: var(--color-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .play {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-accent) !important;
+    box-shadow: var(--glow-sm);
+  }
+  .play svg { width: 18px; height: 18px; fill: var(--color-on-accent); }
+  .play .icon-play { display: none; }
+  .play.paused .icon-play { display: block; }
+  .play.paused .icon-pause { display: none; }
+  .scrub {
+    flex: 1 1 200px;
+    accent-color: var(--color-accent);
+  }
+  .clock { font-variant-numeric: tabular-nums; color: var(--color-text); min-width: 7.5em; }
+  .group {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+  }
+  .group button { padding: 0.3rem 0.7rem; border-radius: 999px; }
+  .group button:hover { color: var(--color-text); }
+  .group button[aria-pressed='true'] { background: var(--color-accent); color: var(--color-on-accent); font-weight: 600; }
+  .dive {
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.06) !important;
+    color: var(--color-text) !important;
+    max-width: 100%;
+  }
+  /* :global because the options are added by script, so scoped styles don't reach them.
+     The open list is drawn by the browser, usually on white, so use dark text. */
+  .dive :global(option) { background: #ffffff; color: #0c1a44; }
+</style>

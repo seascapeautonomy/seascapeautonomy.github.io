@@ -1,0 +1,280 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import YouTube from '../../components/YouTube.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import SurveyReplay from '../../components/SurveyReplay.astro';
+import { getModelVariants, getProducts, type Product } from '../../lib/products';
+import { sectors } from '../../data/sectors';
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product, related: products.filter((p) => p.id !== product.id).slice(0, 3) },
+  }));
+}
+
+interface Props {
+  product: Product;
+  related: Product[];
+}
+
+const { product, related } = Astro.props;
+const { data } = product;
+const { Content } = await render(product);
+const productSectors = sectors.filter((sector) => data.sectors.includes(sector.slug as never));
+// Products with 3D models show them in a viewer instead of the cover photo.
+const modelVariants = getModelVariants(product);
+const hasModel = modelVariants.some((variant) => variant.src);
+const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
+---
+
+<BaseLayout title={data.title} description={data.summary}>
+  <section class="container intro">
+    <div class="intro-text">
+      <a class="back" href="/products">← All products</a>
+      <p class="eyebrow">{data.kind}</p>
+      <h1>{data.title}</h1>
+      <p class="lead">{data.tagline} {data.summary}</p>
+      <div class="actions">
+        <a class="button" href={contactLink}>Enquire about {data.title}</a>
+        {data.specs.length > 0 && <a class="button ghost" href="#specs">Specifications</a>}
+      </div>
+    </div>
+    <div class:list={['intro-media', { 'has-model': hasModel }]}>
+      {
+        hasModel ? (
+          <ModelViewer
+            name={`the ${data.title}`}
+            variants={modelVariants}
+            embedded
+            cameraOrbit={data.modelCameraOrbit}
+            fieldOfView={data.modelFieldOfView}
+          />
+        ) : (
+          <Image src={data.cover} alt={data.coverAlt} widths={[500, 900]} width={900} sizes="(max-width: 900px) 100vw, 520px" loading="eager" style={data.coverPosition && `object-position: ${data.coverPosition}`} />
+        )
+      }
+    </div>
+  </section>
+
+  {
+    data.survey && (
+      <section class="container replay">
+        <p class="eyebrow" data-reveal>Survey replay</p>
+        <h2 data-reveal>Real terrain, real missions</h2>
+        <p class="replay-lead" data-reveal>
+          Replay real Seeker dives over a volcanic reef in Tonga. The terrain was reconstructed by stitching together
+          multiple overlapping surveys, flown by two Seekers working in coordination, and shows the steep,
+          boulder-strewn topography the vehicles follow at low altitude. The highlighted patch is what the camera sees.
+        </p>
+        <p class="replay-note" data-reveal>
+          The reconstruction streams in as tiles, loading finer detail the closer you look.
+        </p>
+        <SurveyReplay survey={data.survey} />
+      </section>
+    )
+  }
+
+  {
+    data.highlights.length > 0 && (
+      <section class="container">
+        <ul class="highlights">
+          {data.highlights.map((item) => (
+            <li data-reveal>
+              <h2>{item.title}</h2>
+              <p>{item.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="container details">
+    <article class="prose" data-reveal>
+      <Content />
+    </article>
+
+    {
+      data.specs.length > 0 && (
+        <aside id="specs" class="specs" data-reveal>
+          <h2>Specifications</h2>
+          {data.specs.map((group) => (
+            <div class="spec-group">
+              <h3>{group.group}</h3>
+              <dl>
+                {group.items.map((item) => (
+                  <div>
+                    <dt>{item.label}</dt>
+                    <dd>{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))}
+        </aside>
+      )
+    }
+  </section>
+
+  {
+    data.videos.length > 0 && (
+      <section class="container">
+        <h2 data-reveal>See it in action</h2>
+        <div class="videos">
+          {data.videos.map((id, i) => (
+            <YouTube id={id} title={`${data.title} video ${i + 1}`} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container sectors" data-reveal>
+    <p class="eyebrow">Built for</p>
+    <ul>
+      {productSectors.map((sector) => <li><a href={`/sectors/${sector.slug}`}>{sector.name} →</a></li>)}
+    </ul>
+  </section>
+
+  <section class="container related">
+    <h2 data-reveal>More from Seascape</h2>
+    <div class="grid">
+      {related.map((p) => <ProductCard product={p} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding-block: clamp(2.5rem, 6vw, 4rem); }
+
+  .intro {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-top: 8rem;
+  }
+  .back { display: inline-block; margin-bottom: 1.5rem; color: var(--color-muted); text-decoration: none; font-size: 0.9rem; }
+  .back:hover { color: var(--color-accent); }
+  h1 { font-size: clamp(2.4rem, 5.5vw, 4.25rem); margin: 0.2em 0 0.35em; }
+  .lead { color: var(--color-muted); max-width: 52ch; font-size: 1.15rem; margin: 0 0 2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .intro-media img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+  }
+  .intro-media.has-model {
+    aspect-ratio: 1;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; padding-top: 6.5rem; }
+    .intro-media.has-model { aspect-ratio: 4 / 3; }
+    .intro-media { order: -1; }
+    .intro-media img { aspect-ratio: 16 / 10; }
+  }
+
+  .highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .highlights li { background: var(--color-bg); padding: 1.75rem 1.5rem; }
+  .highlights h2 { font-size: 1.2rem; margin: 0 0 0.4rem; color: var(--color-accent); }
+  .highlights p { margin: 0; color: var(--color-muted); }
+
+  .details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .details:not(:has(.specs)) { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+    .details { grid-template-columns: 1fr; }
+  }
+  .prose { font-size: 1.08rem; max-width: 68ch; }
+  .prose :global(p), .prose :global(ul) { margin: 0 0 1.2em; }
+  .prose :global(h2) { font-size: 1.6rem; margin: 1.6em 0 0.6em; }
+  .prose :global(li) { margin-bottom: 0.5em; }
+  .prose :global(strong) { color: var(--color-text); }
+  .prose :global(a) { color: var(--color-accent); text-underline-offset: 3px; }
+
+  .specs {
+    position: sticky;
+    top: 96px;
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+  .specs > h2 { font-size: 1.4rem; margin: 0 0 1rem; }
+  .spec-group + .spec-group { margin-top: 1.5rem; }
+  .spec-group h3 {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-accent);
+    margin: 0 0 0.5rem;
+  }
+  .specs dl { margin: 0; }
+  .specs dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.93rem;
+  }
+  .specs dt { color: var(--color-muted); }
+  .specs dd { margin: 0; text-align: right; font-weight: 500; }
+  @media (max-width: 900px) {
+    .specs { position: static; }
+  }
+
+  .videos { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); }
+
+  .replay h2 { margin-bottom: 0.4em; }
+  .replay-lead { color: var(--color-muted); max-width: 62ch; margin: 0 0 0.75rem; }
+  .replay-note {
+    max-width: 62ch;
+    margin: 0 0 1.5rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--color-accent);
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .sectors { border-top: 1px solid var(--color-border); }
+  .sectors ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .sectors a {
+    display: inline-block;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+  .sectors a:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+  .related { padding-bottom: 5rem; }
+  .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+</style>

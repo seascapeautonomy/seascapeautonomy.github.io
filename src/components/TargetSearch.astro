@@ -1,0 +1,683 @@
+---
+// Search-to-inspection viewer: a wide-area sidescan sonar mosaic with a high-resolution photomosaic
+// of the detected target laid over it, target close-ups on hover/click, and an optional 3D view.
+// Data comes from scripts/build-target-search.py: tiles, terrain and close-ups in
+// public/surveys/<survey>/, and extents plus the hand-edited targets.json in src/assets/surveys/<survey>/.
+// Everything is in local metres (x east, y north, origin at the sidescan's top-left corner), so the
+// page never carries a geographic location. Add ?pick to the page URL to read off target positions.
+import 'leaflet/dist/leaflet.css';
+
+interface Props {
+  survey: string;
+}
+
+const { survey } = Astro.props;
+const sites = import.meta.glob<Record<string, unknown>>('/src/assets/surveys/*/site.json', { import: 'default', eager: true });
+const targetFiles = import.meta.glob<unknown[]>('/src/assets/surveys/*/targets.json', { import: 'default', eager: true });
+const site = sites[`/src/assets/surveys/${survey}/site.json`];
+if (!site) throw new Error(`Target search "${survey}" not found in src/assets/surveys`);
+const targets = targetFiles[`/src/assets/surveys/${survey}/targets.json`] ?? [];
+const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/surveys/${survey}`;
+---
+
+<div class="target-search" data-base={base} data-site={JSON.stringify(site)} data-targets={JSON.stringify(targets)}>
+  <div class="stage">
+    <div class="map" aria-label="Sidescan sonar mosaic of the search area with the photomosaic of the target overlaid"></div>
+    <canvas class="terrain" hidden aria-label="3D view of the photomosaic draped over the seafloor terrain"></canvas>
+
+    <div class="modes" role="group" aria-label="View">
+      <button type="button" data-mode="search" aria-pressed="true"><span class="step">1</span>Search</button>
+      <button type="button" data-mode="inspect" aria-pressed="false"><span class="step">2</span>Inspect</button>
+      <button type="button" data-mode="3d" aria-pressed="false"><span class="step">3</span>3D</button>
+    </div>
+
+    <div class="legend" aria-live="polite">
+      <p data-for="search"><strong>Sidescan sonar</strong> sweeps the search area; one contact stands out.</p>
+      <p data-for="inspect" hidden><strong>Photomosaic</strong> from a low imaging pass over the contact.</p>
+      <p data-for="3d" hidden><strong>3D terrain</strong> from the same imagery. Drag to orbit.</p>
+    </div>
+
+    <div class="controls">
+      <label class="slider" data-for-2d>
+        <span>Photomosaic</span>
+        <input class="opacity" type="range" min="0" max="100" value="0" step="1" aria-label="Photomosaic opacity" />
+      </label>
+      <label class="toggle" data-for-2d>
+        <input class="relief" type="checkbox" />
+        <span>Relief</span>
+      </label>
+      <label class="slider" data-for-3d hidden>
+        <span>Height ×<output class="exag-value">1.5</output></span>
+        <input class="exag" type="range" min="1" max="4" value="1.5" step="0.25" aria-label="Vertical exaggeration" />
+      </label>
+    </div>
+
+    <div class="hint" hidden>Click the map to zoom with the scroll wheel</div>
+    <div class="pick-readout" hidden></div>
+
+    <div class="card" hidden role="dialog" aria-live="polite">
+      <button type="button" class="card-close" aria-label="Close">×</button>
+      <div class="card-media"><img alt="" /></div>
+      <div class="card-body">
+        <p class="card-title"></p>
+        <p class="card-text"></p>
+        <p class="card-meta"></p>
+      </div>
+    </div>
+
+    <div class="loading" hidden><span></span></div>
+  </div>
+</div>
+
+<script>
+  import L from 'leaflet';
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
+  type Bounds = [number, number, number, number]; // xmin, ymin, xmax, ymax (local metres)
+  interface Level {
+    x0: number;
+    y0: number;
+    cols: number;
+    rows: number;
+    mask: string;
+  }
+  interface Pyramid {
+    bounds: Bounds;
+    minZoom: number;
+    maxZoom: number;
+    levels: Record<string, Level>;
+    footprint?: [number, number][];
+    dataBounds?: Bounds;
+  }
+  interface Site {
+    tileSize: number;
+    sidescan: Pyramid;
+    photomosaic: Pyramid;
+    relief?: Pyramid;
+    terrain?: { bounds: Bounds; samples: number; relief: number; contextBounds: Bounds };
+  }
+  interface Target {
+    id: string;
+    label: string;
+    description: string;
+    x: number;
+    y: number;
+    size: number;
+  }
+  type Mode = 'search' | 'inspect' | '3d';
+
+  const MAX_ZOOM = 9.5; // ~1.4x past the finest photomosaic tiles; further only magnifies blur
+  const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Local metres -> Leaflet CRS.Simple: lat = y (north), lng = x (east); zoom z = 2^z pixels per metre.
+  const ll = (x: number, y: number) => L.latLng(y, x);
+  const llBounds = (b: Bounds) => L.latLngBounds(ll(b[0], b[1]), ll(b[2], b[3]));
+
+  /** A tile layer that only requests tiles the build wrote (the masks in site.json). */
+  function pyramidLayer(url: string, p: Pyramid, options: L.TileLayerOptions) {
+    const masks = new Map<number, { level: Level; bits: Uint8Array }>();
+    for (const [z, level] of Object.entries(p.levels)) {
+      masks.set(Number(z), { level, bits: Uint8Array.from(atob(level.mask), (c) => c.charCodeAt(0)) });
+    }
+    const Layer = L.TileLayer.extend({
+      getTileUrl(coords: L.Coords) {
+        const m = masks.get(coords.z);
+        if (!m) return BLANK;
+        const c = coords.x - m.level.x0;
+        const r = coords.y - m.level.y0;
+        if (c < 0 || r < 0 || c >= m.level.cols || r >= m.level.rows) return BLANK;
+        const i = r * m.level.cols + c;
+        if (!(m.bits[i >> 3] & (0x80 >> (i & 7)))) return BLANK;
+        return `${url}/${coords.z}/${coords.x}/${coords.y}.webp`;
+      },
+    });
+    return new Layer('', {
+      bounds: llBounds(p.bounds),
+      minNativeZoom: p.minZoom,
+      maxNativeZoom: p.maxZoom,
+      minZoom: -3,
+      maxZoom: MAX_ZOOM,
+      noWrap: true,
+      keepBuffer: 4,
+      ...options,
+    }) as L.TileLayer;
+  }
+
+  function escapeHtml(text: string) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  let teardown: (() => void) | undefined;
+
+  function setup() {
+    const root = document.querySelector<HTMLElement>('.target-search');
+    if (!root || !claim(root)) return;
+    const site: Site = JSON.parse(root.dataset.site!);
+    const targets: Target[] = JSON.parse(root.dataset.targets ?? '[]');
+    const base = root.dataset.base!;
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const mapEl = $<HTMLElement>('.map');
+    const opacity = $<HTMLInputElement>('.opacity');
+    const relief = $<HTMLInputElement>('.relief');
+    const card = $<HTMLElement>('.card');
+    const hint = $<HTMLElement>('.hint');
+
+    const map = L.map(mapEl, {
+      crs: L.CRS.Simple,
+      minZoom: -3,
+      maxZoom: MAX_ZOOM,
+      zoomSnap: 0.25,
+      zoomDelta: 0.5,
+      wheelPxPerZoomLevel: 90,
+      scrollWheelZoom: false,
+      attributionControl: false,
+      maxBounds: llBounds(site.sidescan.dataBounds ?? site.sidescan.bounds).pad(0.3),
+      maxBoundsViscosity: 0.8,
+    });
+    L.control.scale({ imperial: false, position: 'bottomleft', maxWidth: 140 }).addTo(map);
+
+    pyramidLayer(`${base}/sidescan`, site.sidescan, { zIndex: 1, className: 'layer-sidescan' }).addTo(map);
+    const photo = pyramidLayer(`${base}/photomosaic`, site.photomosaic, { zIndex: 2, opacity: 0, className: 'layer-photo' });
+    photo.addTo(map);
+    const reliefLayer = site.relief
+      ? pyramidLayer(`${base}/relief`, site.relief, { zIndex: 3, opacity: 0, className: 'layer-relief' })
+      : undefined;
+    if (!reliefLayer) relief.closest('label')!.hidden = true;
+
+    // Where the imaging pass went, shown over the sonar while the photomosaic is hidden.
+    const fp = site.photomosaic.footprint ?? [];
+    const footprint = L.polygon(
+      fp.map(([x, y]) => ll(x, y)),
+      { className: 'footprint', interactive: false, weight: 1.5, dashArray: '5 5', fill: false },
+    ).addTo(map);
+    const photoBounds = llBounds(site.photomosaic.bounds);
+    const contactLabel = L.tooltip({ permanent: true, direction: 'right', className: 'footprint-label', offset: [8, 0] })
+      .setLatLng(L.latLng(photoBounds.getCenter().lat, photoBounds.getEast()))
+      .setContent('Contact → imaging pass');
+    map.openTooltip(contactLabel);
+
+    // --- Photomosaic opacity, shared by the slider and the mode buttons --------------------
+    let photoOpacity = 0;
+    function setPhotoOpacity(v: number) {
+      photoOpacity = v;
+      photo.setOpacity(v);
+      opacity.value = String(Math.round(v * 100));
+      reliefLayer?.setOpacity(relief.checked ? v : 0);
+      const showOutline = v < 0.6;
+      footprint.setStyle({ opacity: showOutline ? 1 - v : 0 });
+      contactLabel.getElement()?.classList.toggle('faded', !showOutline || map.getZoom() > 3);
+      markersLayer.eachLayer((m) => (m as L.Marker).getElement()?.classList.toggle('dim', v < 0.3));
+    }
+    let fade = 0;
+    function fadePhotoTo(target: number, ms = 900) {
+      cancelAnimationFrame(fade);
+      const from = photoOpacity;
+      if (reducedMotion()) return setPhotoOpacity(target);
+      const t0 = performance.now();
+      const step = (t: number) => {
+        const k = Math.min(1, (t - t0) / ms);
+        setPhotoOpacity(from + (target - from) * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) fade = requestAnimationFrame(step);
+      };
+      fade = requestAnimationFrame(step);
+    }
+    opacity.addEventListener('input', () => {
+      cancelAnimationFrame(fade);
+      setPhotoOpacity(Number(opacity.value) / 100);
+    });
+    relief.addEventListener('change', () => {
+      if (!reliefLayer) return;
+      if (relief.checked && !map.hasLayer(reliefLayer)) reliefLayer.addTo(map);
+      reliefLayer.setOpacity(relief.checked ? photoOpacity : 0);
+    });
+
+    // --- Targets ----------------------------------------------------------------------------
+    const markersLayer = L.layerGroup().addTo(map);
+    const cropOutline = L.rectangle(photoBounds, { className: 'crop-outline', interactive: false, weight: 1.5, fill: false });
+    let pinned: Target | undefined;
+    let shown: Target | undefined;
+
+    function placeCard(t: Target) {
+      const p = map.latLngToContainerPoint(ll(t.x, t.y));
+      const W = mapEl.clientWidth;
+      const H = mapEl.clientHeight;
+      if (W < 640) {
+        card.style.left = card.style.top = '';
+        card.classList.add('sheet');
+        return;
+      }
+      card.classList.remove('sheet');
+      const cw = card.offsetWidth || 320;
+      const ch = card.offsetHeight || 380;
+      const gap = 22;
+      const left = p.x + gap + cw < W - 12 ? p.x + gap : p.x - gap - cw;
+      const top = Math.min(Math.max(12, p.y - ch / 2), H - ch - 12);
+      card.style.left = `${Math.max(12, left)}px`;
+      card.style.top = `${top}px`;
+    }
+
+    function showCard(t: Target) {
+      shown = t;
+      const img = card.querySelector('img')!;
+      const src = `${base}/targets/${t.id}.webp`;
+      if (img.getAttribute('src') !== src) {
+        img.classList.remove('loaded');
+        img.onload = () => img.classList.add('loaded');
+        img.src = src;
+      }
+      img.alt = `Close-up from the photomosaic: ${t.label}`;
+      card.querySelector('.card-title')!.textContent = t.label;
+      card.querySelector('.card-text')!.textContent = t.description;
+      card.querySelector('.card-meta')!.textContent = `${t.size} m × ${t.size} m crop`;
+      card.hidden = false;
+      card.classList.toggle('pinned', pinned === t);
+      placeCard(t);
+      cropOutline
+        .setBounds(llBounds([t.x - t.size / 2, t.y - t.size / 2, t.x + t.size / 2, t.y + t.size / 2]))
+        .addTo(map);
+    }
+    function hideCard() {
+      shown = undefined;
+      card.hidden = true;
+      cropOutline.remove();
+    }
+    card.querySelector('.card-close')!.addEventListener('click', () => {
+      pinned = undefined;
+      hideCard();
+    });
+
+    const icon = (n: number) =>
+      L.divIcon({ className: 'target-pin', iconSize: [26, 26], html: `<span>${n}</span>` });
+    targets.forEach((t, i) => {
+      const m = L.marker(ll(t.x, t.y), { icon: icon(i + 1), title: t.label, keyboard: true, riseOnHover: true });
+      m.on('mouseover', () => !pinned && showCard(t));
+      m.on('mouseout', () => !pinned && hideCard());
+      m.on('click', () => {
+        // First tap/click pins it (and shows it on touch screens); a second click on the same pin closes it.
+        if (pinned === t) {
+          pinned = undefined;
+          hideCard();
+          return;
+        }
+        pinned = t;
+        if (photoOpacity < 0.5) fadePhotoTo(1);
+        showCard(t);
+      });
+      m.on('keypress', (e: L.LeafletKeyboardEvent) => {
+        if (e.originalEvent.key === 'Enter') m.fire('click');
+      });
+      markersLayer.addLayer(m);
+    });
+    map.on('move zoom', () => shown && placeCard(shown));
+    map.on('click', () => {
+      if (pinned) {
+        pinned = undefined;
+        hideCard();
+      }
+    });
+    map.on('zoomend', () => contactLabel.getElement()?.classList.toggle('faded', photoOpacity >= 0.6 || map.getZoom() > 3));
+
+    // --- Scroll-wheel zoom only once the viewer has been clicked, so it doesn't hijack page scrolling.
+    let hintTimer = 0;
+    mapEl.addEventListener(
+      'wheel',
+      () => {
+        if (map.scrollWheelZoom.enabled()) return;
+        hint.hidden = false;
+        clearTimeout(hintTimer);
+        hintTimer = window.setTimeout(() => (hint.hidden = true), 1600);
+      },
+      { passive: true },
+    );
+    map.on('mousedown touchstart focus', () => {
+      map.scrollWheelZoom.enable();
+      hint.hidden = true;
+    });
+    mapEl.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
+
+    // --- ?pick: report local coordinates on click, for placing targets -------------------
+    if (new URLSearchParams(location.search).has('pick')) {
+      const out = $<HTMLElement>('.pick-readout');
+      out.hidden = false;
+      out.textContent = 'Pick mode: click to read a target position';
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        const snippet = `"x": ${e.latlng.lng.toFixed(2)}, "y": ${e.latlng.lat.toFixed(2)}`;
+        out.textContent = `${snippet}  (copied)`;
+        navigator.clipboard?.writeText(snippet).catch(() => {});
+        console.log(snippet);
+      });
+    }
+
+    // --- Modes ----------------------------------------------------------------------------
+    const modeButtons = root.querySelectorAll<HTMLButtonElement>('[data-mode]');
+    const searchView = llBounds(site.sidescan.dataBounds ?? site.sidescan.bounds);
+    const fly = (b: L.LatLngBounds, opts: L.FitBoundsOptions = {}) =>
+      reducedMotion() ? map.fitBounds(b, opts) : map.flyToBounds(b, { duration: 1.4, ...opts });
+    let mode: Mode = 'search';
+    let terrain: Promise<{ dispose(): void; setExaggeration(v: number): void } | undefined> | undefined;
+
+    function setMode(next: Mode) {
+      mode = next;
+      modeButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === next)));
+      root.querySelectorAll<HTMLElement>('.legend [data-for]').forEach((p) => (p.hidden = p.dataset.for !== next));
+      root.querySelectorAll<HTMLElement>('[data-for-2d]').forEach((el) => (el.hidden = next === '3d'));
+      root.querySelectorAll<HTMLElement>('[data-for-3d]').forEach((el) => (el.hidden = next !== '3d'));
+      const canvas = $<HTMLCanvasElement>('.terrain');
+      canvas.hidden = next !== '3d';
+      mapEl.style.visibility = next === '3d' ? 'hidden' : '';
+      if (next !== '3d') hideCard();
+      if (next === 'search') {
+        pinned = undefined;
+        fadePhotoTo(0, 600);
+        fly(searchView, { padding: [20, 20] });
+      } else if (next === 'inspect') {
+        fly(photoBounds, { padding: [24, 24] });
+        window.setTimeout(() => fadePhotoTo(1), reducedMotion() ? 0 : 700);
+      } else {
+        terrain ??= startTerrain();
+      }
+    }
+    modeButtons.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode as Mode)));
+
+    // --- 3D view (three.js, loaded on first use) ---------------------------------------
+    const exag = $<HTMLInputElement>('.exag');
+    const exagValue = $<HTMLOutputElement>('.exag-value');
+    async function startTerrain() {
+      if (!site.terrain) return undefined;
+      const loading = $<HTMLElement>('.loading');
+      loading.hidden = false;
+      try {
+        const { createTerrainView } = await import('../lib/terrain-view');
+        const view = await createTerrainView($<HTMLCanvasElement>('.terrain'), `${base}/terrain`, site.terrain, {
+          exaggeration: Number(exag.value),
+          isActive: () => mode === '3d',
+        });
+        exag.addEventListener('input', () => {
+          exagValue.textContent = exag.value;
+          view.setExaggeration(Number(exag.value));
+        });
+        return view;
+      } catch (err) {
+        console.error(err);
+        $<HTMLElement>('.legend [data-for="3d"]').textContent = 'The 3D view could not be loaded on this device.';
+        return undefined;
+      } finally {
+        loading.hidden = true;
+      }
+    }
+
+    map.fitBounds(searchView, { padding: [20, 20] });
+    setPhotoOpacity(0);
+    const resize = new ResizeObserver(() => map.invalidateSize());
+    resize.observe(mapEl);
+
+    teardown = () => {
+      resize.disconnect();
+      cancelAnimationFrame(fade);
+      map.remove();
+      terrain?.then((v) => v?.dispose());
+    };
+  }
+
+  onPageLoad(setup);
+  document.addEventListener('astro:before-swap', () => {
+    teardown?.();
+    teardown = undefined;
+  });
+</script>
+
+<style>
+  .target-search { position: relative; }
+  .stage {
+    position: relative;
+    height: clamp(460px, 72vh, 760px);
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+    background: #05081c;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .map, .terrain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .map { z-index: 0; background: #05081c; }
+  .map :global(.leaflet-container), .map:global(.leaflet-container) { background: #05081c; font: inherit; }
+  .terrain { z-index: 1; display: block; cursor: grab; touch-action: none; }
+  .terrain:active { cursor: grabbing; }
+  .terrain[hidden] { display: none; }
+
+  /* Relief shading is grey around 50%: soft-light darkens shadows and lifts lit faces of the photomosaic. */
+  .map :global(.layer-relief) { mix-blend-mode: soft-light; }
+  .map :global(.layer-photo) { filter: drop-shadow(0 0 18px rgb(0 0 0 / 0.55)); }
+
+  .map :global(.footprint) {
+    stroke: var(--color-accent);
+    filter: drop-shadow(0 0 4px rgb(var(--color-accent-rgb) / 0.9));
+    transition: stroke-opacity 0.3s;
+  }
+  .map :global(.footprint-label) {
+    background: rgb(var(--shade-rgb) / 0.85);
+    color: var(--color-text);
+    border: 1px solid rgb(var(--color-accent-rgb) / 0.5);
+    border-radius: 6px;
+    box-shadow: none;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.5rem;
+    transition: opacity 0.3s;
+  }
+  .map :global(.footprint-label::before) { display: none; }
+  .map :global(.footprint-label.faded) { opacity: 0 !important; }
+  .map :global(.crop-outline) {
+    stroke: #fff;
+    stroke-opacity: 0.9;
+    filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.8));
+  }
+
+  .map :global(.target-pin) {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgb(var(--shade-rgb) / 0.75);
+    border: 2px solid var(--color-accent);
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 0 rgb(var(--color-accent-rgb) / 0.7);
+    animation: target-pulse 2.4s ease-out infinite;
+    transition: opacity 0.3s, transform 0.2s;
+    cursor: pointer;
+  }
+  .map :global(.target-pin:hover), .map :global(.target-pin:focus-visible) {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+  .map :global(.target-pin.dim) { opacity: 0; pointer-events: none; }
+  @keyframes target-pulse {
+    to { box-shadow: 0 0 0 14px rgb(var(--color-accent-rgb) / 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map :global(.target-pin) { animation: none; }
+  }
+
+  .map :global(.leaflet-control-scale-line) {
+    background: rgb(var(--shade-rgb) / 0.75);
+    color: var(--color-text);
+    border-color: var(--color-muted);
+  }
+  .map :global(.leaflet-bar) { border: 1px solid var(--color-border); box-shadow: none; }
+  .map :global(.leaflet-bar a) {
+    background: rgb(var(--shade-rgb) / 0.85);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+  .map :global(.leaflet-bar a:hover) { background: var(--color-surface-2); }
+  .map :global(.leaflet-control-zoom) { margin-top: 64px; }
+
+  /* Overlay UI */
+  .modes, .legend, .controls, .hint, .pick-readout, .loading {
+    position: absolute;
+    z-index: 1000;
+  }
+  .modes {
+    top: 12px;
+    left: 12px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgb(var(--shade-rgb) / 0.8);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+  }
+  .modes button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem 0.45rem 0.5rem;
+    background: transparent;
+    color: var(--color-muted);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modes button:hover { color: var(--color-text); }
+  .modes button[aria-pressed='true'] {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    box-shadow: var(--glow-sm);
+  }
+  .step {
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    font-size: 0.72rem;
+  }
+
+  .legend {
+    top: 12px;
+    right: 12px;
+    max-width: min(320px, calc(100% - 24px));
+    padding: 0.55rem 0.85rem;
+    border-radius: 10px;
+    background: rgb(var(--shade-rgb) / 0.8);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  .legend p { margin: 0; }
+  .legend strong { color: var(--color-text); }
+
+  .controls {
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 12px;
+    background: rgb(var(--shade-rgb) / 0.8);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+    font-size: 0.85rem;
+  }
+  .controls label { display: inline-flex; align-items: center; gap: 0.55rem; cursor: pointer; }
+  .controls label[hidden] { display: none; }
+  .controls input[type='range'] { width: 130px; accent-color: var(--color-accent); }
+  .controls input[type='checkbox'] { accent-color: var(--color-accent); width: 1rem; height: 1rem; }
+
+  .hint, .pick-readout {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    background: rgb(0 0 0 / 0.7);
+    color: #fff;
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+  .pick-readout { top: auto; bottom: 64px; transform: translateX(-50%); font-family: ui-monospace, monospace; }
+  .hint[hidden], .pick-readout[hidden] { display: none; }
+
+  .loading {
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgb(5 8 28 / 0.6);
+  }
+  .loading[hidden] { display: none; }
+  .loading span {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid rgb(var(--color-accent-rgb) / 0.25);
+    border-top-color: var(--color-accent);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Target close-up */
+  .card {
+    position: absolute;
+    z-index: 1001;
+    width: min(340px, calc(100% - 24px));
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid rgb(var(--color-accent-rgb) / 0.45);
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.5), var(--glow-sm);
+    pointer-events: none;
+    animation: card-in 0.18s var(--ease-out);
+  }
+  .card[hidden] { display: none; }
+  .card.pinned { pointer-events: auto; }
+  .card.sheet { left: 12px !important; right: 12px; bottom: 12px; top: auto !important; width: auto; display: grid; grid-template-columns: 40% 1fr; pointer-events: auto; }
+  .card.sheet[hidden] { display: none; }
+  @keyframes card-in { from { opacity: 0; transform: translateY(4px) scale(0.98); } }
+  .card-media { aspect-ratio: 1; background: #0b1030; }
+  .card-media img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.25s; }
+  .card-media img:global(.loaded) { opacity: 1; }
+  .card-body { padding: 0.75rem 0.95rem 0.85rem; }
+  .card-title { margin: 0 0 0.25rem; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+  .card-text { margin: 0; color: var(--color-muted); font-size: 0.88rem; line-height: 1.45; }
+  .card-meta { margin: 0.45rem 0 0; color: var(--color-accent); font-size: 0.75rem; letter-spacing: 0.04em; }
+  .card-close {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.55);
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .card.pinned .card-close, .card.sheet .card-close { display: block; }
+
+  @media (max-width: 640px) {
+    .stage { height: 78vh; }
+    .modes button { padding: 0.4rem 0.7rem 0.4rem 0.4rem; font-size: 0.82rem; }
+    .legend { top: auto; bottom: 64px; left: 12px; right: 12px; max-width: none; }
+    .controls { left: 12px; right: 12px; justify-content: space-between; }
+    .controls input[type='range'] { width: 100px; }
+    .map :global(.leaflet-control-zoom) { display: none; }
+  }
+</style>

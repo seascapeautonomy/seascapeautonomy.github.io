@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import { getModelVariants, getProducts } from '../../lib/products';
+import { vehicleStats } from '../../data/company';
+
+const [featured, ...others] = await getProducts();
+---
+
+<BaseLayout
+  title="Products"
+  description="Seascape Autonomy products: the Seeker AUV, stereo imaging payloads, seafloor 3D models, image data delivery and bespoke vehicle design."
+>
+  <section class="container intro">
+    <p class="eyebrow">Products</p>
+    <h1>Vehicles, sensors and data</h1>
+    <p class="lead">
+      AUV platforms, imaging systems and data tools that take you from deployment to decision.
+    </p>
+  </section>
+
+  <section class="container">
+    <!-- Not a single link like the other cards: the 3D viewer needs to receive drags. -->
+    <div class="featured" data-reveal>
+      <div class="featured-media">
+        <ModelViewer
+          name={`the ${featured.data.title}`}
+          variants={getModelVariants(featured)}
+          embedded
+          cameraOrbit={featured.data.modelCameraOrbit}
+          fieldOfView={featured.data.modelFieldOfView}
+        />
+      </div>
+      <div class="featured-body">
+        <span class="kind">Flagship {featured.data.kind.toLowerCase()}</span>
+        <h2><a href={`/products/${featured.id}`}>{featured.data.title}</a></h2>
+        <p>{featured.data.summary}</p>
+        <dl class="specs">
+          {
+            vehicleStats.map((stat) => (
+              <div>
+                <dt>{stat.label}</dt>
+                <dd>{stat.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <a class="button" href={`/products/${featured.id}`}>Explore the Seeker</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container others">
+    <div class="grid">
+      {others.map((product) => <ProductCard product={product} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding-block: 2rem; }
+  .intro { padding-top: 9rem; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 0.2em 0 0.3em; }
+  .lead { color: var(--color-muted); max-width: 52ch; font-size: 1.15rem; margin: 0; }
+
+  .featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: calc(var(--radius) * 1.5);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    transition: border-color 0.4s var(--ease-out), opacity 0.9s var(--ease-out), filter 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  }
+  .featured-media { min-height: 460px; border-right: 1px solid var(--color-border); }
+  .featured-body { padding: clamp(1.75rem, 4vw, 3rem); display: flex; flex-direction: column; justify-content: center; }
+  .featured-body h2 { margin: 0.3em 0 0.4em; }
+  .featured-body h2 a { text-decoration: none; }
+  .featured-body h2 a:hover { color: var(--color-accent); }
+  .featured-body p { color: var(--color-muted); margin: 0 0 2rem; }
+  .featured-body .button { align-self: flex-start; margin-top: 2rem; }
+  .kind { color: var(--color-accent); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+  .specs { margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .specs div { display: flex; flex-direction: column-reverse; border-top: 1px solid var(--color-border); padding-top: 0.75rem; }
+  .specs dd { margin: 0; font-family: var(--font-display); font-size: 1.6rem; font-weight: var(--display-weight); color: var(--color-text); }
+  .specs dt { color: var(--color-muted); font-size: 0.88rem; }
+  @media (max-width: 900px) {
+    .featured { grid-template-columns: 1fr; }
+    .featured-media { min-height: 0; height: clamp(320px, 90vw, 440px); border-right: 0; border-bottom: 1px solid var(--color-border); }
+  }
+
+  .others { padding-bottom: 6rem; }
+  .grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  }
+</style>

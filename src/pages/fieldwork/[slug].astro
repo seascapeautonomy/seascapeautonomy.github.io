@@ -1,0 +1,227 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Gallery from '../../components/Gallery.astro';
+import YouTube from '../../components/YouTube.astro';
+import { formatMonth, getFieldwork, getGallery, type Fieldwork } from '../../lib/fieldwork';
+import { sectors } from '../../data/sectors';
+
+export async function getStaticPaths() {
+  const entries = await getFieldwork();
+  // Entries are newest first, so "newer" is the previous item in the list.
+  return entries.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, newer: entries[i - 1], older: entries[i + 1] },
+  }));
+}
+
+interface Props {
+  entry: Fieldwork;
+  newer?: Fieldwork;
+  older?: Fieldwork;
+}
+
+const { entry, newer, older } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+const gallery = getGallery(entry.id);
+// The cover is shown sharp in a frame beside the title, over a blurred copy of itself.
+const INSET_WIDTH = 680; // 2× the frame's largest display width
+const entrySectors = sectors.filter((sector) => data.sectors.includes(sector.slug as never));
+---
+
+<BaseLayout title={data.title} description={data.summary}>
+  <section class="cover">
+    <!-- Blurred backdrop, so a small version is plenty. -->
+    <Image src={data.cover} alt="" width={Math.min(800, data.cover.width)} loading="eager" class="cover-image" />
+    <div class="cover-shade"></div>
+    <div class="container cover-text">
+      <div>
+        <a class="back" href="/fieldwork">← All fieldwork</a>
+        <p class="eyebrow">{formatMonth(data.date)} · {data.location}</p>
+        <h1>{data.title}</h1>
+        <p class="lead">{data.summary}</p>
+      </div>
+      <Image src={data.cover} alt={data.coverAlt} width={Math.min(INSET_WIDTH, data.cover.width)} class="cover-inset" loading="eager" />
+    </div>
+  </section>
+
+  <section class="container layout">
+    <article class="prose">
+      <Content />
+      {
+        data.video && (
+          <div class="video">
+            <YouTube id={data.video} title={`${data.title} video`} />
+          </div>
+        )
+      }
+    </article>
+
+    <aside class="facts">
+      {
+        data.stats.length > 0 && (
+          <dl class="stats">
+            {data.stats.map((stat) => (
+              <div>
+                <dt>{stat.label}</dt>
+                <dd>{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+      <div>
+        <h2>Sectors</h2>
+        <ul class="tags">
+          {entrySectors.map((sector) => <li><a href={`/sectors/${sector.slug}`}>{sector.name}</a></li>)}
+        </ul>
+      </div>
+      {
+        data.partners.length > 0 && (
+          <div>
+            <h2>Partners</h2>
+            <ul class="partners">
+              {data.partners.map((partner) => (
+                <li>{partner.url ? <a href={partner.url} rel="noopener" target="_blank">{partner.name}</a> : partner.name}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+
+  {
+    gallery.length > 0 && (
+      <section class="container photos">
+        <h2 data-reveal>From the field</h2>
+        <Gallery images={gallery} title={data.title} />
+      </section>
+    )
+  }
+
+  <nav class="container pager" aria-label="More fieldwork">
+    {older ? <a href={`/fieldwork/${older.id}`}><span>← Earlier</span>{older.data.title}</a> : <span />}
+    {newer && <a class="newer" href={`/fieldwork/${newer.id}`}><span>Later →</span>{newer.data.title}</a>}
+  </nav>
+</BaseLayout>
+
+<style>
+  .cover {
+    position: relative;
+    min-height: min(75vh, 720px);
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+    isolation: isolate;
+    color: #f2f7fb;
+  }
+  /* Blurred, darkened backdrop behind the framed photo. */
+  .cover-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    filter: blur(28px) saturate(1.2) brightness(0.7);
+    transform: scale(1.15);
+  }
+  .cover-shade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to top, var(--color-bg) 0%, rgb(var(--shade-rgb) / 0.6) 45%, rgb(var(--shade-rgb) / 0.25) 100%);
+  }
+  .cover-text {
+    padding-block: 8rem 3rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .cover-inset {
+    width: min(340px, 30vw);
+    height: auto;
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid rgb(255 255 255 / 0.18);
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.6), 0 0 40px -10px rgb(var(--color-accent-rgb) / 0.35);
+  }
+  @media (max-width: 760px) {
+    .cover-text { grid-template-columns: 1fr; }
+    .cover-inset { order: -1; width: min(260px, 70vw); margin-bottom: 0.5rem; }
+  }
+  .back { display: inline-block; margin-bottom: 1.5rem; color: rgb(242 247 251 / 0.75); text-decoration: none; font-size: 0.9rem; }
+  .back:hover { color: var(--color-accent); }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.75rem); margin: 0.15em 0 0.3em; max-width: 18ch; }
+  .lead { max-width: 60ch; font-size: 1.15rem; color: rgb(242 247 251 / 0.85); margin: 0; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(2rem, 6vw, 5rem);
+    padding-block: 3rem;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .prose { font-size: 1.08rem; max-width: 68ch; }
+  .prose :global(p) { margin: 0 0 1.2em; }
+  .prose :global(a) { color: var(--color-accent); text-underline-offset: 3px; }
+  .prose :global(img) { border-radius: var(--radius); margin-block: 1.5rem 0.5rem; }
+  .prose :global(em) { color: var(--color-muted); font-size: 0.92rem; }
+  .video { margin-top: 2rem; }
+
+  .facts { display: flex; flex-direction: column; gap: 2rem; }
+  .facts h2 {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+  }
+  .stats { margin: 0; display: grid; gap: 1rem; padding: 1.5rem; border-radius: var(--radius); background: var(--color-surface); border: 1px solid var(--color-border); }
+  .stats div { display: flex; flex-direction: column-reverse; }
+  .stats dt { color: var(--color-muted); font-size: 0.9rem; }
+  .stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: var(--display-weight);
+    color: var(--color-accent);
+    line-height: 1.1;
+  }
+  .tags, .partners { list-style: none; padding: 0; margin: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tags a {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+  .tags a:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .partners li { padding-block: 0.4rem; border-bottom: 1px solid var(--color-border); }
+  .partners a { text-decoration: none; }
+  .partners a:hover { color: var(--color-accent); }
+
+  .photos { padding-block: 2rem 4rem; }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 2.5rem 4rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .pager a { display: flex; flex-direction: column; text-decoration: none; font-family: var(--font-display); font-size: 1.2rem; }
+  .pager a span { font-family: var(--font-body); font-size: 0.85rem; color: var(--color-accent); }
+  .pager a:hover { color: var(--color-accent); }
+  .pager .newer { text-align: right; margin-left: auto; }
+</style>

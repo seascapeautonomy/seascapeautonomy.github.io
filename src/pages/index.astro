@@ -1,0 +1,173 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { sectors } from '../data/sectors';
+import FieldworkCard from '../components/FieldworkCard.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { getProducts } from '../lib/products';
+import { values } from '../data/company';
+import { getFieldwork } from '../lib/fieldwork';
+
+const latestFieldwork = (await getFieldwork()).slice(0, 3);
+const products = await getProducts();
+---
+
+<BaseLayout>
+  <Hero />
+
+  <section class="container values">
+    <div class="section-head">
+      <p class="eyebrow" data-reveal>What drives us</p>
+      <h2 data-reveal>Built at sea, built to be trusted</h2>
+    </div>
+    <ol class="value-list">
+      {
+        values.map((value, i) => (
+          <li data-reveal>
+            <span class="index">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{value.title}</h3>
+            <p>{value.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="container products">
+    <div class="section-head split">
+      <div>
+        <p class="eyebrow" data-reveal>What we build</p>
+        <h2 data-reveal>From deployment to decision</h2>
+      </div>
+      <a class="button ghost" href="/products" data-reveal>All products →</a>
+    </div>
+    <div class="product-grid">
+      {products.map((product) => <ProductCard product={product} />)}
+    </div>
+  </section>
+
+  <section id="sectors" class="container sectors">
+    <div class="section-head">
+      <p class="eyebrow" data-reveal>Who we work with</p>
+      <h2 data-reveal>One fleet, three missions</h2>
+    </div>
+    <div class="sector-grid">
+      {
+        sectors.map((sector) => (
+          <a class="sector-card" href={`/sectors/${sector.slug}`} data-reveal>
+            <div class="sector-media">
+              <Image src={sector.image} alt={sector.imageAlt} widths={[400, 800]} width={800} sizes="(max-width: 900px) 100vw, 400px" />
+            </div>
+            <div class="sector-body">
+              <h3>{sector.name}</h3>
+              <p>{sector.tagline}</p>
+              <span class="more">Explore {sector.name.toLowerCase()} →</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container latest">
+    <div class="section-head split">
+      <div>
+        <p class="eyebrow" data-reveal>Fieldwork</p>
+        <h2 data-reveal>Latest from the field</h2>
+      </div>
+      <a class="button ghost" href="/fieldwork" data-reveal>All fieldwork →</a>
+    </div>
+    <div class="latest-grid">
+      {latestFieldwork.map((entry) => <FieldworkCard entry={entry} />)}
+    </div>
+  </section>
+
+  <section id="contact" class="container contact" data-reveal>
+    <p class="eyebrow">Get in touch</p>
+    <h2>Let’s bring your seafloor into focus</h2>
+    <div class="contact-actions">
+      <a class="button" href="/contact">Get in touch</a>
+      <a class="button ghost" href="mailto:contact@seascapeautonomy.com">contact@seascapeautonomy.com</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding-block: clamp(4rem, 9vw, 7rem); }
+  .section-head { max-width: 40rem; margin-bottom: 2.5rem; }
+  .section-head h2 { margin-bottom: 0; }
+
+  .value-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .value-list li { background: var(--color-bg); padding: 2rem 1.75rem; }
+  .index { color: var(--color-accent); font-family: var(--font-display); font-weight: 600; text-shadow: var(--glow-sm); }
+  .value-list h3 { font-size: 1.3rem; margin: 0.75rem 0 0.5rem; }
+  .value-list p { color: var(--color-muted); margin: 0; }
+
+  .sector-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .sector-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    /* Includes opacity and filter so the scroll reveal still animates. */
+    transition: transform 0.4s var(--ease-out), border-color 0.4s var(--ease-out), opacity 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  }
+  .sector-media { overflow: hidden; }
+  .sector-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .sector-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 36px -10px rgb(var(--color-accent-rgb) / 0.6);
+  }
+  .sector-card:hover img { transform: scale(1.05); }
+  .sector-body { padding: 1.5rem 1.5rem 1.75rem; display: flex; flex-direction: column; flex: 1; }
+  .sector-body h3 { font-size: 1.4rem; margin: 0 0 0.5rem; }
+  .sector-body p { color: var(--color-muted); margin: 0 0 1.25rem; flex: 1; }
+  .more { color: var(--color-accent); font-weight: 500; }
+
+  .split { max-width: none; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1.5rem; }
+  .product-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 960px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .product-grid { grid-template-columns: 1fr; }
+  }
+  .latest-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .contact { text-align: center; }
+  .contact h2 { max-width: 20ch; margin-inline: auto; }
+  .contact-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+</style>

@@ -1,5 +1,20 @@
-_site
-.sass-cache
-.jekyll-metadata
-.jekyll-cache
-Gemfile.lock
+# Build output and generated types
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.production
+
+# OS files
+.DS_Store
+
+# Raw survey reconstructions (too large for git); processed output is committed instead
+src/assets/models/*.dae
+src/assets/models/*.xml
+src/assets/models/*.jpg
+src/assets/models/*.png
+src/assets/models/*.3tz

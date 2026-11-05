@@ -1,0 +1,42 @@
+[
+  {
+    "id": "main-wreckage",
+    "label": "Main wreckage",
+    "description": "The sidescan contact, resolved: around 12 m of collapsed airframe with exposed structural framing, home to a large school of fish.",
+    "x": 206.08,
+    "y": -290.68,
+    "size": 14
+  },
+  {
+    "id": "propeller",
+    "label": "Three-bladed propeller",
+    "description": "A propeller lying clear of the main wreckage, its hub and three blades easily resolved in the imagery.",
+    "x": 180.33,
+    "y": -254.88,
+    "size": 5
+  },
+  {
+    "id": "detached-structure",
+    "label": "Detached structure",
+    "description": "A section of structure resting beside the main wreckage.",
+    "x": 207.88,
+    "y": -288.08,
+    "size": 4
+  },
+  {
+    "id": "debris-a",
+    "label": "Debris",
+    "description": "Small debris on the sand away from the main wreckage.",
+    "x": 218.58,
+    "y": -266.88,
+    "size": 4
+  },
+  {
+    "id": "debris-b",
+    "label": "Debris",
+    "description": "A fragment of thin-walled structure on the sand next to the main wreckage.",
+    "x": 202.28,
+    "y": -293.28,
+    "size": 2
+  }
+]

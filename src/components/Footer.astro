@@ -1,0 +1,114 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import { contact } from '../data/company';
+import { sectors } from '../data/sectors';
+
+const year = new Date().getFullYear();
+const columns = [
+  { title: 'Sectors', links: sectors.map((s) => ({ href: `/sectors/${s.slug}`, label: s.name })) },
+  {
+    title: 'Company',
+    links: [
+      { href: '/about', label: 'About' },
+      { href: '/products', label: 'Products' },
+      { href: '/fieldwork', label: 'Fieldwork' },
+      { href: '/contact', label: 'Contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { href: '/terms', label: 'Terms & Conditions' },
+      { href: '/privacy-policy', label: 'Privacy Policy' },
+      { href: '/defence-export-control-requirements', label: 'Export Controls' },
+      { href: '/legal', label: 'All legal documents' },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="container top">
+    <div class="brand-col">
+      <a href="/" class="brand">
+        <Image src={logo} alt="" height={32} />
+        <span>Seascape Autonomy</span>
+      </a>
+      <p>Bringing the deep into focus.</p>
+      <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>
+      <a class="linkedin" href={contact.linkedin} target="_blank" rel="noopener" aria-label="Seascape Autonomy on LinkedIn">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"
+          ></path>
+        </svg>
+      </a>
+    </div>
+    {
+      columns.map((column) => (
+        <nav aria-label={column.title}>
+          <h2>{column.title}</h2>
+          <ul>
+            {column.links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+  <div class="container bottom">
+    <p>© {year} {contact.legalName} · ACN {contact.acn}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+  .top {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 2.5rem;
+    padding-block: 3.5rem 2.5rem;
+  }
+  @media (max-width: 860px) {
+    .top { grid-template-columns: 1fr 1fr; }
+    .brand-col { grid-column: 1 / -1; }
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: 1.1rem;
+  }
+  .brand img { width: auto; height: 32px; }
+  .brand-col p { margin: 0.8rem 0 0; }
+  .linkedin { display: inline-flex; margin-top: 1rem; color: var(--color-muted); }
+  .linkedin:hover { color: var(--color-accent); }
+  h2 {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text);
+    margin: 0 0 1rem;
+  }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+  a { text-decoration: none; }
+  a:hover { color: var(--color-accent); }
+  .bottom { padding-block: 1.25rem 1.75rem; border-top: 1px solid var(--color-border); }
+  .bottom p { margin: 0; font-size: 0.85rem; }
+</style>
