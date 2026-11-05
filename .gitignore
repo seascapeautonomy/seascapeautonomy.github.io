@@ -15,3 +15,6 @@ node_modules/
 # Raw survey reconstructions (too large for git); processed output is committed instead
 src/assets/models/*.dae
 src/assets/models/*.xml
+src/assets/models/*.jpg
+src/assets/models/*.png
+src/assets/models/*.3tz

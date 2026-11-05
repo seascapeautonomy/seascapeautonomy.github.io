@@ -1,7 +1,8 @@
 ---
 // Interactive replay of a survey: the reconstructed seafloor with the Seeker flying its recorded
 // path, a light cone for the downward camera and the imaged patch highlighted on the seafloor.
-// Survey data comes from scripts/build-survey.mjs, in src/assets/surveys/<survey>/.
+// Survey data comes from scripts/build-survey.mjs: poses and metadata in src/assets/surveys/<survey>/,
+// and the seafloor as 3D Tiles in public/surveys/<survey>/tiles/, streamed in as the view moves.
 
 interface Props {
   survey: string;
@@ -11,7 +12,6 @@ interface Props {
 
 const { survey, fov = 60 } = Astro.props;
 
-const meshes = import.meta.glob<string>('/src/assets/surveys/*/reconstruction.glb', { query: '?url', import: 'default', eager: true });
 const poses = import.meta.glob<string>('/src/assets/surveys/*/poses.bin', { query: '?url', import: 'default', eager: true });
 const metas = import.meta.glob<Record<string, unknown>>('/src/assets/surveys/*/survey.json', { import: 'default', eager: true });
 const vehicles = import.meta.glob<string>('/src/content/products/seeker-auv/seeker-imaging.glb', { query: '?url', import: 'default', eager: true });
@@ -23,7 +23,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
 
 <div
   class="survey-replay"
-  data-mesh={meshes[`${dir}/reconstruction.glb`]}
+  data-tiles={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/surveys/${survey}/tiles/tileset.json`}
   data-poses={poses[`${dir}/poses.bin`]}
   data-vehicle={Object.values(vehicles)[0]}
   data-meta={JSON.stringify(meta)}
@@ -36,7 +36,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     <span class="loading-bar"><span></span></span>
   </div>
 
-  <span class="badge">Low-resolution preview</span>
+  <span class="badge">Streams detail as you zoom</span>
 
   <div class="hud">
     <span class="hud-dive"></span>
@@ -67,6 +67,8 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+  import { TilesRenderer } from '3d-tiles-renderer';
+  import { GLTFExtensionsPlugin } from '3d-tiles-renderer/plugins';
   import { claim, onPageLoad } from '../lib/lifecycle';
 
   interface Dive {
@@ -84,6 +86,8 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
   const ACCENT = new THREE.Color('#19b6f7');
   const WATER = new THREE.Color('#0c1a44');
   const JUMP_M = 3; // a gap between poses larger than this is a jump, not travel
+  const TILE_ERROR_PX = 8; // screen-space error the seafloor tiles refine to (lower is sharper)
+  const LOAD_WAIT_MS = 10000; // longest wait for the first view's tiles after the first arrives
   const CONE_M = 2.2; // drawn length of the camera's light cone (~ imaging altitude)
   // The Seeker model's nose points along -Z and its top along +Y; the replay frame has +Z forward.
   const VEHICLE_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
@@ -138,13 +142,10 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     controls.enableDamping = true;
     controls.maxDistance = 1200;
 
-    // --- Load the reconstruction, vehicle and poses -------------------------------------------
-    const manager = new THREE.LoadingManager();
-    manager.onProgress = (_url, loaded, total) => (bar.style.transform = `scaleX(${loaded / total})`);
-    const draco = new DRACOLoader(manager).setDecoderPath('/draco/');
-    const gltf = new GLTFLoader(manager).setDRACOLoader(draco);
-    const [meshGltf, vehicleGltf, poseBuffer] = await Promise.all([
-      gltf.loadAsync(root.dataset.mesh!),
+    // --- Load the vehicle and poses; stream the seafloor tiles --------------------------------
+    const draco = new DRACOLoader().setDecoderPath('/draco/');
+    const gltf = new GLTFLoader().setDRACOLoader(draco);
+    const [vehicleGltf, poseBuffer] = await Promise.all([
       gltf.loadAsync(root.dataset.vehicle!),
       fetch(root.dataset.poses!).then((r) => r.arrayBuffer()),
     ]);
@@ -152,10 +153,23 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     const P = new Float32Array(poseBuffer);
     const S = meta.poseStride;
 
-    // Seafloor: vertex colours, brightened inside the camera's footprint.
+    const tiles = new TilesRenderer(root.dataset.tiles!);
+    // Tiles are Draco-compressed by scripts/build-survey.mjs; the plugin disposes this loader with the tiles.
+    tiles.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: new DRACOLoader().setDecoderPath('/draco/') }));
+    tiles.errorTarget = TILE_ERROR_PX;
+    tiles.setCamera(camera);
+    // Tiles are in the survey's Z-up world frame; the scene is Y-up.
+    tiles.group.rotation.x = -Math.PI / 2;
+    scene.add(tiles.group);
+    tiles.addEventListener('load-error', ({ tile, error, url }) => {
+      console.error(`Could not load ${url}`, error);
+      if (!tile) root.querySelector('.loading-label')!.textContent = 'Sorry, the survey replay could not be loaded.';
+    });
+
+    // Seafloor: each tile's texture, brightened inside the camera's footprint.
     const footprintVP = new THREE.Matrix4();
-    const seafloor = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0 });
-    seafloor.onBeforeCompile = (shader) => {
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+    function footprintShader(shader: THREE.WebGLProgramParametersWithUniforms) {
       shader.uniforms.uFootVP = { value: footprintVP };
       shader.uniforms.uAccent = { value: ACCENT };
       shader.vertexShader = shader.vertexShader
@@ -179,11 +193,28 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
           }
           #include <dithering_fragment>`,
         );
-    };
-    meshGltf.scene.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).material = seafloor;
+    }
+    // The tiles renderer disposes each tile's materials and textures when it unloads the tile.
+    tiles.addEventListener('load-model', ({ scene: model }) => {
+      model.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const original = mesh.material as THREE.MeshStandardMaterial;
+        const map = original.map;
+        if (map) {
+          // Metashape's tiles ask for no mipmaps, which shimmers when zoomed out; the anisotropy
+          // keeps the texture sharp at the grazing angles of the follow view.
+          map.minFilter = THREE.LinearMipmapLinearFilter;
+          map.generateMipmaps = true;
+          map.anisotropy = maxAnisotropy;
+          map.needsUpdate = true;
+        }
+        const seafloor = new THREE.MeshStandardMaterial({ map, roughness: 1, metalness: 0 });
+        seafloor.onBeforeCompile = footprintShader;
+        mesh.material = seafloor;
+        original.dispose();
+      });
     });
-    scene.add(meshGltf.scene);
 
     // Vehicle, with its camera (a light cone) and a glow marker that stays visible from afar.
     const vehicle = new THREE.Group();
@@ -371,6 +402,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      tiles.setResolutionFromRenderer(camera, renderer);
     }
     const ro = new ResizeObserver(resize);
     ro.observe(root);
@@ -382,8 +414,17 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
 
     setPlaying(playing);
     loadDive(diveIndex);
-    loading.hidden = true;
-    ui.hidden = false;
+    // Keep the loading screen up, and playback held so the view stays put, until its tiles are in
+    // (or a while after the first one, so a slow connection still gets going on coarser tiles).
+    let loaded = false;
+    const finishLoading = () => {
+      loaded = true;
+      loading.hidden = true;
+      ui.hidden = false;
+    };
+    tiles.addEventListener('tiles-load-end', finishLoading);
+    let loadTimer: ReturnType<typeof setTimeout> | undefined;
+    tiles.addEventListener('load-model', () => (loadTimer ??= setTimeout(finishLoading, LOAD_WAIT_MS)));
 
     const timer = new THREE.Timer();
     renderer.setAnimationLoop((now) => {
@@ -391,7 +432,7 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
       if (!visible) return;
       const dt = Math.min(timer.getDelta(), 0.1);
       const d = meta.dives[diveIndex];
-      if (playing) {
+      if (playing && loaded) {
         t += dt * speed;
         if (t >= d.duration) loadDive((diveIndex + 1) % meta.dives.length);
         else setPose();
@@ -404,6 +445,9 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
         lastPos.copy(vehicle.position);
       }
       controls.update();
+      camera.updateMatrixWorld();
+      tiles.update();
+      if (!loaded) bar.style.transform = `scaleX(${tiles.loadProgress})`;
       scrub.value = String(Math.round((t / d.duration) * 1000));
       clock.textContent = `${mmss(t)} / ${mmss(d.duration)}`;
       hudDive.textContent = `Dive ${diveIndex + 1} of ${meta.dives.length}`;
@@ -413,9 +457,11 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
 
     teardown = () => {
       renderer.setAnimationLoop(null);
+      clearTimeout(loadTimer);
       ro.disconnect();
       vis.disconnect();
       controls.dispose();
+      tiles.dispose();
       renderer.dispose();
     };
   }

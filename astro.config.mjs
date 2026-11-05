@@ -12,6 +12,17 @@ export default defineConfig({
   vite: {
     // Pre-bundle large client libraries at dev-server start; discovering them lazily can leave
     // the browser requesting a stale bundle ("504 Outdated Optimize Dep").
-    optimizeDeps: { include: ['leaflet', '@google/model-viewer'] },
+    optimizeDeps: {
+      include: [
+        'leaflet',
+        '@google/model-viewer',
+        'three',
+        'three/examples/jsm/controls/OrbitControls.js',
+        'three/examples/jsm/loaders/GLTFLoader.js',
+        'three/examples/jsm/loaders/DRACOLoader.js',
+        '3d-tiles-renderer',
+        '3d-tiles-renderer/plugins',
+      ],
+    },
   },
 });
