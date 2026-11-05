@@ -156,6 +156,9 @@ export async function createTerrainView(canvas: HTMLCanvasElement, url: string, 
         }
       });
       renderer.dispose();
+      // Release the WebGL context now, not whenever it's garbage-collected: phones allow few
+      // contexts, and a lingering one can leave the next page's 3D viewer blank.
+      renderer.forceContextLoss();
     },
   };
 }

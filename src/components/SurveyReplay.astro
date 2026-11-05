@@ -468,6 +468,9 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
       controls.dispose();
       tiles.dispose();
       renderer.dispose();
+      // Release the WebGL context now, not whenever it's garbage-collected: phones allow few
+      // contexts, and a lingering one can leave the next page's 3D viewer blank.
+      renderer.forceContextLoss();
     };
   }
 
