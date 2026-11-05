@@ -86,7 +86,7 @@ export const sectors: Sector[] = [
       stats: [
         { value: '12 ha', label: 'searched with sidescan sonar' },
         { value: '3,000 m²', label: 'imaged over the contact' },
-        { value: '0.8 mm', label: 'native imaging resolution' },
+        { value: '0.6 mm', label: 'native imaging resolution' },
       ],
       survey: 'wreck-search',
     },
