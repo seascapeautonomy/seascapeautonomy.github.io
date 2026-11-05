@@ -86,8 +86,10 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
   const ACCENT = new THREE.Color('#19b6f7');
   const WATER = new THREE.Color('#0c1a44');
   const JUMP_M = 3; // a gap between poses larger than this is a jump, not travel
-  const TILE_ERROR_PX = 8; // screen-space error the seafloor tiles refine to (lower is sharper)
-  const LOAD_WAIT_MS = 10000; // longest wait for the first view's tiles after the first arrives
+  const TILE_ERROR_PX = 16; // screen-space error the seafloor tiles refine to (lower is sharper, but
+  // loads ~4x the tiles per halving; 8 made follow playback choppy)
+  const LOAD_WAIT_MS = 4000; // longest wait for the first view's tiles after the first arrives;
+  // detail keeps streaming in while the replay plays
   const CONE_M = 2.2; // drawn length of the camera's light cone (~ imaging altitude)
   // The Seeker model's nose points along -Z and its top along +Y; the replay frame has +Z forward.
   const VEHICLE_FIX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
@@ -157,6 +159,9 @@ if (!meta) throw new Error(`Survey "${survey}" not found in src/assets/surveys`)
     // Tiles are Draco-compressed by scripts/build-survey.mjs; the plugin disposes this loader with the tiles.
     tiles.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: new DRACOLoader().setDecoderPath('/draco/') }));
     tiles.errorTarget = TILE_ERROR_PX;
+    // Upload at most two new tiles per frame (default five) so tiles arriving together don't stall
+    // playback while the camera moves into new areas.
+    tiles.parseQueue.maxJobs = 2;
     tiles.setCamera(camera);
     // Tiles are in the survey's Z-up world frame; the scene is Y-up.
     tiles.group.rotation.x = -Math.PI / 2;
