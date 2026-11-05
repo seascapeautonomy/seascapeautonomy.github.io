@@ -25,6 +25,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # Survey tiles in public/surveys are stored in Git LFS. Cache them between runs so each
+      # deploy only downloads files that changed (LFS downloads count against the bandwidth quota).
+      - name: List LFS files
+        run: git lfs ls-files --long | cut -d ' ' -f1 | sort > .lfs-assets-id
+      - name: Restore LFS cache
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+          restore-keys: lfs-
+      - name: Fetch LFS files
+        run: git lfs pull
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
