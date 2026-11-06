@@ -1,0 +1,621 @@
+---
+// Replay of a coordinated survey: two Seekers flying their recorded missions while the Bob
+// surface buoy relays between them and the operators, over a rough seafloor built from the
+// vehicles' own depth and altitude. Data from scripts/build-fleet-replay.py (local metres only).
+
+interface Props {
+  survey: string;
+}
+
+const { survey } = Astro.props;
+
+const metas = import.meta.glob<Record<string, unknown>>('/src/assets/surveys/*/fleet.json', { import: 'default', eager: true });
+const tracks = import.meta.glob<string>('/src/assets/surveys/*/tracks.bin', { query: '?url', import: 'default', eager: true });
+const terrains = import.meta.glob<string>('/src/assets/surveys/*/terrain.bin', { query: '?url', import: 'default', eager: true });
+const seeker = Object.values(
+  import.meta.glob<string>('/src/content/products/seeker-auv/seeker-imaging.glb', { query: '?url', import: 'default', eager: true }),
+)[0];
+const buoy = Object.values(
+  import.meta.glob<string>('/src/content/products/fleet-coordination/bob.glb', { query: '?url', import: 'default', eager: true }),
+)[0];
+
+const dir = `/src/assets/surveys/${survey}`;
+const meta = metas[`${dir}/fleet.json`];
+if (!meta) throw new Error(`Fleet survey "${survey}" not found in src/assets/surveys`);
+---
+
+<div
+  class="fleet-replay"
+  data-meta={JSON.stringify(meta)}
+  data-tracks={tracks[`${dir}/tracks.bin`]}
+  data-terrain={terrains[`${dir}/terrain.bin`]}
+  data-seeker={seeker}
+  data-buoy={buoy}
+>
+  <canvas aria-label="3D replay of two Seeker AUVs surveying together, coordinated through a surface buoy"></canvas>
+  <div class="labels" aria-hidden="true"></div>
+
+  <div class="loading" aria-live="polite">
+    <span class="loading-label">Loading mission…</span>
+    <span class="loading-bar"><span></span></span>
+  </div>
+
+  <div class="hud" aria-live="off"></div>
+
+  <div class="controls" hidden>
+    <button type="button" class="play" aria-label="Pause">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-pause" d="M7 5h3v14H7zM14 5h3v14h-3z"></path><path class="icon-play" d="M8 5l11 7-11 7z"></path></svg>
+    </button>
+    <input class="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Position in mission" />
+    <span class="clock">0:00 / 0:00</span>
+    <div class="group" role="group" aria-label="Playback speed">
+      <button type="button" data-speed="10">10×</button>
+      <button type="button" data-speed="30" aria-pressed="true">30×</button>
+      <button type="button" data-speed="100">100×</button>
+    </div>
+    <div class="group views" role="group" aria-label="View"></div>
+  </div>
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+  import { claim, onPageLoad } from '../lib/lifecycle';
+
+  interface FleetMeta {
+    rate: number;
+    duration: number;
+    fields: string[];
+    samples: number;
+    vehicles: string[];
+    terrain: { bounds: [number, number, number, number]; cols: number; rows: number; cell: number; minDepth: number; maxDepth: number };
+  }
+
+  const WATER = new THREE.Color('#0c1a44');
+  const COLORS = ['#19b6f7', '#ffb547']; // per vehicle, in fleet.json order
+  const BUOY_COLOR = '#f2f7fb';
+  const RELIEF = 4; // vertical exaggeration of the seafloor's relief (it's flat sand, ~1 m of relief)
+  const SURFACED_M = 1; // shallower than this, a vehicle is at the surface and out of acoustic contact
+  // The Seeker model's nose points along -Z and its top along +Y, which is north and up at zero
+  // heading in the scene frame (x east, y up, z south).
+
+  let teardown: (() => void) | undefined;
+
+  function setup() {
+    document.querySelectorAll<HTMLElement>('.fleet-replay').forEach((root) => {
+      if (!claim(root)) return;
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            start(root).catch((err) => {
+              console.error(err);
+              root.querySelector('.loading-label')!.textContent = 'Sorry, the mission replay could not be loaded.';
+            });
+          }
+        },
+        { rootMargin: '300px' },
+      );
+      io.observe(root);
+      teardown = () => io.disconnect();
+    });
+  }
+
+  async function start(root: HTMLElement) {
+    const meta: FleetMeta = JSON.parse(root.dataset.meta!);
+    const canvas = root.querySelector('canvas')!;
+    const loading = root.querySelector<HTMLElement>('.loading')!;
+    const bar = root.querySelector<HTMLElement>('.loading-bar span')!;
+
+    // --- Load ---------------------------------------------------------------------------------
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (_, done, total) => (bar.style.transform = `scaleX(${done / total})`);
+    const draco = new DRACOLoader(manager).setDecoderPath('/draco/');
+    const gltf = new GLTFLoader(manager).setDRACOLoader(draco);
+    const bin = (url: string) =>
+      fetch(url).then((r) => {
+        if (!r.ok) throw new Error(`${url}: ${r.status}`);
+        return r.arrayBuffer();
+      });
+    const [seekerGltf, buoyGltf, trackBuf, terrainBuf] = await Promise.all([
+      gltf.loadAsync(root.dataset.seeker!),
+      gltf.loadAsync(root.dataset.buoy!),
+      bin(root.dataset.tracks!),
+      bin(root.dataset.terrain!),
+    ]);
+    draco.dispose();
+
+    const T = new Float32Array(trackBuf);
+    const S = meta.fields.length;
+    const col = Object.fromEntries(meta.fields.map((f, i) => [f, i]));
+    const n = meta.samples;
+
+    // --- Renderer, scene, camera --------------------------------------------------------------
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+
+    const scene = new THREE.Scene();
+    scene.background = WATER;
+    scene.add(new THREE.HemisphereLight('#a9c8ff', '#10183a', 2.0));
+    const sun = new THREE.DirectionalLight('#ffffff', 1.6);
+    sun.position.set(0.4, 1, 0.3);
+    scene.add(sun);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 4000);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.maxDistance = 1500;
+
+    // --- Seafloor, from the vehicles' soundings -----------------------------------------------
+    const { bounds, cols, rows, cell, minDepth, maxDepth } = meta.terrain;
+    const [x0, y0, x1, y1] = bounds;
+    const heights = new Uint16Array(terrainBuf); // cm, rows north to south, 0 = no data
+    const meanDepth = (minDepth + maxDepth) / 2;
+    const floorY = (depthM: number) => -(meanDepth + (depthM - meanDepth) * RELIEF);
+    const floorGeo = new THREE.PlaneGeometry(x1 - x0, y1 - y0, cols - 1, rows - 1);
+    floorGeo.rotateX(-Math.PI / 2); // vertices now run west→east, north→south: the grid's row order
+    const fpos = floorGeo.attributes.position as THREE.BufferAttribute;
+    const fcol = new Float32Array(fpos.count * 4);
+    const ramp = [new THREE.Color('#f5d36b'), new THREE.Color('#2fc2c9'), new THREE.Color('#2a4fb8')]; // shallow → deep
+    const c = new THREE.Color();
+    for (let i = 0; i < fpos.count; i++) {
+      const h = heights[i];
+      const depth = h ? h / 100 : meanDepth;
+      fpos.setY(i, floorY(depth));
+      const u = THREE.MathUtils.clamp((depth - minDepth) / (maxDepth - minDepth || 1), 0, 1);
+      if (u < 0.5) c.copy(ramp[0]).lerp(ramp[1], u * 2);
+      else c.copy(ramp[1]).lerp(ramp[2], (u - 0.5) * 2);
+      fcol.set([c.r, c.g, c.b, h ? 1 : 0], i * 4);
+    }
+    floorGeo.setAttribute('color', new THREE.BufferAttribute(fcol, 4));
+    floorGeo.computeVertexNormals();
+    const floor = new THREE.Mesh(
+      floorGeo,
+      new THREE.MeshStandardMaterial({ vertexColors: true, transparent: true, roughness: 1, metalness: 0, alphaTest: 0.02, side: THREE.DoubleSide }),
+    );
+    floor.position.set((x0 + x1) / 2, 0, -(y0 + y1) / 2);
+    scene.add(floor);
+
+    // A faint grid across the whole area so unmapped seafloor still reads as a floor.
+    const span = Math.max(x1 - x0, y1 - y0) * 1.6;
+    const grid = new THREE.GridHelper(span, Math.round(span / 25), '#3c5aa0', '#22356e');
+    grid.position.set((x0 + x1) / 2, floorY(maxDepth) - 0.3, -(y0 + y1) / 2);
+    (grid.material as THREE.Material).transparent = true;
+    (grid.material as THREE.Material).opacity = 0.35;
+    scene.add(grid);
+
+    // Sea surface: translucent from above and below.
+    const surface = new THREE.Mesh(
+      new THREE.PlaneGeometry(span, span),
+      new THREE.MeshBasicMaterial({ color: '#2a8fd6', transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    surface.rotateX(-Math.PI / 2);
+    surface.position.copy(grid.position).setY(0);
+    scene.add(surface);
+    const surfaceGrid = new THREE.GridHelper(span, Math.round(span / 25), '#4f8fd6', '#4f8fd6');
+    surfaceGrid.position.copy(surface.position);
+    (surfaceGrid.material as THREE.Material).transparent = true;
+    (surfaceGrid.material as THREE.Material).opacity = 0.12;
+    scene.add(surfaceGrid);
+
+    // --- Platforms ----------------------------------------------------------------------------
+    interface Platform {
+      key: string;
+      name: string;
+      color: THREE.Color;
+      group: THREE.Group;
+      marker: THREE.Sprite;
+      label: HTMLElement;
+      trail?: THREE.Line;
+      link?: THREE.Line;
+    }
+    const labels = root.querySelector<HTMLElement>('.labels')!;
+    const glow = glowTexture();
+    function platform(key: string, name: string, color: string, model: THREE.Object3D): Platform {
+      const group = new THREE.Group();
+      group.add(model);
+      const marker = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: glow, color, transparent: true, depthTest: false, sizeAttenuation: false }),
+      );
+      marker.scale.setScalar(0.03);
+      marker.renderOrder = 10;
+      group.add(marker);
+      scene.add(group);
+      const label = document.createElement('span');
+      label.textContent = name;
+      label.style.setProperty('--c', color);
+      labels.append(label);
+      return { key, name, color: new THREE.Color(color), group, marker, label };
+    }
+
+    const buoyModel = buoyGltf.scene;
+    const bob = platform('bob', 'Bob · surface relay', BUOY_COLOR, buoyModel);
+
+    const vehicles = meta.vehicles.map((key, i) => {
+      const p = platform(key, `${key[0].toUpperCase()}${key.slice(1)}`, COLORS[i % COLORS.length], i ? seekerGltf.scene.clone() : seekerGltf.scene);
+      // Travelled path; the whole mission's path faintly.
+      const pts = new Float32Array(n * 3);
+      for (let k = 0; k < n; k++) {
+        pts.set([T[k * S + col[`${key}_x`]], -T[k * S + col[`${key}_depth`]], -T[k * S + col[`${key}_y`]]], k * 3);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+      scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.18 })));
+      p.trail = new THREE.Line(geo.clone(), new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.95 }));
+      scene.add(p.trail);
+      // Acoustic link to the buoy: a dashed line whose dashes travel while the vehicle is submerged.
+      const linkGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+      p.link = new THREE.Line(
+        linkGeo,
+        new THREE.LineDashedMaterial({ color: p.color, dashSize: 3, gapSize: 3, transparent: true, opacity: 0.6, depthWrite: false }),
+      );
+      scene.add(p.link);
+      return p;
+    });
+    const platforms = [bob, ...vehicles];
+
+    // --- Playback -----------------------------------------------------------------------------
+    let t = 0;
+    let speed = 30;
+    let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let follow: Platform | undefined;
+    const lastPos = new THREE.Vector3();
+    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    const deg = THREE.MathUtils.degToRad;
+
+    /** Value of a field at time t, interpolated between samples. */
+    function sample(field: string, lo: number, f: number) {
+      const j = col[field];
+      return THREE.MathUtils.lerp(T[lo * S + j], T[Math.min(lo + 1, n - 1) * S + j], f);
+    }
+    /** Heading/pitch/roll (degrees, NED convention) to the scene frame. */
+    function orient(o: THREE.Object3D, heading: number, pitch: number, roll: number) {
+      euler.set(deg(pitch), -deg(heading), -deg(roll));
+      o.quaternion.setFromEuler(euler);
+    }
+
+    const state: Record<string, { depth: number; altitude: number }> = {};
+    function setPose() {
+      const k = THREE.MathUtils.clamp(t * meta.rate, 0, n - 1);
+      const lo = Math.floor(k);
+      const f = k - lo;
+      bob.group.position.set(sample('bob_x', lo, f), 0, -sample('bob_y', lo, f));
+      orient(buoyModel, sample('bob_heading', lo, f), sample('bob_pitch', lo, f), sample('bob_roll', lo, f));
+      for (const p of vehicles) {
+        const v = p.key;
+        const depth = sample(`${v}_depth`, lo, f);
+        const altitude = T[lo * S + col[`${v}_altitude`]];
+        state[v] = { depth, altitude };
+        p.group.position.set(sample(`${v}_x`, lo, f), -depth, -sample(`${v}_y`, lo, f));
+        orient(p.group.children[0], sample(`${v}_heading`, lo, f), sample(`${v}_pitch`, lo, f), sample(`${v}_roll`, lo, f));
+        p.trail!.geometry.setDrawRange(0, lo + 1);
+        const link = p.link!;
+        link.visible = depth > SURFACED_M;
+        const lp = link.geometry.attributes.position as THREE.BufferAttribute;
+        lp.setXYZ(0, bob.group.position.x, -0.3, bob.group.position.z);
+        lp.setXYZ(1, p.group.position.x, p.group.position.y, p.group.position.z);
+        lp.needsUpdate = true;
+        link.computeLineDistances();
+      }
+    }
+
+    function frameOverview() {
+      follow = undefined;
+      const cx = (x0 + x1) / 2;
+      const cz = -(y0 + y1) / 2;
+      const size = Math.max(x1 - x0, y1 - y0);
+      controls.target.set(cx, -meanDepth * 0.6, cz);
+      camera.position.set(cx + size * 0.35, size * 0.45, cz + size * 0.85);
+      scene.fog = new THREE.FogExp2(WATER, 0.0009);
+      platforms.forEach((p) => (p.marker.visible = true));
+      controls.minDistance = 20;
+    }
+    function frameFollow(p: Platform) {
+      follow = p;
+      const isBuoy = p === bob;
+      const offset = isBuoy ? new THREE.Vector3(-14, 6, 18) : new THREE.Vector3(-5, 3.5, 8);
+      controls.target.copy(p.group.position);
+      camera.position.copy(p.group.position).add(offset);
+      lastPos.copy(p.group.position);
+      scene.fog = new THREE.FogExp2(WATER, isBuoy ? 0.006 : 0.012);
+      platforms.forEach((q) => (q.marker.visible = q !== p));
+      controls.minDistance = 2;
+    }
+
+    // --- Controls -----------------------------------------------------------------------------
+    const ui = root.querySelector<HTMLElement>('.controls')!;
+    const playBtn = ui.querySelector<HTMLButtonElement>('.play')!;
+    const scrub = ui.querySelector<HTMLInputElement>('.scrub')!;
+    const clock = ui.querySelector<HTMLElement>('.clock')!;
+    const hud = root.querySelector<HTMLElement>('.hud')!;
+    const views = ui.querySelector<HTMLElement>('.views')!;
+    const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+    const viewButtons: [string, () => void][] = [
+      ['Overview', frameOverview],
+      ...vehicles.map((p): [string, () => void] => [p.name, () => frameFollow(p)]),
+      ['Bob', () => frameFollow(bob)],
+    ];
+    viewButtons.forEach(([label, action], i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.setAttribute('aria-pressed', String(i === 0));
+      b.addEventListener('click', () => {
+        views.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        action();
+      });
+      views.append(b);
+    });
+
+    const setPlaying = (p: boolean) => {
+      playing = p;
+      playBtn.classList.toggle('paused', !p);
+      playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+    };
+    playBtn.addEventListener('click', () => setPlaying(!playing));
+    scrub.addEventListener('input', () => {
+      t = (Number(scrub.value) / 1000) * meta.duration;
+      setPose();
+    });
+    ui.querySelectorAll<HTMLButtonElement>('[data-speed]').forEach((b) =>
+      b.addEventListener('click', () => {
+        speed = Number(b.dataset.speed);
+        ui.querySelectorAll('[data-speed]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }),
+    );
+
+    function updateHud() {
+      hud.innerHTML = vehicles
+        .map((p) => {
+          const s = state[p.key];
+          const status =
+            s.depth <= SURFACED_M
+              ? 'at the surface'
+              : `depth ${s.depth.toFixed(1)} m · ${s.altitude >= 0 ? `altitude ${s.altitude.toFixed(1)} m` : 'no bottom lock'}`;
+          return `<span style="--c:${'#' + p.color.getHexString()}"><b>${p.name}</b> ${status}</span>`;
+        })
+        .join('');
+    }
+
+    // --- Render loop --------------------------------------------------------------------------
+    function resize() {
+      const { clientWidth: w, clientHeight: h } = root;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    const ro = new ResizeObserver(resize);
+    ro.observe(root);
+    resize();
+
+    let visible = true;
+    const vis = new IntersectionObserver((e) => (visible = e[0].isIntersecting));
+    vis.observe(root);
+
+    setPlaying(playing);
+    setPose();
+    frameOverview();
+    loading.hidden = true;
+    ui.hidden = false;
+
+    const projected = new THREE.Vector3();
+    const timer = new THREE.Timer();
+    let hudTick = 0;
+    renderer.setAnimationLoop((now) => {
+      timer.update(now);
+      if (!visible) return;
+      const dt = Math.min(timer.getDelta(), 0.1);
+      if (playing) {
+        t += dt * speed;
+        if (t >= meta.duration) t = 0;
+        setPose();
+      }
+      if (follow) {
+        // Carry the camera along with the followed platform, keeping the user's orbit offset.
+        const delta = follow.group.position.clone().sub(lastPos);
+        camera.position.add(delta);
+        controls.target.add(delta);
+        lastPos.copy(follow.group.position);
+      }
+      controls.update();
+      camera.updateMatrixWorld();
+
+      // Labels follow their platforms on screen.
+      const { clientWidth: w, clientHeight: h } = root;
+      for (const p of platforms) {
+        projected.copy(p.group.position).project(camera);
+        const onScreen = projected.z < 1 && Math.abs(projected.x) < 1.05 && Math.abs(projected.y) < 1.05;
+        p.label.hidden = !onScreen;
+        if (onScreen) p.label.style.transform = `translate(${((projected.x + 1) / 2) * w}px, ${((1 - projected.y) / 2) * h}px)`;
+      }
+      if ((hudTick = (hudTick + 1) % 6) === 0) updateHud();
+      scrub.value = String(Math.round((t / meta.duration) * 1000));
+      clock.textContent = `${mmss(t)} / ${mmss(meta.duration)}`;
+      renderer.render(scene, camera);
+    });
+
+    teardown = () => {
+      renderer.setAnimationLoop(null);
+      ro.disconnect();
+      vis.disconnect();
+      controls.dispose();
+      scene.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.geometry) return;
+        mesh.geometry.dispose();
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        materials.forEach((m) => {
+          (m as THREE.MeshStandardMaterial).map?.dispose();
+          m.dispose();
+        });
+      });
+      renderer.dispose();
+      // Release the WebGL context now, not whenever it's garbage-collected: phones allow few
+      // contexts, and a lingering one can leave the next page's 3D viewer blank.
+      renderer.forceContextLoss();
+    };
+  }
+
+  /** A soft radial glow for the platform markers. */
+  function glowTexture() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d')!;
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.25, 'rgba(255,255,255,0.8)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+
+  onPageLoad(setup);
+  document.addEventListener('astro:before-swap', () => teardown?.());
+</script>
+
+<style>
+  .fleet-replay {
+    position: relative;
+    height: clamp(420px, 72vh, 760px);
+    border-radius: calc(var(--radius) * 1.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    background: #0c1a44;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .labels :global(span) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: -2.1rem 0 0 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    border-left: 3px solid var(--c);
+    background: rgb(var(--shade-rgb) / 0.7);
+    color: var(--color-text);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+  .labels :global(span[hidden]) { display: none; }
+
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+  .loading[hidden] { display: none; }
+  .loading-bar {
+    width: 220px;
+    height: 2px;
+    background: rgb(255 255 255 / 0.12);
+    overflow: hidden;
+  }
+  .loading-bar span {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    box-shadow: var(--glow-sm);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+  }
+
+  .hud {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    display: grid;
+    gap: 0.2rem;
+    pointer-events: none;
+    font-size: 0.8rem;
+    color: rgb(242 247 251 / 0.85);
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .hud :global(b) {
+    color: var(--c);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    margin-right: 0.3rem;
+  }
+
+  .controls {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 14px;
+    background: rgb(var(--shade-rgb) / 0.72);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+  }
+  .controls[hidden] { display: none; }
+  .controls :global(button) {
+    font: inherit;
+    color: var(--color-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .play {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-accent) !important;
+    box-shadow: var(--glow-sm);
+  }
+  .play svg { width: 18px; height: 18px; fill: var(--color-on-accent); }
+  .play .icon-play { display: none; }
+  .play.paused .icon-play { display: block; }
+  .play.paused .icon-pause { display: none; }
+  .scrub {
+    flex: 1 1 200px;
+    accent-color: var(--color-accent);
+  }
+  .clock { font-variant-numeric: tabular-nums; color: var(--color-text); min-width: 7.5em; }
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+  }
+  .group :global(button) { padding: 0.3rem 0.7rem; border-radius: 999px; }
+  .group :global(button:hover) { color: var(--color-text); }
+  .group :global(button[aria-pressed='true']) { background: var(--color-accent); color: var(--color-on-accent); font-weight: 600; }
+</style>

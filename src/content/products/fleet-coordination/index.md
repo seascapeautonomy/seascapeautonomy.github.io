@@ -8,6 +8,10 @@ summary: Surface buoys and ASVs relay communications between the Seeker fleet an
 cover: ./cover.jpg
 coverAlt: Two Seeker AUVs on the back deck of a survey vessel at sunrise
 sectors: [defence, offshore, environmental]
+models:
+  - { file: bob.glb, label: Bob, description: Bob surface relay buoy }
+modelFieldOfView: 30deg
+fleetReplay: coordinated-survey
 highlights:
   - { title: Decoupled from the ship, text: "The vessel is no longer tied to a single vehicle or instrument while AUVs survey." }
   - { title: Multi-vehicle coordination, text: "Monitor and coordinate several Seekers at once from one operator station." }

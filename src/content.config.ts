@@ -57,6 +57,7 @@ const products = defineCollection({
         .default([]),
       modelCameraOrbit: z.string().optional(),
       survey: z.string().optional(), // a folder in src/assets/surveys, shown as an interactive survey replay
+      fleetReplay: z.string().optional(), // a folder in src/assets/surveys, shown as a coordinated-survey replay
       modelFieldOfView: z.string().optional(),
     }),
 });

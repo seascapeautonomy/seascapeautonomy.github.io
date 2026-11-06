@@ -20,7 +20,7 @@ export const values = [
   {
     title: 'Research-grade rigour',
     description:
-      'A University of Sydney spinoff with over 75 years of collective experience building and deploying marine robotic systems.',
+      'A University of Sydney spinoff with a decades long track record of building and deploying marine robotic systems.',
   },
 ];
 

@@ -17,7 +17,11 @@ export interface CaseStudy {
   title: string;
   paragraphs: string[];
   stats: { value: string; label: string }[];
-  survey: string; // a folder in src/assets/surveys built by scripts/build-target-search.py
+  /** The interactive demo: a folder in src/assets/surveys and the viewer that shows it. */
+  demo:
+    | { viewer: 'target-search'; survey: string } // built by scripts/build-target-search.py
+    | { viewer: 'survey-replay'; survey: string } // built by scripts/build-survey.mjs
+    | { viewer: 'fleet-replay'; survey: string }; // built by scripts/build-fleet-replay.py
   note?: string;
 }
 
@@ -88,7 +92,7 @@ export const sectors: Sector[] = [
         { value: '3,000 m²', label: 'imaged over the contact' },
         { value: '0.6 mm', label: 'native imaging resolution' },
       ],
-      survey: 'wreck-search',
+      demo: { viewer: 'target-search', survey: 'wreck-search' },
     },
     cta: 'Discuss a defence requirement',
   },
@@ -132,6 +136,20 @@ export const sectors: Sector[] = [
       'Cable and pipeline inspection',
       'Maintenance and change monitoring',
     ],
+    caseStudy: {
+      eyebrow: 'Case study · Coordinated multi-AUV survey',
+      title: 'Two Seekers, one buoy, one vessel',
+      paragraphs: [
+        'For an environmental impact assessment ahead of an offshore wind development in Bass Strait, we worked with Fathom Pacific and ERM to image the seafloor across the proposed site. Running two Seekers at once, with the Bob surface buoy relaying between the vehicles and the operators, the team completed 75 dives in three weeks at sea.',
+        'This replay is real data from one of those dives: both Seekers flying their missions at 54 m while Bob tracks them acoustically from the surface. The seafloor is reconstructed from the vehicles’ own depth and altimeter readings.',
+      ],
+      stats: [
+        { value: '2', label: 'Seekers surveying at once' },
+        { value: '54 m', label: 'working depth' },
+        { value: '75', label: 'dives in three weeks at sea' },
+      ],
+      demo: { viewer: 'fleet-replay', survey: 'coordinated-survey' },
+    },
     cta: 'Plan an offshore survey',
   },
   {
@@ -175,6 +193,20 @@ export const sectors: Sector[] = [
       'Reef survey and long-term monitoring',
       'Fisheries and stock assessment surveys',
     ],
+    caseStudy: {
+      eyebrow: 'Case study · Mesophotic reef mapping',
+      title: 'Two Seekers, one 3D model of a volcanic reef',
+      paragraphs: [
+        'In Tonga, we deployed two Seeker AUVs alongside divers to document mesophotic reefs on rugged volcanic islands, with support from the Inkfish Foundation. The vehicles flew in coordination, following the steep, boulder-strewn terrain at low altitude to image areas beyond comfortable diving depths.',
+        'Imagery from multiple overlapping dives was stitched into a single photogrammetric 3D model of the reef. Replay the dives below: the highlighted patch is what the camera sees, and finer detail streams in as you zoom.',
+      ],
+      stats: [
+        { value: '2', label: 'Seeker AUVs flying in coordination' },
+        { value: '9', label: 'dives replayed over the model' },
+        { value: '3.5 h', label: 'of recorded flight' },
+      ],
+      demo: { viewer: 'survey-replay', survey: 'tonga-2024' },
+    },
     cta: 'Talk about your survey',
   },
 ];

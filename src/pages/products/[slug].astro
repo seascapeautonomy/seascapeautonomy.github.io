@@ -6,6 +6,7 @@ import ProductCard from '../../components/ProductCard.astro';
 import YouTube from '../../components/YouTube.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import SurveyReplay from '../../components/SurveyReplay.astro';
+import FleetReplay from '../../components/FleetReplay.astro';
 import { getModelVariants, getProducts, type Product } from '../../lib/products';
 import { sectors } from '../../data/sectors';
 
@@ -75,6 +76,21 @@ const contactLink = `/contact?product=${encodeURIComponent(data.title)}`;
           The reconstruction streams in as tiles, loading finer detail the closer you look.
         </p>
         <SurveyReplay survey={data.survey} />
+      </section>
+    )
+  }
+
+  {
+    data.fleetReplay && (
+      <section class="container replay">
+        <p class="eyebrow" data-reveal>Mission replay</p>
+        <h2 data-reveal>Two Seekers, one buoy</h2>
+        <p class="replay-lead" data-reveal>
+          Replay a real coordinated dive from an offshore wind survey in Bass Strait. Two Seekers survey the seafloor
+          at 54 m while the Bob surface buoy tracks both acoustically and relays their status to the operators. The
+          seafloor is reconstructed from the vehicles' own depth and altimeter readings.
+        </p>
+        <FleetReplay survey={data.fleetReplay} />
       </section>
     )
   }

@@ -3,6 +3,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FieldworkCard from '../../components/FieldworkCard.astro';
 import TargetSearch from '../../components/TargetSearch.astro';
+import SurveyReplay from '../../components/SurveyReplay.astro';
+import FleetReplay from '../../components/FleetReplay.astro';
 import { sectors, type Sector } from '../../data/sectors';
 import { getFieldwork } from '../../lib/fieldwork';
 
@@ -73,7 +75,9 @@ const imageWidths = [...new Set([500, 900, 1400, 2000, sector.image.width].filte
             {sector.caseStudy.paragraphs.map((p) => <p>{p}</p>)}
           </div>
         </div>
-        <TargetSearch survey={sector.caseStudy.survey} />
+        {sector.caseStudy.demo.viewer === 'target-search' && <TargetSearch survey={sector.caseStudy.demo.survey} />}
+        {sector.caseStudy.demo.viewer === 'survey-replay' && <SurveyReplay survey={sector.caseStudy.demo.survey} />}
+        {sector.caseStudy.demo.viewer === 'fleet-replay' && <FleetReplay survey={sector.caseStudy.demo.survey} />}
         <div class="case-footer">
           <dl class="case-stats">
             {sector.caseStudy.stats.map((stat) => (

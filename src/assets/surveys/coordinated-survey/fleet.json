@@ -1,0 +1,52 @@
+{
+  "rate": 2.0,
+  "duration": 3099.5,
+  "fields": [
+    "t",
+    "bob_x",
+    "bob_y",
+    "bob_roll",
+    "bob_pitch",
+    "bob_heading",
+    "athol_x",
+    "athol_y",
+    "athol_depth",
+    "athol_altitude",
+    "athol_roll",
+    "athol_pitch",
+    "athol_heading",
+    "england_x",
+    "england_y",
+    "england_depth",
+    "england_altitude",
+    "england_roll",
+    "england_pitch",
+    "england_heading"
+  ],
+  "samples": 6200,
+  "vehicles": [
+    "athol",
+    "england"
+  ],
+  "terrain": {
+    "bounds": [
+      -237,
+      -287.0,
+      217.0,
+      165
+    ],
+    "cols": 228,
+    "rows": 227,
+    "cell": 2.0,
+    "minDepth": 54.92,
+    "maxDepth": 55.94
+  },
+  "stats": {
+    "maxDepth": 53.9,
+    "soundings": 47920,
+    "trackKm": {
+      "athol": 1.53,
+      "england": 1.29
+    }
+  }
+}
